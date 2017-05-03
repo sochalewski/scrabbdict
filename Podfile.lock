@@ -1,0 +1,15 @@
+PODS:
+  - TinySwift (1.0.4)
+  - UIImageViewAlignedSwift (0.4.0)
+
+DEPENDENCIES:
+  - TinySwift
+  - UIImageViewAlignedSwift
+
+SPEC CHECKSUMS:
+  TinySwift: 5e8bbe6f02ac117ec99cf2bc78e4a234b74b24a3
+  UIImageViewAlignedSwift: 6fb15bd3dc478b456e070d485af3540052ea058d
+
+PODFILE CHECKSUM: b7ea6e5e2024b902e76caf2514da4d672042bccf
+
+COCOAPODS: 1.2.1
