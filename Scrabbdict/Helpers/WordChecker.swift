@@ -41,6 +41,7 @@ final class WordChecker {
     
     func check(word: String) -> Result {
         guard let language = language else { return Result.notExists }
+        
         let word = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
         
         if isMultipartDictionarySwapRequired(for: word) {
@@ -62,14 +63,14 @@ final class WordChecker {
         guard let dictionary = dictionary else { return nil }
         let words = permute(list: letters.characters.map { String($0).lowercased() }).filter { dictionary.contains($0) }
         
-        return Array(words)
+        return words
             .map { Word(string: $0, points: language.points(for: $0)) }
             .sorted { $0.points > $1.points }
     }
     
     func regex(from phrase: String) -> [Word]? {
-        let phrase = phrase.lowercased().replacingOccurrences(of: " ", with: ".").replacingOccurrences(of: "*", with: ".")
-        guard let language = language, let regex = try? NSRegularExpression(pattern: phrase, options: []) else { return nil }
+        let pattern = phrase.lowercased().scrabbleRegex
+        guard let language = language, let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
         
         if isMultipartDictionarySwapRequired(for: phrase) {
             updateDictionary(multipartIndex: phrase.characters.count)
@@ -80,12 +81,7 @@ final class WordChecker {
                 return regex.matches(in: word, options: [], range: NSRange(location: 0, length: word.characters.count)).map { (result: $0, word: word) }
             }
             .flatMap { $0 }
-            .flatMap { tuple -> String in
-                let range = tuple.result.range
-                let string = tuple.word
-                let r = string.index(string.startIndex, offsetBy: range.location)..<string.index(string.startIndex, offsetBy: range.location + range.length)
-                return string.substring(with: r)
-            }
+            .map { $0.word }
             .set
             .map { Word(string: $0, points: language.points(for: $0)) }
             .sorted { $0.points > $1.points }
@@ -100,7 +96,7 @@ final class WordChecker {
     private func updateDictionary(multipartIndex: Int? = nil) {
         dictionaryFileURL = language?.fileURL(multipartIndex: multipartIndex)
         guard let url = dictionaryFileURL, let words = try? String(contentsOf: url, encoding: .utf8) else { dictionary = nil; return }
-        dictionary = words.components(separatedBy: .whitespacesAndNewlines).set
+        dictionary = Set(words.components(separatedBy: .whitespacesAndNewlines))
     }
     
     private func permute(list: [String], minimumStringLength: Int = 2) -> Set<String> {
@@ -121,5 +117,11 @@ final class WordChecker {
         permute(from: list, to: [], minimumStringLength: minimumStringLength, set: &set)
         
         return set
+    }
+}
+
+extension String {
+    var scrabbleRegex: String {
+        return "^\(replacingOccurrences(of: " ", with: ".").replacingOccurrences(of: "?", with: "."))$"
     }
 }
