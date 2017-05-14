@@ -36,7 +36,7 @@ final class WordChecker {
             updateDictionary()
         }
     }
-    private var dictionary: Set<String>?
+    private var dictionaryTrie: Trie?
     private var dictionaryFileURL: URL?
     
     func check(word: String) -> Result {
@@ -48,7 +48,7 @@ final class WordChecker {
             updateDictionary(multipartIndex: word.characters.count)
         }
         
-        let exists = dictionary!.contains(word.lowercased())
+        let exists = dictionaryTrie?.contains(word.lowercased()) ?? false
         
         return exists ? Result.exists(points: language.points(for: word)) : Result.notExists
     }
@@ -60,8 +60,8 @@ final class WordChecker {
         if isMultipartDictionarySwapRequired(for: letters) {
             updateDictionary(multipartIndex: letters.characters.count)
         }
-        guard let dictionary = dictionary else { return nil }
-        let words = permute(list: letters.characters.map { String($0).lowercased() }).filter { dictionary.contains($0) }
+        guard let dictionaryTrie = dictionaryTrie else { return nil }
+        let words = permute(list: letters.characters.map { String($0).lowercased() }).filter { dictionaryTrie.contains($0) }
         
         return words
             .map { Word(string: $0, points: language.points(for: $0)) }
@@ -69,20 +69,13 @@ final class WordChecker {
     }
     
     func regex(from phrase: String) -> [Word]? {
-        let pattern = phrase.lowercased().scrabbleRegex
-        guard let language = language, let regex = try? NSRegularExpression(pattern: pattern, options: []) else { return nil }
+        guard let language = language else { return nil }
         
         if isMultipartDictionarySwapRequired(for: phrase) {
             updateDictionary(multipartIndex: phrase.characters.count)
         }
-        
-        return dictionary?
-            .map { word in
-                return regex.matches(in: word, options: [], range: NSRange(location: 0, length: word.characters.count)).map { (result: $0, word: word) }
-            }
-            .flatMap { $0 }
-            .map { $0.word }
-            .set
+        return dictionaryTrie?
+            .findPattern(phrase.lowercased())
             .map { Word(string: $0, points: language.points(for: $0)) }
             .sorted { $0.points > $1.points }
     }
@@ -95,9 +88,10 @@ final class WordChecker {
     
     private func updateDictionary(multipartIndex: Int? = nil) {
         dictionaryFileURL = language?.fileURL(multipartIndex: multipartIndex)
-        guard let url = dictionaryFileURL, let words = try? String(contentsOf: url, encoding: .utf8) else { dictionary = nil; return }
-        dictionary = Set(words.components(separatedBy: .whitespacesAndNewlines))
-    }
+        guard let url = dictionaryFileURL, let words = try? String(contentsOf: url, encoding: .utf8) else { dictionaryTrie = nil; return }
+        let dictionary = words.components(separatedBy: .whitespacesAndNewlines)
+        dictionaryTrie = Trie(dictionary)
+        }
     
     private func permute(list: [String], minimumStringLength: Int = 2) -> Set<String> {
         func permute(from fromList: [String], to toList: [String], minimumStringLength: Int, set: inout Set<String>) {
