@@ -9,63 +9,111 @@
 import UIKit
 import BetterSegmentedControl
 
+final class WordTableViewCell: UITableViewCell {
+    @IBOutlet private weak var wordLabel: UILabel!
+    @IBOutlet private weak var pointsLabel: UILabel!
+    
+    var word: String? {
+        set { wordLabel.text = newValue }
+        get { return wordLabel.text }
+    }
+    var points: Int? {
+        set {
+            guard let newValue = newValue else { return }
+            pointsLabel.text = "\(newValue)" }
+        get {
+            guard let text = wordLabel.text else { return nil }
+            return Int(text)
+        }
+    }
+}
+
 final class ViewController: UIViewController {
     
     @IBOutlet private weak var textField: UITextField!
     @IBOutlet private weak var segmentedControl: BetterSegmentedControl!
+    @IBOutlet private weak var tableView: UITableView!
     
     private let wordChecker = WordChecker()
+    fileprivate var words: [Word]?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setTableView(visible: false, animation: false)
+        
         wordChecker.language = .polish
         textField.delegate = self
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.separatorColor = UIColor.white.withAlphaComponent(0.2)
+        tableView.separatorInset = .zero
         
         segmentedControl.titles = ["STANDARD", "TILES"]
         segmentedControl.titleFont = UIFont(name: "AvenirNext-DemiBold", size: 18.0)!
-        segmentedControl.selectedTitleFont = UIFont(name: "AvenirNext-DemiBold", size: 18.0)!
+        segmentedControl.selectedTitleFont = segmentedControl.titleFont
         
         textField.layer.shadowColor = UIColor.black.cgColor
         textField.layer.masksToBounds = false
-//        textField.layer.cornerRadius = 5.0
         textField.layer.shadowOffset = CGSize(width: 0.0, height: 5.0)
         textField.layer.shadowRadius = 5.0
         textField.layer.shadowOpacity = 0.5
     }
     
-    fileprivate func showResultAlert(for word: String) {
+    fileprivate func showResultAlert(`for` word: String) {
         let isRegex = word.contains("?")
-        let result = wordChecker.check(word: word)
+        
+        let isRegexOrBlanks = isRegex || segmentedControl.index == 1
+        let isWordLongerThanEight = word.characters.count > 8
+        let isLanguageMultipart = wordChecker.language?.isMultipartFile == true
+        let cannotProceed = [isRegexOrBlanks, isWordLongerThanEight, isLanguageMultipart].reduce(true) { $0 == $1 }
+        
+        if cannotProceed {
+            presentAlertController(withTitle: "Warning", message: "You've typed more letters than tiles you've got. Choose STANDARD or remove blanks (?) to proceed.", completion: nil)
+            words = nil
+            setTableView(visible: false)
+            
+            return
+        }
 
+        let result = wordChecker.check(word: word)
+        
         switch segmentedControl.index {
         case 0:
-            var title = result.title
-            var message = result.message
-            
             if isRegex {
-                let words = wordChecker.regex(from: word)
-                let presentableWords = words!.map({ "\($0.string) (\($0.points))" }).joined(separator: ", ")
-                let isWordsEmpty = words?.isEmpty ?? true
-                title = isWordsEmpty ? Result.notExists.title : Result.exists(points: 0).title
-                message = isWordsEmpty ? "Found no words matching the regular expression." : "Words matching the regular expression: \(presentableWords)."
+                words = wordChecker.regex(from: word)
+            } else {
+                words = nil
             }
             
-            presentAlertController(withTitle: title, message: message, completion: nil)
         case 1:
-            if word.characters.count > 8 && wordChecker.language?.isMultipartFile == true {
-                presentAlertController(withTitle: "Warning", message: "You've typed more letters than tiles you've got. Change to STANDARD to find if the word exists.", completion: nil)
-            } else {
-                let words = wordChecker.words(from: word)
-                if words?.isEmpty ?? true {
-                    presentAlertController(withTitle: result.title, message: "Found no words that can be created from the letters.", completion: nil)
-                } else {
-                    let presentableWords = words!.map({ "\($0.string) (\($0.points))" }).joined(separator: ", ")
-                    presentAlertController(withTitle: result.title, message: "Words formed from the letters: \(presentableWords).", completion: nil)
-                }
-            }
+            words = wordChecker.words(from: word)
+            
         default:
             break
+        }
+        
+        guard words == nil else { setTableView(visible: true); tableView.reloadData(); return }
+        setTableView(visible: false)
+        switch segmentedControl.index {
+        case 0:
+            if isRegex {
+                presentAlertController(withTitle: "Oops!", message: "Found no words matching the regular expression.", completion: nil)
+            } else {
+                presentAlertController(withTitle: result.title, message: result.message, completion: nil)
+            }
+            
+        case 1:
+            presentAlertController(withTitle: "Oops!", message: "Found no words that can be created from the letters.", completion: nil)
+            
+        default:
+            break
+        }
+    }
+    
+    fileprivate func setTableView(visible: Bool, animation: Bool = true) {
+        UIView.animate(withDuration: animation ? 0.5 : 0.0) { 
+            self.tableView.alpha = visible ? 1.0 : 0.0
         }
     }
     
@@ -98,5 +146,19 @@ extension ViewController: UITextFieldDelegate {
         let count = string.distance(from: rangeOfCharactersAllowed.lowerBound, to: rangeOfCharactersAllowed.upperBound)
         
         return count == string.characters.count
+    }
+}
+
+extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return words?.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! WordTableViewCell
+        cell.word = words?[indexPath.row].string
+        cell.points = words?[indexPath.row].points
+        
+        return cell
     }
 }
