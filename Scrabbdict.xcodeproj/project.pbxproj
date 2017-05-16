@@ -21,10 +21,6 @@
 		AE3A5FA91EBA43C80069C6FF /* pl_PL_15.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5FA11EBA43C80069C6FF /* pl_PL_15.txt */; };
 		AE3A5FAA1EBA43C80069C6FF /* pl_PL.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5FA21EBA43C80069C6FF /* pl_PL.txt */; };
 		AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */; };
-		AE7420C31EBA08B3000AA67B /* KeyboardView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE7420C21EBA08B3000AA67B /* KeyboardView.xib */; };
-		AE7420C51EBA08C1000AA67B /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7420C41EBA08C1000AA67B /* KeyboardView.swift */; };
-		AE7420C81EBA08EF000AA67B /* KeyView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE7420C71EBA08EF000AA67B /* KeyView.xib */; };
-		AE7420CA1EBA08F7000AA67B /* KeyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7420C91EBA08F7000AA67B /* KeyView.swift */; };
 		AEF182AC1EC61C4100CA3B66 /* Trie.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF182AB1EC61C4100CA3B66 /* Trie.swift */; };
 		AEF782201EBA560700CC64EC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7821F1EBA560700CC64EC /* ViewController.swift */; };
 		AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF8AC851EBA02AA005996D5 /* AppDelegate.swift */; };
@@ -62,10 +58,6 @@
 		AE3A5FA11EBA43C80069C6FF /* pl_PL_15.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_15.txt; sourceTree = "<group>"; };
 		AE3A5FA21EBA43C80069C6FF /* pl_PL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL.txt; sourceTree = "<group>"; };
 		AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordChecker.swift; sourceTree = "<group>"; };
-		AE7420C21EBA08B3000AA67B /* KeyboardView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = KeyboardView.xib; sourceTree = "<group>"; };
-		AE7420C41EBA08C1000AA67B /* KeyboardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardView.swift; sourceTree = "<group>"; };
-		AE7420C71EBA08EF000AA67B /* KeyView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = KeyView.xib; sourceTree = "<group>"; };
-		AE7420C91EBA08F7000AA67B /* KeyView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyView.swift; sourceTree = "<group>"; };
 		AEF182AB1EC61C4100CA3B66 /* Trie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Trie.swift; sourceTree = "<group>"; };
 		AEF7821F1EBA560700CC64EC /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		AEF8AC821EBA02AA005996D5 /* Scrabbdict.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scrabbdict.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -134,39 +126,12 @@
 			path = Files;
 			sourceTree = "<group>";
 		};
-		AE7420BF1EBA088D000AA67B /* Generic Views */ = {
-			isa = PBXGroup;
-			children = (
-				AE7420C61EBA08E2000AA67B /* Key */,
-				AE7420C11EBA089F000AA67B /* Keyboard */,
-			);
-			path = "Generic Views";
-			sourceTree = "<group>";
-		};
 		AE7420C01EBA0894000AA67B /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
 				AEF7821F1EBA560700CC64EC /* ViewController.swift */,
 			);
 			path = "View Controllers";
-			sourceTree = "<group>";
-		};
-		AE7420C11EBA089F000AA67B /* Keyboard */ = {
-			isa = PBXGroup;
-			children = (
-				AE7420C21EBA08B3000AA67B /* KeyboardView.xib */,
-				AE7420C41EBA08C1000AA67B /* KeyboardView.swift */,
-			);
-			path = Keyboard;
-			sourceTree = "<group>";
-		};
-		AE7420C61EBA08E2000AA67B /* Key */ = {
-			isa = PBXGroup;
-			children = (
-				AE7420C71EBA08EF000AA67B /* KeyView.xib */,
-				AE7420C91EBA08F7000AA67B /* KeyView.swift */,
-			);
-			path = Key;
 			sourceTree = "<group>";
 		};
 		AEF8AC791EBA02AA005996D5 = {
@@ -190,7 +155,6 @@
 		AEF8AC841EBA02AA005996D5 /* Scrabbdict */ = {
 			isa = PBXGroup;
 			children = (
-				AE7420BF1EBA088D000AA67B /* Generic Views */,
 				AE7420C01EBA0894000AA67B /* View Controllers */,
 				AE3A5F531EBA33E60069C6FF /* Helpers */,
 				AE3A5F561EBA34660069C6FF /* Files */,
@@ -269,7 +233,6 @@
 			files = (
 				AE3A5F5A1EBA34830069C6FF /* en_GB_sowpods.txt in Resources */,
 				AEF8AC901EBA02AA005996D5 /* LaunchScreen.storyboard in Resources */,
-				AE7420C31EBA08B3000AA67B /* KeyboardView.xib in Resources */,
 				AE3A5FA81EBA43C80069C6FF /* pl_PL_14.txt in Resources */,
 				AE3A5FA61EBA43C80069C6FF /* pl_PL_12.txt in Resources */,
 				AE3A5FA31EBA43C80069C6FF /* pl_PL_9.txt in Resources */,
@@ -278,7 +241,6 @@
 				AEF8AC8B1EBA02AA005996D5 /* Main.storyboard in Resources */,
 				AE3A5FA91EBA43C80069C6FF /* pl_PL_15.txt in Resources */,
 				AE3A5F5B1EBA34830069C6FF /* en_US_twl.txt in Resources */,
-				AE7420C81EBA08EF000AA67B /* KeyView.xib in Resources */,
 				AE3A5FA41EBA43C80069C6FF /* pl_PL_10.txt in Resources */,
 				AE3A5FA51EBA43C80069C6FF /* pl_PL_11.txt in Resources */,
 				AE3A5FAA1EBA43C80069C6FF /* pl_PL.txt in Resources */,
@@ -342,10 +304,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				AEF782201EBA560700CC64EC /* ViewController.swift in Sources */,
-				AE7420CA1EBA08F7000AA67B /* KeyView.swift in Sources */,
 				AE3A5F551EBA33F20069C6FF /* Language.swift in Sources */,
 				AEF182AC1EC61C4100CA3B66 /* Trie.swift in Sources */,
-				AE7420C51EBA08C1000AA67B /* KeyboardView.swift in Sources */,
 				AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */,
 				AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */,
 			);

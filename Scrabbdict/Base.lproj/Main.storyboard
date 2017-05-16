@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -20,8 +20,16 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Background" translatesAutoresizingMaskIntoConstraints="NO" id="n9f-tJ-uIx" customClass="UIImageViewAligned" customModule="UIImageViewAlignedSwift">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="alignTop" value="YES"/>
+                                </userDefinedRuntimeAttributes>
+                            </imageView>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="Word" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-Q6-O9M">
-                                <rect key="frame" x="40" y="80" width="295" height="36"/>
+                                <rect key="frame" x="20" y="80" width="335" height="36"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="36" id="z41-tO-fg3"/>
                                 </constraints>
@@ -29,37 +37,47 @@
                                 <fontDescription key="fontDescription" type="system" weight="light" pointSize="22"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="search"/>
                             </textField>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HRx-tg-Xmp" customClass="KeyboardView" customModule="Scrabbdict" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="447" width="375" height="220"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xdm-kM-HqY" customClass="BetterSegmentedControl" customModule="BetterSegmentedControl">
+                                <rect key="frame" x="112" y="129" width="243" height="38"/>
+                                <color key="backgroundColor" red="0.32549019610000002" green="0.84705882349999995" blue="0.41960784309999999" alpha="1" colorSpace="deviceRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="220" id="bkm-tA-0Gz"/>
+                                    <constraint firstAttribute="height" constant="38" id="JDk-nL-EHw"/>
+                                    <constraint firstAttribute="width" constant="243" id="Ruq-ul-Bhr"/>
                                 </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="19"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="indicatorViewBackgroundColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="indicatorViewInset">
+                                        <real key="value" value="2"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="selectedTitleColor">
+                                        <color key="value" red="0.32549019610000002" green="0.84705882349999995" blue="0.41960784309999999" alpha="1" colorSpace="deviceRGB"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                             </view>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="pPz-Xq-4BH">
-                                <rect key="frame" x="40" y="124" width="295" height="29"/>
-                                <segments>
-                                    <segment title="STANDARD"/>
-                                    <segment title="TILES"/>
-                                    <segment title="REGEX"/>
-                                </segments>
-                            </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="pPz-Xq-4BH" firstAttribute="leading" secondItem="ybF-Q6-O9M" secondAttribute="leading" id="SaZ-li-l4F"/>
-                            <constraint firstAttribute="trailing" secondItem="HRx-tg-Xmp" secondAttribute="trailing" id="aLb-uk-1jg"/>
-                            <constraint firstAttribute="trailing" secondItem="ybF-Q6-O9M" secondAttribute="trailing" constant="40" id="azt-Vs-jTe"/>
-                            <constraint firstItem="pPz-Xq-4BH" firstAttribute="trailing" secondItem="ybF-Q6-O9M" secondAttribute="trailing" id="bBo-WS-QYh"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="HRx-tg-Xmp" secondAttribute="bottom" id="eRc-DG-0cx"/>
-                            <constraint firstItem="ybF-Q6-O9M" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="40" id="hKi-T4-EMC"/>
+                            <constraint firstAttribute="trailing" secondItem="n9f-tJ-uIx" secondAttribute="trailing" id="Ngn-8h-bk1"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="n9f-tJ-uIx" secondAttribute="bottom" id="OJQ-8e-SSn"/>
+                            <constraint firstItem="Xdm-kM-HqY" firstAttribute="trailing" secondItem="ybF-Q6-O9M" secondAttribute="trailing" id="SgR-Ch-Rwb"/>
+                            <constraint firstItem="Xdm-kM-HqY" firstAttribute="top" secondItem="ybF-Q6-O9M" secondAttribute="bottom" constant="13" id="SyZ-10-42Y"/>
+                            <constraint firstAttribute="trailing" secondItem="ybF-Q6-O9M" secondAttribute="trailing" constant="20" id="azt-Vs-jTe"/>
+                            <constraint firstItem="ybF-Q6-O9M" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="hKi-T4-EMC"/>
                             <constraint firstItem="ybF-Q6-O9M" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="60" id="iyg-yT-E70"/>
-                            <constraint firstItem="HRx-tg-Xmp" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="rOI-G2-6jI"/>
-                            <constraint firstItem="pPz-Xq-4BH" firstAttribute="top" secondItem="ybF-Q6-O9M" secondAttribute="bottom" constant="8" id="scl-ku-ZZx"/>
+                            <constraint firstItem="n9f-tJ-uIx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="wxL-yh-MNT"/>
+                            <constraint firstItem="n9f-tJ-uIx" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="xkL-B1-mcV"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="segmentedControl" destination="pPz-Xq-4BH" id="IC9-Xe-vGh"/>
+                        <outlet property="segmentedControl" destination="Xdm-kM-HqY" id="DID-BN-toh"/>
                         <outlet property="textField" destination="ybF-Q6-O9M" id="zkw-ad-QTE"/>
                     </connections>
                 </viewController>
@@ -68,4 +86,7 @@
             <point key="canvasLocation" x="140" y="98.50074962518741"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Background" width="320" height="480"/>
+    </resources>
 </document>
