@@ -61,7 +61,7 @@ final class WordChecker {
             updateDictionary(multipartIndex: letters.characters.count)
         }
         guard let dictionaryTrie = dictionaryTrie else { return nil }
-        let words = permute(list: letters.characters.map { String($0).lowercased() }).filter { dictionaryTrie.contains($0) }
+        let words = permute(list: letters.lowercased().characters.map { String($0) }).filter { dictionaryTrie.contains($0) }
         
         return words
             .map { Word(string: $0, points: language.points(for: $0)) }

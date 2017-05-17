@@ -5,6 +5,7 @@ target 'Scrabbdict' do
   use_frameworks!
 
   pod 'UIImageViewAlignedSwift'
-  pod 'BetterSegmentedControl'
   pod 'TinySwift'
+  pod 'BetterSegmentedControl'
+  pod 'SwiftSpinner'
 end

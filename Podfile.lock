@@ -1,18 +1,21 @@
 PODS:
   - BetterSegmentedControl (0.8)
+  - SwiftSpinner (1.2.1)
   - TinySwift (1.0.5)
   - UIImageViewAlignedSwift (0.4.1)
 
 DEPENDENCIES:
   - BetterSegmentedControl
+  - SwiftSpinner
   - TinySwift
   - UIImageViewAlignedSwift
 
 SPEC CHECKSUMS:
   BetterSegmentedControl: 9194e20687a02dd498a4e542cf523bdd8620fcb7
+  SwiftSpinner: 62a28bbb4035f252a1e91b0e17fc40bdbbfa0aab
   TinySwift: a413cbeffd7a88068bd6bbb35330da5334f57b99
   UIImageViewAlignedSwift: e72ef2a85a75a01d19b4509ac92a3bdb872cd73c
 
-PODFILE CHECKSUM: c82c9517c9dc39d4abb8f932c0b9dc0f9dc8883c
+PODFILE CHECKSUM: d25373cf2f8a51d18b2c4239486b1f300535265b
 
 COCOAPODS: 1.2.1

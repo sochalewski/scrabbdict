@@ -8,6 +8,7 @@
 
 import UIKit
 import BetterSegmentedControl
+import SwiftSpinner
 
 final class WordTableViewCell: UITableViewCell {
     @IBOutlet private weak var wordLabel: UILabel!
@@ -76,38 +77,53 @@ final class ViewController: UIViewController {
             return
         }
 
-        let result = wordChecker.check(word: word)
+        textField.resignFirstResponder();
+        SwiftSpinner.show("Searching…")
+
+        let semaphore = DispatchSemaphore(value: 1)
         
-        switch segmentedControl.index {
-        case 0:
-            if isRegex {
-                words = wordChecker.regex(from: word)
-            } else {
-                words = nil
+        DispatchQueue.global(qos: .background).async { [unowned self] in
+            semaphore.wait()
+            
+            let result = self.wordChecker.check(word: word)
+            
+            switch self.segmentedControl.index {
+            case 0:
+                if isRegex {
+                    self.words = self.wordChecker.regex(from: word)
+                } else {
+                    self.words = nil
+                }
+                
+            case 1:
+                self.words = self.wordChecker.words(from: word)
+                
+            default:
+                break
             }
             
-        case 1:
-            words = wordChecker.words(from: word)
+            semaphore.signal()
             
-        default:
-            break
-        }
-        
-        guard words == nil else { setTableView(visible: true); tableView.reloadData(); return }
-        setTableView(visible: false)
-        switch segmentedControl.index {
-        case 0:
-            if isRegex {
-                presentAlertController(withTitle: "Oops!", message: "Found no words matching the regular expression.", completion: nil)
-            } else {
-                presentAlertController(withTitle: result.title, message: result.message, completion: nil)
+            DispatchQueue.main.async {
+                SwiftSpinner.hide()
+                
+                guard self.words == nil else { self.setTableView(visible: true); self.tableView.reloadData(); return }
+                self.setTableView(visible: false)
+                switch self.segmentedControl.index {
+                case 0:
+                    if isRegex {
+                        self.presentAlertController(withTitle: "Oops!", message: "Found no words matching the regular expression.", completion: nil)
+                    } else {
+                        self.presentAlertController(withTitle: result.title, message: result.message, completion: nil)
+                    }
+                    
+                case 1:
+                    self.presentAlertController(withTitle: "Oops!", message: "Found no words that can be created from the letters.", completion: nil)
+                    
+                default:
+                    break
+                }
             }
-            
-        case 1:
-            presentAlertController(withTitle: "Oops!", message: "Found no words that can be created from the letters.", completion: nil)
-            
-        default:
-            break
         }
     }
     

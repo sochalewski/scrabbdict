@@ -25,8 +25,10 @@ public struct Trie {
     /// Constructs a trie from a sequence, such as an array. Inserts all the elements
     /// from the given sequence into the trie.
     public init<S: Sequence>(_ elements: S) where S.Iterator.Element == String {
-        for e in elements {
-            insert(e)
+        elements.forEach { element in
+            _ = autoreleasepool {
+                insert(element)
+            }
         }
     }
     
