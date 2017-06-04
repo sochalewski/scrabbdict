@@ -16,11 +16,11 @@ enum Language: CustomStringConvertible {
     case french
     
     var isMultipartFile: Bool {
-        return self == .polish
+        return self == .polish 
     }
     
     var multipartFileIndexes: CountableClosedRange<Int>? {
-        return self == .polish ? 9...15 : nil
+        return self == .polish ? 11...15 : nil
     }
     
     var shouldRemoveDiacritics: Bool {

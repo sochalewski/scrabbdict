@@ -162,7 +162,7 @@ public struct Trie {
     }
     
     fileprivate func findPrefix(_ prefixGenerator: inout String.UnicodeScalarView.Iterator, charStack: inout [Character], result: inout [String], node: TrieNode) {
-        if let key = node.key?.escaped(asASCII: true) {
+        if let key = node.key?.escaped(asASCII: false) {
             charStack.append(Character(key))
         }
         if let theKey = prefixGenerator.next() {
@@ -183,7 +183,7 @@ public struct Trie {
     }
     
     fileprivate func findPattern(_ prefixGenerator: String.UnicodeScalarView.Iterator, charStack: inout [Character], result: inout [String], node: TrieNode) {
-        if let key = node.key?.escaped(asASCII: true) {
+        if let key = node.key?.escaped(asASCII: false) {
             charStack.append(Character(key))
         }
         var myPrefixGenerator = prefixGenerator
@@ -209,7 +209,7 @@ public struct Trie {
                                      lastChars: [Character], node: TrieNode) -> String {
         let chars: [Character]
         if let key = node.key {
-            chars = lastChars + [Character(key.escaped(asASCII: true))]
+            chars = lastChars + [Character(key.escaped(asASCII: false))]
         } else {
             chars = lastChars
         }

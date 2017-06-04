@@ -91,7 +91,7 @@ final class WordChecker {
         guard let url = dictionaryFileURL, let words = try? String(contentsOf: url, encoding: .utf8) else { dictionaryTrie = nil; return }
         let dictionary = words.components(separatedBy: .whitespacesAndNewlines)
         dictionaryTrie = Trie(dictionary)
-        }
+    }
     
     private func permute(list: [String], minimumStringLength: Int = 2) -> Set<String> {
         func permute(from fromList: [String], to toList: [String], minimumStringLength: Int, set: inout Set<String>) {
@@ -111,11 +111,5 @@ final class WordChecker {
         permute(from: list, to: [], minimumStringLength: minimumStringLength, set: &set)
         
         return set
-    }
-}
-
-extension String {
-    var scrabbleRegex: String {
-        return "^\(replacingOccurrences(of: " ", with: ".").replacingOccurrences(of: "?", with: "."))$"
     }
 }

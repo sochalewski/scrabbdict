@@ -12,15 +12,13 @@
 		AE3A5F5A1EBA34830069C6FF /* en_GB_sowpods.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F571EBA34830069C6FF /* en_GB_sowpods.txt */; };
 		AE3A5F5B1EBA34830069C6FF /* en_US_twl.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F581EBA34830069C6FF /* en_US_twl.txt */; };
 		AE3A5F5C1EBA34830069C6FF /* fr_ODS6.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F591EBA34830069C6FF /* fr_ODS6.txt */; };
-		AE3A5FA31EBA43C80069C6FF /* pl_PL_9.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F9B1EBA43C80069C6FF /* pl_PL_9.txt */; };
-		AE3A5FA41EBA43C80069C6FF /* pl_PL_10.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F9C1EBA43C80069C6FF /* pl_PL_10.txt */; };
-		AE3A5FA51EBA43C80069C6FF /* pl_PL_11.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F9D1EBA43C80069C6FF /* pl_PL_11.txt */; };
-		AE3A5FA61EBA43C80069C6FF /* pl_PL_12.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F9E1EBA43C80069C6FF /* pl_PL_12.txt */; };
-		AE3A5FA71EBA43C80069C6FF /* pl_PL_13.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F9F1EBA43C80069C6FF /* pl_PL_13.txt */; };
-		AE3A5FA81EBA43C80069C6FF /* pl_PL_14.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5FA01EBA43C80069C6FF /* pl_PL_14.txt */; };
-		AE3A5FA91EBA43C80069C6FF /* pl_PL_15.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5FA11EBA43C80069C6FF /* pl_PL_15.txt */; };
-		AE3A5FAA1EBA43C80069C6FF /* pl_PL.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5FA21EBA43C80069C6FF /* pl_PL.txt */; };
 		AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */; };
+		AE94A0F31EE4076A0072F2AF /* pl_PL_11.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0ED1EE4076A0072F2AF /* pl_PL_11.txt */; };
+		AE94A0F41EE4076A0072F2AF /* pl_PL_12.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0EE1EE4076A0072F2AF /* pl_PL_12.txt */; };
+		AE94A0F51EE4076A0072F2AF /* pl_PL_13.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0EF1EE4076A0072F2AF /* pl_PL_13.txt */; };
+		AE94A0F61EE4076A0072F2AF /* pl_PL_14.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0F01EE4076A0072F2AF /* pl_PL_14.txt */; };
+		AE94A0F71EE4076A0072F2AF /* pl_PL_15.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0F11EE4076A0072F2AF /* pl_PL_15.txt */; };
+		AE94A0F81EE4076A0072F2AF /* pl_PL.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0F21EE4076A0072F2AF /* pl_PL.txt */; };
 		AEF182AC1EC61C4100CA3B66 /* Trie.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF182AB1EC61C4100CA3B66 /* Trie.swift */; };
 		AEF782201EBA560700CC64EC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7821F1EBA560700CC64EC /* ViewController.swift */; };
 		AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF8AC851EBA02AA005996D5 /* AppDelegate.swift */; };
@@ -49,15 +47,13 @@
 		AE3A5F571EBA34830069C6FF /* en_GB_sowpods.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_GB_sowpods.txt; sourceTree = "<group>"; };
 		AE3A5F581EBA34830069C6FF /* en_US_twl.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_US_twl.txt; sourceTree = "<group>"; };
 		AE3A5F591EBA34830069C6FF /* fr_ODS6.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fr_ODS6.txt; sourceTree = "<group>"; };
-		AE3A5F9B1EBA43C80069C6FF /* pl_PL_9.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_9.txt; sourceTree = "<group>"; };
-		AE3A5F9C1EBA43C80069C6FF /* pl_PL_10.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_10.txt; sourceTree = "<group>"; };
-		AE3A5F9D1EBA43C80069C6FF /* pl_PL_11.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_11.txt; sourceTree = "<group>"; };
-		AE3A5F9E1EBA43C80069C6FF /* pl_PL_12.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_12.txt; sourceTree = "<group>"; };
-		AE3A5F9F1EBA43C80069C6FF /* pl_PL_13.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_13.txt; sourceTree = "<group>"; };
-		AE3A5FA01EBA43C80069C6FF /* pl_PL_14.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_14.txt; sourceTree = "<group>"; };
-		AE3A5FA11EBA43C80069C6FF /* pl_PL_15.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_15.txt; sourceTree = "<group>"; };
-		AE3A5FA21EBA43C80069C6FF /* pl_PL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL.txt; sourceTree = "<group>"; };
 		AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordChecker.swift; sourceTree = "<group>"; };
+		AE94A0ED1EE4076A0072F2AF /* pl_PL_11.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_11.txt; sourceTree = "<group>"; };
+		AE94A0EE1EE4076A0072F2AF /* pl_PL_12.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_12.txt; sourceTree = "<group>"; };
+		AE94A0EF1EE4076A0072F2AF /* pl_PL_13.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_13.txt; sourceTree = "<group>"; };
+		AE94A0F01EE4076A0072F2AF /* pl_PL_14.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_14.txt; sourceTree = "<group>"; };
+		AE94A0F11EE4076A0072F2AF /* pl_PL_15.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_15.txt; sourceTree = "<group>"; };
+		AE94A0F21EE4076A0072F2AF /* pl_PL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL.txt; sourceTree = "<group>"; };
 		AEF182AB1EC61C4100CA3B66 /* Trie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Trie.swift; sourceTree = "<group>"; };
 		AEF7821F1EBA560700CC64EC /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		AEF8AC821EBA02AA005996D5 /* Scrabbdict.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scrabbdict.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -114,14 +110,12 @@
 				AE3A5F571EBA34830069C6FF /* en_GB_sowpods.txt */,
 				AE3A5F581EBA34830069C6FF /* en_US_twl.txt */,
 				AE3A5F591EBA34830069C6FF /* fr_ODS6.txt */,
-				AE3A5FA21EBA43C80069C6FF /* pl_PL.txt */,
-				AE3A5F9B1EBA43C80069C6FF /* pl_PL_9.txt */,
-				AE3A5F9C1EBA43C80069C6FF /* pl_PL_10.txt */,
-				AE3A5F9D1EBA43C80069C6FF /* pl_PL_11.txt */,
-				AE3A5F9E1EBA43C80069C6FF /* pl_PL_12.txt */,
-				AE3A5F9F1EBA43C80069C6FF /* pl_PL_13.txt */,
-				AE3A5FA01EBA43C80069C6FF /* pl_PL_14.txt */,
-				AE3A5FA11EBA43C80069C6FF /* pl_PL_15.txt */,
+				AE94A0F21EE4076A0072F2AF /* pl_PL.txt */,
+				AE94A0ED1EE4076A0072F2AF /* pl_PL_11.txt */,
+				AE94A0EE1EE4076A0072F2AF /* pl_PL_12.txt */,
+				AE94A0EF1EE4076A0072F2AF /* pl_PL_13.txt */,
+				AE94A0F01EE4076A0072F2AF /* pl_PL_14.txt */,
+				AE94A0F11EE4076A0072F2AF /* pl_PL_15.txt */,
 			);
 			path = Files;
 			sourceTree = "<group>";
@@ -232,19 +226,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				AE3A5F5A1EBA34830069C6FF /* en_GB_sowpods.txt in Resources */,
+				AE94A0F71EE4076A0072F2AF /* pl_PL_15.txt in Resources */,
+				AE94A0F81EE4076A0072F2AF /* pl_PL.txt in Resources */,
+				AE94A0F31EE4076A0072F2AF /* pl_PL_11.txt in Resources */,
 				AEF8AC901EBA02AA005996D5 /* LaunchScreen.storyboard in Resources */,
-				AE3A5FA81EBA43C80069C6FF /* pl_PL_14.txt in Resources */,
-				AE3A5FA61EBA43C80069C6FF /* pl_PL_12.txt in Resources */,
-				AE3A5FA31EBA43C80069C6FF /* pl_PL_9.txt in Resources */,
+				AE94A0F51EE4076A0072F2AF /* pl_PL_13.txt in Resources */,
+				AE94A0F41EE4076A0072F2AF /* pl_PL_12.txt in Resources */,
 				AEF8AC8D1EBA02AA005996D5 /* Assets.xcassets in Resources */,
 				AE3A5F5C1EBA34830069C6FF /* fr_ODS6.txt in Resources */,
 				AEF8AC8B1EBA02AA005996D5 /* Main.storyboard in Resources */,
-				AE3A5FA91EBA43C80069C6FF /* pl_PL_15.txt in Resources */,
 				AE3A5F5B1EBA34830069C6FF /* en_US_twl.txt in Resources */,
-				AE3A5FA41EBA43C80069C6FF /* pl_PL_10.txt in Resources */,
-				AE3A5FA51EBA43C80069C6FF /* pl_PL_11.txt in Resources */,
-				AE3A5FAA1EBA43C80069C6FF /* pl_PL.txt in Resources */,
-				AE3A5FA71EBA43C80069C6FF /* pl_PL_13.txt in Resources */,
+				AE94A0F61EE4076A0072F2AF /* pl_PL_14.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

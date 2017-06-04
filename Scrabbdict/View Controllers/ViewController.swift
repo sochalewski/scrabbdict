@@ -43,7 +43,7 @@ final class ViewController: UIViewController {
         
         setTableView(visible: false, animation: false)
         
-        wordChecker.language = .englishGB
+        wordChecker.language = .polish
         textField.delegate = self
         tableView.delegate = self
         tableView.dataSource = self
@@ -63,11 +63,9 @@ final class ViewController: UIViewController {
     
     fileprivate func showResultAlert(`for` word: String) {
         let isRegex = word.contains("?")
-        
-        let isRegexAndBlanks = isRegex && segmentedControl.index == 1
+        let isStandard = segmentedControl.index == 0
         let isWordLongerThanEight = word.characters.count > 8
-        let isLanguageMultipart = wordChecker.language?.isMultipartFile == true
-        let cannotProceed = [isRegexAndBlanks, isWordLongerThanEight, isLanguageMultipart].reduce(true) { $0 == $1 }
+        let cannotProceed = !isStandard && (isRegex || isWordLongerThanEight)
         
         if cannotProceed {
             presentAlertController(withTitle: "Warning", message: "You've typed more letters than tiles you've got. Choose STANDARD or remove blanks (?) to proceed.", completion: nil)
@@ -77,7 +75,7 @@ final class ViewController: UIViewController {
             return
         }
 
-        textField.resignFirstResponder();
+        textField.resignFirstResponder()
         SwiftSpinner.show("Searching…")
 
         let semaphore = DispatchSemaphore(value: 1)
