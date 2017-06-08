@@ -2,11 +2,11 @@
   "images" : [
     {
       "idiom" : "iphone",
-      "filename" : "Board.pdf"
+      "filename" : "Splash Screen.pdf"
     },
     {
       "idiom" : "ipad",
-      "filename" : "Board Pad.pdf"
+      "filename" : "Splash Screen Pad.pdf"
     }
   ],
   "info" : {

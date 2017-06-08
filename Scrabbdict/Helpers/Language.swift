@@ -69,7 +69,7 @@ enum Language: CustomStringConvertible {
         return Bundle.main.url(forResource: resource, withExtension: "txt")
     }
     
-    func points(for word: String) -> Int {
+    func points(`for` word: String) -> Int {
         return word.uppercased().characters.flatMap({ letterPoints[$0] }).sum
     }
 }

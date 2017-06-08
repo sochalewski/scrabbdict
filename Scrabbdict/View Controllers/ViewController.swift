@@ -7,8 +7,12 @@
 //
 
 import UIKit
-import BetterSegmentedControl
 import SwiftSpinner
+
+enum Mode: String {
+    case standard = "Standard"
+    case tiles = "Tiles"
+}
 
 final class WordTableViewCell: UITableViewCell {
     @IBOutlet private weak var wordLabel: UILabel!
@@ -32,38 +36,41 @@ final class WordTableViewCell: UITableViewCell {
 final class ViewController: UIViewController {
     
     @IBOutlet private weak var textField: UITextField!
-    @IBOutlet private weak var segmentedControl: BetterSegmentedControl!
     @IBOutlet private weak var tableView: UITableView!
+    @IBOutlet private weak var modeSwitch: UISwitch!
+    @IBOutlet private weak var modeLabel: UILabel!
     
     private let wordChecker = WordChecker()
+    private var mode = Mode.standard {
+        didSet {
+            UIView.transition(with: modeLabel, duration: 0.35, options: .transitionCrossDissolve, animations: {
+                self.modeLabel.text = self.mode.rawValue
+            }, completion: nil)
+        }
+    }
     fileprivate var words: [Word]?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setTableView(visible: false, animation: false)
+        setTableView(visible: false, animated: false)
         
         wordChecker.language = .polish
         textField.delegate = self
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorColor = UIColor.white.withAlphaComponent(0.2)
+        tableView.separatorColor = UIColor.black.withAlphaComponent(0.1)
         tableView.separatorInset = .zero
-        
-        segmentedControl.titles = ["STANDARD", "TILES"]
-        segmentedControl.titleFont = UIFont(name: "AvenirNext-DemiBold", size: 18.0)!
-        segmentedControl.selectedTitleFont = segmentedControl.titleFont
-        
-        textField.layer.shadowColor = UIColor.black.cgColor
-        textField.layer.masksToBounds = false
-        textField.layer.shadowOffset = CGSize(width: 0.0, height: 5.0)
-        textField.layer.shadowRadius = 5.0
-        textField.layer.shadowOpacity = 0.5
+        tableView.tableFooterView = UIView()
+    }
+    
+    @IBAction func modeSwitchValueChanged(_ sender: UISwitch) {
+        mode = sender.isOn ? .tiles : .standard
     }
     
     fileprivate func showResultAlert(`for` word: String) {
         let isRegex = word.contains("?")
-        let isStandard = segmentedControl.index == 0
+        let isStandard = mode == .standard
         let isWordLongerThanEight = word.characters.count > 8
         let cannotProceed = !isStandard && (isRegex || isWordLongerThanEight)
         
@@ -85,19 +92,15 @@ final class ViewController: UIViewController {
             
             let result = self.wordChecker.check(word: word)
             
-            switch self.segmentedControl.index {
-            case 0:
+            switch self.mode {
+            case .standard:
                 if isRegex {
                     self.words = self.wordChecker.regex(from: word)
                 } else {
                     self.words = nil
                 }
-                
-            case 1:
+            case .tiles:
                 self.words = self.wordChecker.words(from: word)
-                
-            default:
-                break
             }
             
             semaphore.signal()
@@ -107,26 +110,22 @@ final class ViewController: UIViewController {
                 
                 guard self.words == nil else { self.setTableView(visible: true); self.tableView.reloadData(); return }
                 self.setTableView(visible: false)
-                switch self.segmentedControl.index {
-                case 0:
+                switch self.mode {
+                case .standard:
                     if isRegex {
                         self.presentAlertController(withTitle: "Oops!", message: "Found no words matching the regular expression.", completion: nil)
                     } else {
                         self.presentAlertController(withTitle: result.title, message: result.message, completion: nil)
                     }
-                    
-                case 1:
+                case .tiles:
                     self.presentAlertController(withTitle: "Oops!", message: "Found no words that can be created from the letters.", completion: nil)
-                    
-                default:
-                    break
                 }
             }
         }
     }
     
-    fileprivate func setTableView(visible: Bool, animation: Bool = true) {
-        UIView.animate(withDuration: animation ? 0.5 : 0.0) { 
+    fileprivate func setTableView(visible: Bool, animated: Bool = true) {
+        UIView.animate(withDuration: animated ? 0.5 : 0.0) {
             self.tableView.alpha = visible ? 1.0 : 0.0
         }
     }

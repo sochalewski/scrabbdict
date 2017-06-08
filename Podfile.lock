@@ -1,21 +1,22 @@
 PODS:
-  - BetterSegmentedControl (0.8)
+  - Answers (1.3.4):
+    - Fabric (~> 1.6.3)
+  - Fabric (1.6.11)
   - SwiftSpinner (1.2.1)
-  - TinySwift (1.0.5)
-  - UIImageViewAlignedSwift (0.4.1)
+  - TinySwift (1.0.6)
 
 DEPENDENCIES:
-  - BetterSegmentedControl
+  - Answers
+  - Fabric
   - SwiftSpinner
   - TinySwift
-  - UIImageViewAlignedSwift
 
 SPEC CHECKSUMS:
-  BetterSegmentedControl: 9194e20687a02dd498a4e542cf523bdd8620fcb7
+  Answers: 6a4d22973d8550808630a55f526055c9eb6d39a2
+  Fabric: 5911403591946b8228ab1c51d98f1d7137e863c6
   SwiftSpinner: 62a28bbb4035f252a1e91b0e17fc40bdbbfa0aab
-  TinySwift: a413cbeffd7a88068bd6bbb35330da5334f57b99
-  UIImageViewAlignedSwift: e72ef2a85a75a01d19b4509ac92a3bdb872cd73c
+  TinySwift: b42b8649da97463608c415e048756aab40e14ae2
 
-PODFILE CHECKSUM: d25373cf2f8a51d18b2c4239486b1f300535265b
+PODFILE CHECKSUM: 91179ea60843182466457ccc20dc06a24d2dec0c
 
 COCOAPODS: 1.2.1
