@@ -1,9 +1,6 @@
 {
   "images" : [
     {
-      "idiom" : "iphone"
-    },
-    {
       "idiom" : "iphone",
       "scale" : "1x"
     },
@@ -19,14 +16,11 @@
     },
     {
       "idiom" : "ipad",
-      "filename" : "Board Pad.pdf"
-    },
-    {
-      "idiom" : "ipad",
       "scale" : "1x"
     },
     {
       "idiom" : "ipad",
+      "filename" : "BoardPad.png",
       "scale" : "2x"
     }
   ],

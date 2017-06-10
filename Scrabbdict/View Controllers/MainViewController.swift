@@ -48,7 +48,7 @@ final class MainViewController: UIViewController {
             }, completion: nil)
             
             switch mode {
-            case .standard: textField.placeholder = "Word (? for blanks)"
+            case .standard: textField.placeholder = "Word (? for blank)"
             case .tiles: textField.placeholder = "Letters"
             }
         }
@@ -139,7 +139,7 @@ final class MainViewController: UIViewController {
                         self.presentAlertController(withTitle: result.title, message: result.message, completion: nil)
                     }
                 case .tiles:
-                    self.presentAlertController(withTitle: "Oops!", message: "Found no words that can be created from the letters.", completion: nil)
+                    self.presentAlertController(withTitle: "Oops!", message: "Found no words that can be made only from these letters.", completion: nil)
                 }
             }
         }

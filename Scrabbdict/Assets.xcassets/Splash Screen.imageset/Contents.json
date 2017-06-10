@@ -1,9 +1,6 @@
 {
   "images" : [
     {
-      "idiom" : "iphone"
-    },
-    {
       "idiom" : "iphone",
       "scale" : "1x"
     },
@@ -19,14 +16,11 @@
     },
     {
       "idiom" : "ipad",
-      "filename" : "Splash Screen Pad.pdf"
-    },
-    {
-      "idiom" : "ipad",
       "scale" : "1x"
     },
     {
       "idiom" : "ipad",
+      "filename" : "SplashScreenPad@2x.png",
       "scale" : "2x"
     }
   ],
