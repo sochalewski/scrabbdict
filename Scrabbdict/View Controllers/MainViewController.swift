@@ -40,7 +40,7 @@ final class MainViewController: UIViewController {
     @IBOutlet private weak var modeSwitch: UISwitch!
     @IBOutlet private weak var modeLabel: UILabel!
     
-    private let wordChecker = WordChecker()
+    fileprivate let wordChecker = WordChecker()
     private var mode = Mode.standard {
         didSet {
             UIView.transition(with: modeLabel, duration: 0.35, options: .transitionCrossDissolve, animations: {
@@ -73,17 +73,6 @@ final class MainViewController: UIViewController {
         tableView.tableFooterView = UIView()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        guard wordChecker.language != Language.current else { return }
-        SwiftSpinner.show("Loading dictionary…")
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            self?.wordChecker.language = Language.current
-            SwiftSpinner.hide()
-        }
-    }
-    
     @IBAction func modeSwitchValueChanged(_ sender: UISwitch) {
         mode = sender.isOn ? .tiles : .standard
     }
@@ -93,7 +82,7 @@ final class MainViewController: UIViewController {
     }
     
     fileprivate func search() {
-        if let word = textField.text {
+        if let word = textField.text, !word.isEmpty {
             showResultAlert(for: word)
         }
     }
@@ -113,7 +102,9 @@ final class MainViewController: UIViewController {
         }
 
         textField.resignFirstResponder()
-        SwiftSpinner.show("Searching…")
+        if !(isStandard && !isRegex) {
+            SwiftSpinner.show("Searching…")
+        }
 
         let semaphore = DispatchSemaphore(value: 1)
         
@@ -163,6 +154,11 @@ final class MainViewController: UIViewController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let settingsViewController = (segue.destination as! UINavigationController).viewControllers.first! as! SettingsViewController
+        settingsViewController.delegate = self
+    }
 }
 
 extension MainViewController: UITextFieldDelegate {
@@ -201,5 +197,16 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         cell.points = words?[indexPath.row].points
         
         return cell
+    }
+}
+
+extension MainViewController: SettingsViewControllerDelegate {
+    func didFinishPresentation() {
+        guard wordChecker.language != Language.current else { return }
+        SwiftSpinner.show("Changing dictionary…")
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            self?.wordChecker.language = Language.current
+            SwiftSpinner.hide()
+        }
     }
 }

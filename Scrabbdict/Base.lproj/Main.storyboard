@@ -26,8 +26,11 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </imageView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="30" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zef-2R-60l">
-                                <rect key="frame" x="19" y="184" width="337" height="464"/>
+                                <rect key="frame" x="19" y="188" width="337" height="460"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="360" id="kZf-Ts-Bbe"/>
+                                </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" id="HsJ-7N-POr" customClass="WordTableViewCell" customModule="Scrabbdict" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="337" height="30"/>
@@ -63,9 +66,19 @@
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="kZf-Ts-Bbe"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=regular">
+                                    <mask key="constraints">
+                                        <include reference="kZf-Ts-Bbe"/>
+                                    </mask>
+                                </variation>
                             </tableView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Po4-eY-9e9">
-                                <rect key="frame" x="38" y="62" width="299" height="44"/>
+                                <rect key="frame" x="38" y="66" width="299" height="44"/>
                                 <subviews>
                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Word" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-Q6-O9M">
                                         <rect key="frame" x="3" y="3" width="248" height="38"/>
@@ -93,6 +106,7 @@
                                 <color key="backgroundColor" red="0.87058823529411766" green="0.8666666666666667" blue="0.8666666666666667" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="Uyq-oO-XPf" secondAttribute="bottom" constant="8" id="7D0-Yf-ECX"/>
+                                    <constraint firstAttribute="width" constant="320" id="Bek-vP-aqm"/>
                                     <constraint firstItem="ybF-Q6-O9M" firstAttribute="top" secondItem="Po4-eY-9e9" secondAttribute="top" constant="3" id="ECL-t6-hda"/>
                                     <constraint firstAttribute="height" constant="44" id="FTE-xt-JtV"/>
                                     <constraint firstItem="Uyq-oO-XPf" firstAttribute="leading" secondItem="ybF-Q6-O9M" secondAttribute="trailing" constant="7" id="SMk-zC-EfY"/>
@@ -106,20 +120,32 @@
                                         <integer key="value" value="22"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="Bek-vP-aqm"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=regular">
+                                    <mask key="constraints">
+                                        <include reference="Bek-vP-aqm"/>
+                                    </mask>
+                                </variation>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rlf-5D-bNI">
-                                <rect key="frame" x="337" y="28" width="24" height="24"/>
+                                <rect key="frame" x="337" y="30" width="24" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="24" id="cLE-Lr-bzc"/>
                                     <constraint firstAttribute="height" constant="24" id="hZk-aA-WtH"/>
                                 </constraints>
                                 <state key="normal" image="Settings"/>
                                 <connections>
-                                    <segue destination="ksH-4U-72L" kind="presentation" modalTransitionStyle="flipHorizontal" id="2A4-dF-40K"/>
+                                    <segue destination="ksH-4U-72L" kind="popoverPresentation" identifier="settings" popoverAnchorView="Rlf-5D-bNI" id="2A4-dF-40K">
+                                        <popoverArrowDirection key="popoverArrowDirection" down="YES" right="YES"/>
+                                    </segue>
                                 </connections>
                             </button>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="hxI-5Z-gR3">
-                                <rect key="frame" x="288" y="115" width="51" height="31"/>
+                                <rect key="frame" x="288" y="119" width="51" height="31"/>
                                 <color key="backgroundColor" red="0.2666666667" green="0.85882352939999995" blue="0.36862745099999999" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="tintColor" red="0.2666666667" green="0.85882352939999995" blue="0.36862745099999999" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="onTintColor" red="0.26666666666666666" green="0.85882352941176465" blue="0.36862745098039218" alpha="1" colorSpace="calibratedRGB"/>
@@ -133,7 +159,7 @@
                                 </connections>
                             </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Standard" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qtN-Uz-QDa">
-                                <rect key="frame" x="204.5" y="118" width="75.5" height="25"/>
+                                <rect key="frame" x="204.5" y="122" width="75.5" height="25"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Medium" family="Avenir Next" pointSize="18"/>
                                 <color key="textColor" red="0.2666666667" green="0.85882352939999995" blue="0.36862745099999999" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -141,8 +167,11 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="Po4-eY-9e9" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="12P-GT-Dg0"/>
                             <constraint firstItem="hxI-5Z-gR3" firstAttribute="trailing" secondItem="Po4-eY-9e9" secondAttribute="trailing" id="ARL-UR-C6a"/>
-                            <constraint firstItem="Po4-eY-9e9" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="42" id="Bu4-hm-npJ"/>
+                            <constraint firstItem="Po4-eY-9e9" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="46" id="Bu4-hm-npJ">
+                                <variation key="heightClass=regular-widthClass=regular" constant="80"/>
+                            </constraint>
                             <constraint firstAttribute="trailing" secondItem="Rlf-5D-bNI" secondAttribute="trailing" constant="14" id="C1I-Li-cEm"/>
                             <constraint firstItem="hxI-5Z-gR3" firstAttribute="top" secondItem="Po4-eY-9e9" secondAttribute="bottom" constant="9" id="DGo-aq-s7W"/>
                             <constraint firstItem="Po4-eY-9e9" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="38" id="HFO-X8-psB"/>
@@ -151,14 +180,19 @@
                             <constraint firstItem="zef-2R-60l" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="19" id="OH2-ZA-Ups"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="n9f-tJ-uIx" secondAttribute="bottom" id="OJQ-8e-SSn"/>
                             <constraint firstItem="zef-2R-60l" firstAttribute="top" secondItem="hxI-5Z-gR3" secondAttribute="bottom" constant="38" id="Rq7-Aa-8d5"/>
-                            <constraint firstItem="Rlf-5D-bNI" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="dMS-IU-c4i"/>
+                            <constraint firstItem="zef-2R-60l" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="aPq-0f-RDg"/>
+                            <constraint firstItem="Rlf-5D-bNI" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="10" id="dMS-IU-c4i"/>
                             <constraint firstItem="qtN-Uz-QDa" firstAttribute="centerY" secondItem="hxI-5Z-gR3" secondAttribute="centerY" id="fSY-5z-PmC"/>
-                            <constraint firstAttribute="trailing" secondItem="zef-2R-60l" secondAttribute="trailing" constant="19" id="gqI-kJ-g3c"/>
                             <constraint firstItem="hxI-5Z-gR3" firstAttribute="leading" secondItem="qtN-Uz-QDa" secondAttribute="trailing" constant="8" id="uBZ-wO-jbS"/>
                             <constraint firstItem="n9f-tJ-uIx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="wxL-yh-MNT"/>
                             <constraint firstItem="n9f-tJ-uIx" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="xkL-B1-mcV"/>
-                            <constraint firstAttribute="trailing" secondItem="Po4-eY-9e9" secondAttribute="trailing" constant="38" id="y80-B1-8vh"/>
                         </constraints>
+                        <variation key="heightClass=regular-widthClass=regular">
+                            <mask key="constraints">
+                                <exclude reference="HFO-X8-psB"/>
+                                <exclude reference="OH2-ZA-Ups"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
                         <outlet property="modeLabel" destination="qtN-Uz-QDa" id="dJk-yJ-R6n"/>

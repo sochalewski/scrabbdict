@@ -8,11 +8,17 @@
 
 import UIKit
 
+protocol SettingsViewControllerDelegate: class {
+    func didFinishPresentation()
+}
+
 final class SettingsViewController: UIViewController {
     
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var tableViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet fileprivate weak var descriptionLabel: UILabel!
+    
+    weak var delegate: SettingsViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,15 +34,25 @@ final class SettingsViewController: UIViewController {
         let indexPath = IndexPath(row: Language.allValues.index(of: Language.current)!, section: 0)
         tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
         tableView.delegate?.tableView?(tableView, didSelectRowAt: indexPath)
+        
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            navigationItem.leftBarButtonItem = navigationItem.rightBarButtonItem
+            navigationItem.rightBarButtonItems = []
+        }
+    }
+    
+    private func dismiss() {
+        delegate?.didFinishPresentation()
+        dismiss(animated: true, completion: nil)
     }
     
     @IBAction func cancelButtonAction(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
+        dismiss()
     }
     
     @IBAction func saveButtonAction(_ sender: Any) {
-        dismiss(animated: true, completion: nil)
         Language.current = Language.allValues[tableView.indexPathForSelectedRow!.row]
+        dismiss()
     }
 }
 

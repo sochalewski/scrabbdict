@@ -14,6 +14,7 @@
 		AE3A5F5C1EBA34830069C6FF /* fr_ODS6.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F591EBA34830069C6FF /* fr_ODS6.txt */; };
 		AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */; };
 		AE3D64E31EEC5F050048C9EC /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3D64E21EEC5F050048C9EC /* SettingsViewController.swift */; };
+		AE3D64E61EEC71D70048C9EC /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3D64E51EEC71D70048C9EC /* UIButton.swift */; };
 		AE94A0F31EE4076A0072F2AF /* pl_PL_11.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0ED1EE4076A0072F2AF /* pl_PL_11.txt */; };
 		AE94A0F41EE4076A0072F2AF /* pl_PL_12.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0EE1EE4076A0072F2AF /* pl_PL_12.txt */; };
 		AE94A0F51EE4076A0072F2AF /* pl_PL_13.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0EF1EE4076A0072F2AF /* pl_PL_13.txt */; };
@@ -50,6 +51,7 @@
 		AE3A5F591EBA34830069C6FF /* fr_ODS6.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fr_ODS6.txt; sourceTree = "<group>"; };
 		AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordChecker.swift; sourceTree = "<group>"; };
 		AE3D64E21EEC5F050048C9EC /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		AE3D64E51EEC71D70048C9EC /* UIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
 		AE94A0ED1EE4076A0072F2AF /* pl_PL_11.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_11.txt; sourceTree = "<group>"; };
 		AE94A0EE1EE4076A0072F2AF /* pl_PL_12.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_12.txt; sourceTree = "<group>"; };
 		AE94A0EF1EE4076A0072F2AF /* pl_PL_13.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_13.txt; sourceTree = "<group>"; };
@@ -122,6 +124,14 @@
 			path = Files;
 			sourceTree = "<group>";
 		};
+		AE3D64E41EEC71D00048C9EC /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				AE3D64E51EEC71D70048C9EC /* UIButton.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		AE7420C01EBA0894000AA67B /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -154,6 +164,7 @@
 			children = (
 				AE7420C01EBA0894000AA67B /* View Controllers */,
 				AE3A5F531EBA33E60069C6FF /* Helpers */,
+				AE3D64E41EEC71D00048C9EC /* Extensions */,
 				AE3A5F561EBA34660069C6FF /* Files */,
 				AEF8AC851EBA02AA005996D5 /* AppDelegate.swift */,
 				AEF8AC891EBA02AA005996D5 /* Main.storyboard */,
@@ -316,6 +327,7 @@
 				AE3A5F551EBA33F20069C6FF /* Language.swift in Sources */,
 				AEF182AC1EC61C4100CA3B66 /* Trie.swift in Sources */,
 				AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */,
+				AE3D64E61EEC71D70048C9EC /* UIButton.swift in Sources */,
 				AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */,
 				AE3D64E31EEC5F050048C9EC /* SettingsViewController.swift in Sources */,
 			);
