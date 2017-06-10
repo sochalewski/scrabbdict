@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  MainViewController.swift
 //  Scrabbdict
 //
 //  Created by Piotr Sochalewski on 03.05.2017.
@@ -33,7 +33,7 @@ final class WordTableViewCell: UITableViewCell {
     }
 }
 
-final class ViewController: UIViewController {
+final class MainViewController: UIViewController {
     
     @IBOutlet private weak var textField: UITextField!
     @IBOutlet private weak var tableView: UITableView!
@@ -64,13 +64,24 @@ final class ViewController: UIViewController {
         
         setTableView(visible: false, animated: false)
         
-        wordChecker.language = .polish
+        wordChecker.language = Language.current
         textField.delegate = self
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorColor = UIColor.black.withAlphaComponent(0.1)
         tableView.separatorInset = .zero
         tableView.tableFooterView = UIView()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        guard wordChecker.language != Language.current else { return }
+        SwiftSpinner.show("Loading dictionary…")
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            self?.wordChecker.language = Language.current
+            SwiftSpinner.hide()
+        }
     }
     
     @IBAction func modeSwitchValueChanged(_ sender: UISwitch) {
@@ -154,7 +165,7 @@ final class ViewController: UIViewController {
     }
 }
 
-extension ViewController: UITextFieldDelegate {
+extension MainViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         search()
         
@@ -179,7 +190,7 @@ extension ViewController: UITextFieldDelegate {
     }
 }
 
-extension ViewController: UITableViewDelegate, UITableViewDataSource {
+extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return words?.count ?? 0
     }

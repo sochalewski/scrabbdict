@@ -13,6 +13,7 @@
 		AE3A5F5B1EBA34830069C6FF /* en_US_twl.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F581EBA34830069C6FF /* en_US_twl.txt */; };
 		AE3A5F5C1EBA34830069C6FF /* fr_ODS6.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F591EBA34830069C6FF /* fr_ODS6.txt */; };
 		AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */; };
+		AE3D64E31EEC5F050048C9EC /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3D64E21EEC5F050048C9EC /* SettingsViewController.swift */; };
 		AE94A0F31EE4076A0072F2AF /* pl_PL_11.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0ED1EE4076A0072F2AF /* pl_PL_11.txt */; };
 		AE94A0F41EE4076A0072F2AF /* pl_PL_12.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0EE1EE4076A0072F2AF /* pl_PL_12.txt */; };
 		AE94A0F51EE4076A0072F2AF /* pl_PL_13.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0EF1EE4076A0072F2AF /* pl_PL_13.txt */; };
@@ -20,7 +21,7 @@
 		AE94A0F71EE4076A0072F2AF /* pl_PL_15.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0F11EE4076A0072F2AF /* pl_PL_15.txt */; };
 		AE94A0F81EE4076A0072F2AF /* pl_PL.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0F21EE4076A0072F2AF /* pl_PL.txt */; };
 		AEF182AC1EC61C4100CA3B66 /* Trie.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF182AB1EC61C4100CA3B66 /* Trie.swift */; };
-		AEF782201EBA560700CC64EC /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7821F1EBA560700CC64EC /* ViewController.swift */; };
+		AEF782201EBA560700CC64EC /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7821F1EBA560700CC64EC /* MainViewController.swift */; };
 		AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF8AC851EBA02AA005996D5 /* AppDelegate.swift */; };
 		AEF8AC8B1EBA02AA005996D5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AEF8AC891EBA02AA005996D5 /* Main.storyboard */; };
 		AEF8AC8D1EBA02AA005996D5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEF8AC8C1EBA02AA005996D5 /* Assets.xcassets */; };
@@ -48,6 +49,7 @@
 		AE3A5F581EBA34830069C6FF /* en_US_twl.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_US_twl.txt; sourceTree = "<group>"; };
 		AE3A5F591EBA34830069C6FF /* fr_ODS6.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fr_ODS6.txt; sourceTree = "<group>"; };
 		AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordChecker.swift; sourceTree = "<group>"; };
+		AE3D64E21EEC5F050048C9EC /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		AE94A0ED1EE4076A0072F2AF /* pl_PL_11.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_11.txt; sourceTree = "<group>"; };
 		AE94A0EE1EE4076A0072F2AF /* pl_PL_12.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_12.txt; sourceTree = "<group>"; };
 		AE94A0EF1EE4076A0072F2AF /* pl_PL_13.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_13.txt; sourceTree = "<group>"; };
@@ -55,7 +57,7 @@
 		AE94A0F11EE4076A0072F2AF /* pl_PL_15.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_15.txt; sourceTree = "<group>"; };
 		AE94A0F21EE4076A0072F2AF /* pl_PL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL.txt; sourceTree = "<group>"; };
 		AEF182AB1EC61C4100CA3B66 /* Trie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Trie.swift; sourceTree = "<group>"; };
-		AEF7821F1EBA560700CC64EC /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		AEF7821F1EBA560700CC64EC /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		AEF8AC821EBA02AA005996D5 /* Scrabbdict.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scrabbdict.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEF8AC851EBA02AA005996D5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AEF8AC8A1EBA02AA005996D5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -123,7 +125,8 @@
 		AE7420C01EBA0894000AA67B /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				AEF7821F1EBA560700CC64EC /* ViewController.swift */,
+				AEF7821F1EBA560700CC64EC /* MainViewController.swift */,
+				AE3D64E21EEC5F050048C9EC /* SettingsViewController.swift */,
 			);
 			path = "View Controllers";
 			sourceTree = "<group>";
@@ -309,11 +312,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AEF782201EBA560700CC64EC /* ViewController.swift in Sources */,
+				AEF782201EBA560700CC64EC /* MainViewController.swift in Sources */,
 				AE3A5F551EBA33F20069C6FF /* Language.swift in Sources */,
 				AEF182AC1EC61C4100CA3B66 /* Trie.swift in Sources */,
 				AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */,
 				AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */,
+				AE3D64E31EEC5F050048C9EC /* SettingsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

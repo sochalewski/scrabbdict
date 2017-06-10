@@ -9,11 +9,24 @@
 import Foundation
 import TinySwift
 
-enum Language: CustomStringConvertible {
-    case englishGB
-    case englishUS
-    case polish
-    case french
+enum Language: String, CustomStringConvertible {
+    case englishGB = "en_GB_sowpods"
+    case englishUS = "en_US_twl"
+    case polish = "pl_PL"
+    case french = "fr_ODS6"
+    
+    static let allValues: [Language] = [.englishGB, .englishUS, .french, .polish]
+    
+    static var current: Language {
+        get {
+            guard let language = UserDefaults.standard.string(forKey: "dictionaryLang") else { return .englishUS }
+            return Language(rawValue: language)!
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: "dictionaryLang")
+            UserDefaults.standard.synchronize()
+        }
+    }
     
     var isMultipartFile: Bool {
         return self == .polish 
@@ -26,6 +39,15 @@ enum Language: CustomStringConvertible {
     var shouldRemoveDiacritics: Bool {
         return self == .french
     }
+    
+    var name: String {
+        switch self {
+        case .englishGB: return "English SOWPODS"
+        case .englishUS: return "English TWL"
+        case .polish: return "Polish"
+        case .french: return "French"
+        }
+    }
  
     var description: String {
         switch self {
@@ -34,19 +56,14 @@ enum Language: CustomStringConvertible {
         case .englishUS:
             return "Official Tournament and Club Word List\nEnglish official word authority for tournament Scrabble™ in the USA, Canada and Thailand\n\nNumber of words: 178,691"
         case .polish:
-            return "Polish open dictionary created by sjp.pl.\nDue to number of words it can be slower than other dictionaries.\n\nNumber of words: ~2,700,000"
+            return "Polish open dictionary created by sjp.pl.\nDue to number of words it can be slower than other dictionaries.\n\nNumber of words: ~2,825,542"
         case .french:
             return "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble OSD6\n\nNumber of words: 386,264"
         }
     }
     
     private var fileName: String {
-        switch self {
-        case .englishGB: return "en_GB_sowpods"
-        case .englishUS: return "en_US_twl"
-        case .polish: return "pl_PL"
-        case .french: return "fr_ODS6"
-        }
+        return rawValue
     }
     
     private var letterPoints: [Character: Int] {
