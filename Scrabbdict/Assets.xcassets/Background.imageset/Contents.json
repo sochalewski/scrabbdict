@@ -16,11 +16,12 @@
     },
     {
       "idiom" : "ipad",
+      "filename" : "BoardPad@1x.png",
       "scale" : "1x"
     },
     {
       "idiom" : "ipad",
-      "filename" : "BoardPad.png",
+      "filename" : "BoardPad@2x.png",
       "scale" : "2x"
     }
   ],

@@ -5,7 +5,7 @@ target 'Scrabbdict' do
   use_frameworks!
 
   pod 'Fabric'
-  pod 'Answers'
+  pod 'Crashlytics'
   pod 'TinySwift'
   pod 'SwiftSpinner'
 end
