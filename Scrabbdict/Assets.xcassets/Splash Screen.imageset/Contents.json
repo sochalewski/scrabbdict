@@ -1,12 +1,33 @@
 {
   "images" : [
     {
+      "idiom" : "iphone"
+    },
+    {
       "idiom" : "iphone",
-      "filename" : "Splash Screen.pdf"
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "iphone",
+      "filename" : "SplashScreen@2x.png",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "iphone",
+      "filename" : "SplashScreen@3x.png",
+      "scale" : "3x"
     },
     {
       "idiom" : "ipad",
       "filename" : "Splash Screen Pad.pdf"
+    },
+    {
+      "idiom" : "ipad",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "ipad",
+      "scale" : "2x"
     }
   ],
   "info" : {

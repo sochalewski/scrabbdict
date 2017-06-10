@@ -46,12 +46,21 @@ final class ViewController: UIViewController {
             UIView.transition(with: modeLabel, duration: 0.35, options: .transitionCrossDissolve, animations: {
                 self.modeLabel.text = self.mode.rawValue
             }, completion: nil)
+            
+            switch mode {
+            case .standard: textField.placeholder = "Word (? for blanks)"
+            case .tiles: textField.placeholder = "Letters"
+            }
         }
     }
     fileprivate var words: [Word]?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        SwiftSpinner.setTitleFont(UIFont(name: "AvenirNext-Medium", size: 16.0))
+        modeSwitch.setOn(false, animated: false)
+        modeSwitchValueChanged(modeSwitch)
         
         setTableView(visible: false, animated: false)
         
@@ -66,6 +75,16 @@ final class ViewController: UIViewController {
     
     @IBAction func modeSwitchValueChanged(_ sender: UISwitch) {
         mode = sender.isOn ? .tiles : .standard
+    }
+    
+    @IBAction func searchButtonAction(_ sender: Any) {
+        search()
+    }
+    
+    fileprivate func search() {
+        if let word = textField.text {
+            showResultAlert(for: word)
+        }
     }
     
     fileprivate func showResultAlert(`for` word: String) {
@@ -137,9 +156,7 @@ final class ViewController: UIViewController {
 
 extension ViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if let word = textField.text {
-            showResultAlert(for: word)
-        }
+        search()
         
         return true
     }

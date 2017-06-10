@@ -304,7 +304,7 @@ public func ==(lhs: Trie, rhs: Trie) -> Bool {
 
 // MARK: - TrieNode
 
-private class TrieNode: Equatable {
+private final class TrieNode: Equatable {
     let key: UnicodeScalar?
     var isWord : Bool = false
     var children = [UnicodeScalar : TrieNode]()
