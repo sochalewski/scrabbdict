@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Crashlytics
 
 enum Result {
     case exists(points: Int)
@@ -22,7 +23,7 @@ enum Result {
     var message: String {
         switch self {
         case .exists(let points): return "Word exists and is worth \(points) points."
-        case .notExists: return "Word does not exist."
+        case .notExists: return "That is not a valid word"
         }
     }
 }
@@ -50,6 +51,8 @@ final class WordChecker {
         
         let exists = dictionaryTrie?.contains(word.lowercased()) ?? false
         
+        Answers.logCustomEvent(withName: "Word check", customAttributes: ["language" : language.name, "exists" : exists ? "yes" : "no"])
+        
         return exists ? Result.exists(points: language.points(for: word)) : Result.notExists
     }
     
@@ -63,6 +66,8 @@ final class WordChecker {
         guard let dictionaryTrie = dictionaryTrie else { return nil }
         let words = permute(list: letters.lowercased().characters.map { String($0) }).filter { dictionaryTrie.contains($0) }
         
+        Answers.logCustomEvent(withName: "Tiles", customAttributes: ["language" : language.name])
+        
         return words
             .map { Word(string: $0, points: language.points(for: $0)) }
             .sorted { $0.points > $1.points }
@@ -70,10 +75,14 @@ final class WordChecker {
     
     func regex(from phrase: String) -> [Word]? {
         guard let language = language else { return nil }
+        let phrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase
         
         if isMultipartDictionarySwapRequired(for: phrase) {
             updateDictionary(multipartIndex: phrase.characters.count)
         }
+        
+        Answers.logCustomEvent(withName: "Regex", customAttributes: ["language" : language.name])
+        
         return dictionaryTrie?
             .findPattern(phrase.lowercased())
             .map { Word(string: $0, points: language.points(for: $0)) }

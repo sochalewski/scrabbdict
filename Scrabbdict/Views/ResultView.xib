@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ResultView" customModule="Scrabbdict" customModuleProvider="target">
+            <connections>
+                <outlet property="descriptionLabel" destination="KPz-2P-PHo" id="yK6-Z7-SM5"/>
+                <outlet property="pointsDescriptionLabel" destination="8Mg-ES-ZLm" id="RdF-4Z-Uik"/>
+                <outlet property="pointsLabel" destination="ILv-gX-SIb" id="PgU-0i-36f"/>
+                <outlet property="titleLabel" destination="h33-pf-HIf" id="51h-Fv-PkT"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="222" height="172"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hooray!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h33-pf-HIf">
+                    <rect key="frame" x="0.0" y="0.0" width="222" height="20"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="20" id="JNh-Wk-bU5"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" name="AvenirNext-Bold" family="Avenir Next" pointSize="18"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="The word exists and is worth" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KPz-2P-PHo">
+                    <rect key="frame" x="0.0" y="24" width="222" height="20"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="20" id="FBn-8U-b7k"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" name="AvenirNext-UltraLight" family="Avenir Next" pointSize="18"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ILv-gX-SIb">
+                    <rect key="frame" x="0.0" y="60" width="222" height="82"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="82" id="cRW-Tb-UVW"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" name="AppleSDGothicNeo-Thin" family="Apple SD Gothic Neo" pointSize="100"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="POINTS" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8Mg-ES-ZLm">
+                    <rect key="frame" x="0.0" y="142" width="222" height="30"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="30" id="4Jv-IE-CB7"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" name="AvenirNext-UltraLight" family="Avenir Next" pointSize="30"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="ILv-gX-SIb" firstAttribute="top" secondItem="KPz-2P-PHo" secondAttribute="bottom" constant="16" id="1i1-IA-gkD"/>
+                <constraint firstItem="h33-pf-HIf" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="3Y6-OV-1Wa"/>
+                <constraint firstAttribute="trailing" secondItem="8Mg-ES-ZLm" secondAttribute="trailing" id="3kW-1J-P0Z"/>
+                <constraint firstAttribute="trailing" secondItem="ILv-gX-SIb" secondAttribute="trailing" id="7tR-YD-kdB"/>
+                <constraint firstItem="8Mg-ES-ZLm" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="9aF-to-z0d"/>
+                <constraint firstAttribute="bottom" secondItem="8Mg-ES-ZLm" secondAttribute="bottom" id="Pce-FJ-f8k"/>
+                <constraint firstAttribute="trailing" secondItem="h33-pf-HIf" secondAttribute="trailing" id="UWp-bz-KYG"/>
+                <constraint firstItem="KPz-2P-PHo" firstAttribute="top" secondItem="h33-pf-HIf" secondAttribute="bottom" constant="4" id="YgQ-U5-3ud"/>
+                <constraint firstAttribute="trailing" secondItem="KPz-2P-PHo" secondAttribute="trailing" id="dcQ-LZ-l28"/>
+                <constraint firstItem="ILv-gX-SIb" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="fhS-19-n1X"/>
+                <constraint firstItem="h33-pf-HIf" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="gvV-yW-lGl"/>
+                <constraint firstItem="KPz-2P-PHo" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="kdc-hf-jWc"/>
+                <constraint firstItem="8Mg-ES-ZLm" firstAttribute="top" secondItem="ILv-gX-SIb" secondAttribute="bottom" id="sRN-Py-kHB"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="43" y="-75"/>
+        </view>
+    </objects>
+</document>

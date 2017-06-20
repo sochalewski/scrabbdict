@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		7DE61BAB0A49EE241A076111 /* Pods_Scrabbdict.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 811F891C91CF256AD242A15E /* Pods_Scrabbdict.framework */; };
+		AE1B1A651EF2792700AD81CA /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE1B1A641EF2792700AD81CA /* ResultView.swift */; };
+		AE1B1A671EF2792F00AD81CA /* ResultView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE1B1A661EF2792F00AD81CA /* ResultView.xib */; };
 		AE3A5F551EBA33F20069C6FF /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5F541EBA33F20069C6FF /* Language.swift */; };
 		AE3A5F5A1EBA34830069C6FF /* en_GB_sowpods.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F571EBA34830069C6FF /* en_GB_sowpods.txt */; };
 		AE3A5F5B1EBA34830069C6FF /* en_US_twl.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F581EBA34830069C6FF /* en_US_twl.txt */; };
@@ -45,6 +47,8 @@
 /* Begin PBXFileReference section */
 		811F891C91CF256AD242A15E /* Pods_Scrabbdict.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Scrabbdict.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		81D3A0BF9665549A0C0713D1 /* Pods-Scrabbdict.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scrabbdict.release.xcconfig"; path = "Pods/Target Support Files/Pods-Scrabbdict/Pods-Scrabbdict.release.xcconfig"; sourceTree = "<group>"; };
+		AE1B1A641EF2792700AD81CA /* ResultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
+		AE1B1A661EF2792F00AD81CA /* ResultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ResultView.xib; sourceTree = "<group>"; };
 		AE3A5F541EBA33F20069C6FF /* Language.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		AE3A5F571EBA34830069C6FF /* en_GB_sowpods.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_GB_sowpods.txt; sourceTree = "<group>"; };
 		AE3A5F581EBA34830069C6FF /* en_US_twl.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_US_twl.txt; sourceTree = "<group>"; };
@@ -96,6 +100,15 @@
 				81D3A0BF9665549A0C0713D1 /* Pods-Scrabbdict.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		AE1B1A631EF2791C00AD81CA /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AE1B1A641EF2792700AD81CA /* ResultView.swift */,
+				AE1B1A661EF2792F00AD81CA /* ResultView.xib */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		AE3A5F531EBA33E60069C6FF /* Helpers */ = {
@@ -163,6 +176,7 @@
 			isa = PBXGroup;
 			children = (
 				AE7420C01EBA0894000AA67B /* View Controllers */,
+				AE1B1A631EF2791C00AD81CA /* Views */,
 				AE3A5F531EBA33E60069C6FF /* Helpers */,
 				AE3D64E41EEC71D00048C9EC /* Extensions */,
 				AE3A5F561EBA34660069C6FF /* Files */,
@@ -247,6 +261,7 @@
 				AEF8AC901EBA02AA005996D5 /* LaunchScreen.storyboard in Resources */,
 				AE94A0F51EE4076A0072F2AF /* pl_PL_13.txt in Resources */,
 				AE94A0F41EE4076A0072F2AF /* pl_PL_12.txt in Resources */,
+				AE1B1A671EF2792F00AD81CA /* ResultView.xib in Resources */,
 				AEF8AC8D1EBA02AA005996D5 /* Assets.xcassets in Resources */,
 				AE3A5F5C1EBA34830069C6FF /* fr_ODS6.txt in Resources */,
 				AEF8AC8B1EBA02AA005996D5 /* Main.storyboard in Resources */,
@@ -328,6 +343,7 @@
 				AEF182AC1EC61C4100CA3B66 /* Trie.swift in Sources */,
 				AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */,
 				AE3D64E61EEC71D70048C9EC /* UIButton.swift in Sources */,
+				AE1B1A651EF2792700AD81CA /* ResultView.swift in Sources */,
 				AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */,
 				AE3D64E31EEC5F050048C9EC /* SettingsViewController.swift in Sources */,
 			);

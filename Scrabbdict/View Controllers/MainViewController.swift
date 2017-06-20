@@ -8,6 +8,7 @@
 
 import UIKit
 import SwiftSpinner
+import Crashlytics
 
 enum Mode: String {
     case standard = "Standard"
@@ -37,6 +38,7 @@ final class MainViewController: UIViewController {
     
     @IBOutlet private weak var textField: UITextField!
     @IBOutlet private weak var tableView: UITableView!
+    @IBOutlet weak var resultView: ResultView!
     @IBOutlet private weak var modeSwitch: UISwitch!
     @IBOutlet private weak var modeLabel: UILabel!
     
@@ -63,6 +65,7 @@ final class MainViewController: UIViewController {
         modeSwitchValueChanged(modeSwitch)
         
         setTableView(visible: false, animated: false)
+        setResultView(visible: false, animated: false)
         
         wordChecker.language = Language.current
         textField.delegate = self
@@ -71,6 +74,10 @@ final class MainViewController: UIViewController {
         tableView.separatorColor = UIColor.black.withAlphaComponent(0.1)
         tableView.separatorInset = .zero
         tableView.tableFooterView = UIView()
+        
+        if UIScreen.main.size <= .inch4 {
+            textField.font = UIFont(name: textField.font!.fontName, size: textField.font!.pointSize - 2.0)
+        }
     }
     
     @IBAction func modeSwitchValueChanged(_ sender: UISwitch) {
@@ -97,6 +104,7 @@ final class MainViewController: UIViewController {
             presentAlertController(withTitle: "Warning", message: "You've typed more letters than tiles you've got. Choose STANDARD or remove blanks (?) to proceed.", completion: nil)
             words = nil
             setTableView(visible: false)
+            setResultView(visible: false)
             
             return
         }
@@ -129,14 +137,21 @@ final class MainViewController: UIViewController {
             DispatchQueue.main.async {
                 SwiftSpinner.hide()
                 
-                guard self.words == nil else { self.setTableView(visible: true); self.tableView.reloadData(); return }
+                guard self.words == nil else {
+                    self.setTableView(visible: true)
+                    self.setResultView(visible: false)
+                    self.tableView.reloadData()
+                    return
+                }
+                
                 self.setTableView(visible: false)
                 switch self.mode {
                 case .standard:
                     if isRegex {
                         self.presentAlertController(withTitle: "Oops!", message: "Found no words matching the regular expression.", completion: nil)
                     } else {
-                        self.presentAlertController(withTitle: result.title, message: result.message, completion: nil)
+                        self.resultView.result = result
+                        self.setResultView(visible: true)
                     }
                 case .tiles:
                     self.presentAlertController(withTitle: "Oops!", message: "Found no words that can be made only from these letters.", completion: nil)
@@ -148,6 +163,12 @@ final class MainViewController: UIViewController {
     fileprivate func setTableView(visible: Bool, animated: Bool = true) {
         UIView.animate(withDuration: animated ? 0.5 : 0.0) {
             self.tableView.alpha = visible ? 1.0 : 0.0
+        }
+    }
+    
+    fileprivate func setResultView(visible: Bool, animated: Bool = true) {
+        UIView.animate(withDuration: animated ? 0.5 : 0.0) {
+            self.resultView.alpha = visible ? 1.0 : 0.0
         }
     }
     
@@ -169,6 +190,8 @@ extension MainViewController: UITextFieldDelegate {
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        setResultView(visible: false)
+        
         guard let text = textField.text else { return true }
 
         let newLength = text.characters.count + string.characters.count - range.length
@@ -203,6 +226,9 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 extension MainViewController: SettingsViewControllerDelegate {
     func didFinishPresentation() {
         guard wordChecker.language != Language.current else { return }
+        Answers.logCustomEvent(withName: "Language changed", customAttributes: ["language" : Language.current.name])
+        setTableView(visible: false)
+        setResultView(visible: false)
         SwiftSpinner.show("Changing dictionary…")
         DispatchQueue.global(qos: .background).async { [weak self] in
             self?.wordChecker.language = Language.current
