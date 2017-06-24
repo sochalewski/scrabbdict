@@ -56,6 +56,13 @@ final class MainViewController: UIViewController {
         }
     }
     fileprivate var words: [Word]?
+    fileprivate var isSpinnerVisible = false {
+        didSet { setNeedsStatusBarAppearanceUpdate() }
+    }
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return isSpinnerVisible ? .lightContent : .default
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -81,6 +88,10 @@ final class MainViewController: UIViewController {
     }
     
     @IBAction func modeSwitchValueChanged(_ sender: UISwitch) {
+        view.endEditing(true)
+        setResultView(visible: false)
+        setTableView(visible: false)
+        
         mode = sender.isOn ? .tiles : .standard
     }
     
@@ -111,7 +122,7 @@ final class MainViewController: UIViewController {
 
         textField.resignFirstResponder()
         if !(isStandard && !isRegex) {
-            SwiftSpinner.show("Searching…")
+            showSpinner(title: "Searching…")
         }
 
         let semaphore = DispatchSemaphore(value: 1)
@@ -135,7 +146,7 @@ final class MainViewController: UIViewController {
             semaphore.signal()
             
             DispatchQueue.main.async {
-                SwiftSpinner.hide()
+                self.hideSpinner()
                 
                 guard self.words == nil else {
                     self.setTableView(visible: true)
@@ -161,13 +172,13 @@ final class MainViewController: UIViewController {
     }
     
     fileprivate func setTableView(visible: Bool, animated: Bool = true) {
-        UIView.animate(withDuration: animated ? 0.5 : 0.0) {
+        UIView.animate(withDuration: animated ? 0.4 : 0.0) {
             self.tableView.alpha = visible ? 1.0 : 0.0
         }
     }
     
     fileprivate func setResultView(visible: Bool, animated: Bool = true) {
-        UIView.animate(withDuration: animated ? 0.5 : 0.0) {
+        UIView.animate(withDuration: animated ? 0.4 : 0.0) {
             self.resultView.alpha = visible ? 1.0 : 0.0
         }
     }
@@ -182,6 +193,19 @@ final class MainViewController: UIViewController {
     }
 }
 
+extension MainViewController {
+    func showSpinner(title: String) {
+        SwiftSpinner.show(title)
+        isSpinnerVisible = true
+    }
+    
+    func hideSpinner() {
+        SwiftSpinner.hide { 
+            self.isSpinnerVisible = false
+        }
+    }
+}
+
 extension MainViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         search()
@@ -189,8 +213,16 @@ extension MainViewController: UITextFieldDelegate {
         return true
     }
     
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        setResultView(visible: false)
+        setTableView(visible: false)
+        
+        return true
+    }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         setResultView(visible: false)
+        setTableView(visible: false)
         
         guard let text = textField.text else { return true }
 
@@ -221,6 +253,10 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
         
         return cell
     }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        view.endEditing(true)
+    }
 }
 
 extension MainViewController: SettingsViewControllerDelegate {
@@ -229,10 +265,10 @@ extension MainViewController: SettingsViewControllerDelegate {
         Answers.logCustomEvent(withName: "Language changed", customAttributes: ["language" : Language.current.name])
         setTableView(visible: false)
         setResultView(visible: false)
-        SwiftSpinner.show("Changing dictionary…")
+        showSpinner(title: "Changing dictionary…")
         DispatchQueue.global(qos: .background).async { [weak self] in
             self?.wordChecker.language = Language.current
-            SwiftSpinner.hide()
+            self?.hideSpinner()
         }
     }
 }

@@ -10,6 +10,7 @@
 		7DE61BAB0A49EE241A076111 /* Pods_Scrabbdict.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 811F891C91CF256AD242A15E /* Pods_Scrabbdict.framework */; };
 		AE1B1A651EF2792700AD81CA /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE1B1A641EF2792700AD81CA /* ResultView.swift */; };
 		AE1B1A671EF2792F00AD81CA /* ResultView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE1B1A661EF2792F00AD81CA /* ResultView.xib */; };
+		AE39AB8C1EFF7470001818A1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = AE39AB8B1EFF7470001818A1 /* Settings.bundle */; };
 		AE3A5F551EBA33F20069C6FF /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5F541EBA33F20069C6FF /* Language.swift */; };
 		AE3A5F5A1EBA34830069C6FF /* en_GB_sowpods.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F571EBA34830069C6FF /* en_GB_sowpods.txt */; };
 		AE3A5F5B1EBA34830069C6FF /* en_US_twl.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE3A5F581EBA34830069C6FF /* en_US_twl.txt */; };
@@ -49,6 +50,7 @@
 		81D3A0BF9665549A0C0713D1 /* Pods-Scrabbdict.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scrabbdict.release.xcconfig"; path = "Pods/Target Support Files/Pods-Scrabbdict/Pods-Scrabbdict.release.xcconfig"; sourceTree = "<group>"; };
 		AE1B1A641EF2792700AD81CA /* ResultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
 		AE1B1A661EF2792F00AD81CA /* ResultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ResultView.xib; sourceTree = "<group>"; };
+		AE39AB8B1EFF7470001818A1 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		AE3A5F541EBA33F20069C6FF /* Language.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		AE3A5F571EBA34830069C6FF /* en_GB_sowpods.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_GB_sowpods.txt; sourceTree = "<group>"; };
 		AE3A5F581EBA34830069C6FF /* en_US_twl.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_US_twl.txt; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 				AEF8AC891EBA02AA005996D5 /* Main.storyboard */,
 				AEF8AC8C1EBA02AA005996D5 /* Assets.xcassets */,
 				AEF8AC8E1EBA02AA005996D5 /* LaunchScreen.storyboard */,
+				AE39AB8B1EFF7470001818A1 /* Settings.bundle */,
 				AEF8AC911EBA02AA005996D5 /* Info.plist */,
 			);
 			path = Scrabbdict;
@@ -260,6 +263,7 @@
 				AE94A0F31EE4076A0072F2AF /* pl_PL_11.txt in Resources */,
 				AEF8AC901EBA02AA005996D5 /* LaunchScreen.storyboard in Resources */,
 				AE94A0F51EE4076A0072F2AF /* pl_PL_13.txt in Resources */,
+				AE39AB8C1EFF7470001818A1 /* Settings.bundle in Resources */,
 				AE94A0F41EE4076A0072F2AF /* pl_PL_12.txt in Resources */,
 				AE1B1A671EF2792F00AD81CA /* ResultView.xib in Resources */,
 				AEF8AC8D1EBA02AA005996D5 /* Assets.xcassets in Resources */,
