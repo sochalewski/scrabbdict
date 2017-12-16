@@ -46,11 +46,11 @@ final class SettingsViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    @IBAction func cancelButtonAction(_ sender: Any) {
+    @IBAction private func cancelButtonAction(_ sender: Any) {
         dismiss()
     }
     
-    @IBAction func saveButtonAction(_ sender: Any) {
+    @IBAction private func saveButtonAction(_ sender: Any) {
         Language.current = Language.allValues[tableView.indexPathForSelectedRow!.row]
         dismiss()
     }

@@ -16,8 +16,8 @@ enum Mode: String {
 }
 
 final class WordTableViewCell: UITableViewCell {
-    @IBOutlet private weak var wordLabel: UILabel!
-    @IBOutlet private weak var pointsLabel: UILabel!
+    @IBOutlet private(set) weak var wordLabel: UILabel!
+    @IBOutlet private(set) weak var pointsLabel: UILabel!
     
     var word: String? {
         set { wordLabel.text = newValue }
@@ -38,7 +38,7 @@ final class MainViewController: UIViewController {
     
     @IBOutlet private weak var textField: UITextField!
     @IBOutlet private weak var tableView: UITableView!
-    @IBOutlet weak var resultView: ResultView!
+    @IBOutlet private weak var resultView: ResultView!
     @IBOutlet private weak var modeSwitch: UISwitch!
     @IBOutlet private weak var modeLabel: UILabel!
     
@@ -87,7 +87,7 @@ final class MainViewController: UIViewController {
         }
     }
     
-    @IBAction func modeSwitchValueChanged(_ sender: UISwitch) {
+    @IBAction private func modeSwitchValueChanged(_ sender: UISwitch) {
         view.endEditing(true)
         setResultView(visible: false)
         setTableView(visible: false)
@@ -108,7 +108,7 @@ final class MainViewController: UIViewController {
     fileprivate func showResultAlert(`for` word: String) {
         let isRegex = word.contains("?")
         let isStandard = mode == .standard
-        let isWordLongerThanEight = word.characters.count > 8
+        let isWordLongerThanEight = word.count > 8
         let cannotProceed = !isStandard && (isRegex || isWordLongerThanEight)
         
         if cannotProceed {
@@ -194,12 +194,12 @@ final class MainViewController: UIViewController {
 }
 
 extension MainViewController {
-    func showSpinner(title: String) {
+    fileprivate func showSpinner(title: String) {
         SwiftSpinner.show(title)
         isSpinnerVisible = true
     }
     
-    func hideSpinner() {
+    fileprivate func hideSpinner() {
         SwiftSpinner.hide { 
             self.isSpinnerVisible = false
         }
@@ -226,7 +226,7 @@ extension MainViewController: UITextFieldDelegate {
         
         guard let text = textField.text else { return true }
 
-        let newLength = text.characters.count + string.characters.count - range.length
+        let newLength = text.count + string.count - range.length
         
         guard newLength <= 15 else { return false }
         guard !string.isEmpty else { return true }
@@ -237,7 +237,7 @@ extension MainViewController: UITextFieldDelegate {
         guard let rangeOfCharactersAllowed = string.rangeOfCharacter(from: allowedCharacterSet, options: .caseInsensitive) else { return false }
         let count = string.distance(from: rangeOfCharactersAllowed.lowerBound, to: rangeOfCharactersAllowed.upperBound)
         
-        return count == string.characters.count
+        return count == string.count
     }
 }
 

@@ -46,7 +46,7 @@ final class WordChecker {
         let word = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
         
         if isMultipartDictionarySwapRequired(for: word) {
-            updateDictionary(multipartIndex: word.characters.count)
+            updateDictionary(multipartIndex: word.count)
         }
         
         let exists = dictionaryTrie?.contains(word.lowercased()) ?? false
@@ -61,10 +61,10 @@ final class WordChecker {
         let letters = language.shouldRemoveDiacritics ? letters.folding(options: .diacriticInsensitive, locale: nil) : letters
         
         if isMultipartDictionarySwapRequired(for: letters) {
-            updateDictionary(multipartIndex: letters.characters.count)
+            updateDictionary(multipartIndex: letters.count)
         }
         guard let dictionaryTrie = dictionaryTrie else { return nil }
-        let words = permute(list: letters.lowercased().characters.map { String($0) }).filter { dictionaryTrie.contains($0) }
+        let words = permute(list: letters.lowercased().map { String($0) }).filter { dictionaryTrie.contains($0) }
         
         Answers.logCustomEvent(withName: "Tiles", customAttributes: ["language" : language.name])
         
@@ -78,7 +78,7 @@ final class WordChecker {
         let phrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase
         
         if isMultipartDictionarySwapRequired(for: phrase) {
-            updateDictionary(multipartIndex: phrase.characters.count)
+            updateDictionary(multipartIndex: phrase.count)
         }
         
         Answers.logCustomEvent(withName: "Regex", customAttributes: ["language" : language.name])
@@ -92,7 +92,7 @@ final class WordChecker {
     private func isMultipartDictionarySwapRequired(for word: String) -> Bool {
         guard let language = language, let dictionaryFileURL = dictionaryFileURL else { return false }
         
-        return language.isMultipartFile && dictionaryFileURL != language.fileURL(multipartIndex: word.characters.count)
+        return language.isMultipartFile && dictionaryFileURL != language.fileURL(multipartIndex: word.count)
     }
     
     private func updateDictionary(multipartIndex: Int? = nil) {

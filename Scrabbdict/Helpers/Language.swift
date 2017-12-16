@@ -87,6 +87,6 @@ enum Language: String, CustomStringConvertible {
     }
     
     func points(`for` word: String) -> Int {
-        return word.uppercased().characters.flatMap({ letterPoints[$0] }).sum
+        return word.uppercased().flatMap({ letterPoints[$0] }).sum
     }
 }
