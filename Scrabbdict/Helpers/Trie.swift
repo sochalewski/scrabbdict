@@ -35,7 +35,7 @@ public struct Trie {
     // MARK: Querying a Trie
     
     /// Number of words stored in the trie.
-    public fileprivate(set) var count = 0
+    public private(set) var count = 0
     
     /// Returns `true` if and only if `count == 0`.
     public var isEmpty: Bool {
@@ -145,7 +145,7 @@ public struct Trie {
     fileprivate var root = TrieNode(key: nil)
     
     /// Returns the node containing the last key of the prefix and its parent.
-    fileprivate func nodePairForPrefix(_ charGenerator: inout String.UnicodeScalarView.Iterator,
+    private func nodePairForPrefix(_ charGenerator: inout String.UnicodeScalarView.Iterator,
                                        node: TrieNode,
                                        parent: TrieNode?) -> (endNode: TrieNode?, parent: TrieNode?) {
         
@@ -161,7 +161,7 @@ public struct Trie {
         }
     }
     
-    fileprivate func findPrefix(_ prefixGenerator: inout String.UnicodeScalarView.Iterator, charStack: inout [Character], result: inout [String], node: TrieNode) {
+    private func findPrefix(_ prefixGenerator: inout String.UnicodeScalarView.Iterator, charStack: inout [Character], result: inout [String], node: TrieNode) {
         if let key = node.key?.escaped(asASCII: false) {
             charStack.append(Character(key))
         }
@@ -182,7 +182,7 @@ public struct Trie {
         }
     }
     
-    fileprivate func findPattern(_ prefixGenerator: String.UnicodeScalarView.Iterator, charStack: inout [Character], result: inout [String], node: TrieNode) {
+    private func findPattern(_ prefixGenerator: String.UnicodeScalarView.Iterator, charStack: inout [Character], result: inout [String], node: TrieNode) {
         if let key = node.key?.escaped(asASCII: false) {
             charStack.append(Character(key))
         }
@@ -205,7 +205,7 @@ public struct Trie {
         }
     }
     
-    fileprivate func longestPrefixIn(_ keyGenerator: inout String.UnicodeScalarView.Iterator,
+    private func longestPrefixIn(_ keyGenerator: inout String.UnicodeScalarView.Iterator,
                                      lastChars: [Character], node: TrieNode) -> String {
         let chars: [Character]
         if let key = node.key {
@@ -219,7 +219,7 @@ public struct Trie {
         return String(chars)
     }
     
-    fileprivate func insert(_ keyGenerator: inout String.UnicodeScalarView.Iterator, node: TrieNode) -> Bool {
+    private func insert(_ keyGenerator: inout String.UnicodeScalarView.Iterator, node: TrieNode) -> Bool {
         if let nextKey = keyGenerator.next() {
             let nextNode = node.children[nextKey] ?? TrieNode(key: nextKey)
             node.children[nextKey] = nextNode
@@ -236,13 +236,13 @@ public struct Trie {
     ///
     /// The Trie itself is a value type but a TrieNode is a reference type,
     /// calling this method ensures copy-on-write behavior.
-    fileprivate mutating func copyMyself() {
+    private mutating func copyMyself() {
         if !isKnownUniquelyReferenced(&root) {
             root = deepCopyNode(root)
         }
     }
     
-    fileprivate func deepCopyNode(_ node: TrieNode) -> TrieNode {
+    private func deepCopyNode(_ node: TrieNode) -> TrieNode {
         let copy = TrieNode(key: node.key, isWord: node.isWord)
         for (key, subNode) in node.children {
             copy.children[key] = deepCopyNode(subNode)
@@ -280,7 +280,7 @@ extension Trie: Hashable {
         return hashValue(root)
     }
     
-    fileprivate func hashValue(_ node: TrieNode) -> Int {
+    private func hashValue(_ node: TrieNode) -> Int {
         var result = 71
         result = (31 ^ result) ^ node.isWord.hashValue
         result = (31 ^ result) ^ (node.key?.hashValue ?? 0)

@@ -56,7 +56,7 @@ enum Language: String, CustomStringConvertible {
         case .englishUS:
             return "Official Tournament and Club Word List\nEnglish official word authority for tournament Scrabble™ in the USA, Canada and Thailand\n\nNumber of words: 178,691"
         case .polish:
-            return "Polish open dictionary.\nDue to number of words it can be slower than other dictionaries.\n\nNumber of words: 2,825,542"
+            return "Polish open dictionary by sjp.pl (CC BY 4.0).\nDue to number of words it can be slower than other dictionaries.\n\nNumber of words: 2,963,309"
         case .french:
             return "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble OSD6\n\nNumber of words: 386,264"
         }

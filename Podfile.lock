@@ -3,7 +3,7 @@ PODS:
     - Fabric (~> 1.7.2)
   - Fabric (1.7.2)
   - SwiftSpinner (1.5.0)
-  - TinySwift (2.0.16)
+  - TinySwift (2.0.17)
 
 DEPENDENCIES:
   - Crashlytics
@@ -15,7 +15,7 @@ SPEC CHECKSUMS:
   Crashlytics: dbb07d01876c171c5ccbdf7826410380189e452c
   Fabric: 9cd6a848efcf1b8b07497e0b6a2e7d336353ba15
   SwiftSpinner: 4c058c7a1d6b444dd2e1d70988ead40783097133
-  TinySwift: 9ec40890bb78625cca04727e976234cd09133b30
+  TinySwift: 216a186d01b2f6ba6477f9f1fb2d9bc90fd9b9fc
 
 PODFILE CHECKSUM: f1a147590c33e1dc9e517bd85a108e8806acfaa0
 

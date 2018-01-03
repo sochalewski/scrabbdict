@@ -16,7 +16,7 @@ final class SettingsViewController: UIViewController {
     
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var tableViewHeightConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var descriptionLabel: UILabel!
+    @IBOutlet private weak var descriptionLabel: UILabel!
     
     weak var delegate: SettingsViewControllerDelegate?
     

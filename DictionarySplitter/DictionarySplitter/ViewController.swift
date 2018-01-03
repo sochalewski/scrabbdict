@@ -33,7 +33,7 @@ class ViewController: NSViewController {
     }
 
     @IBAction func openButtonAction(_ sender: Any) {
-        guard openPanel.runModal() == NSModalResponseOK else { return }
+        guard openPanel.runModal() == .OK else { return }
         fileURL = openPanel.url
     }
 
@@ -43,12 +43,12 @@ class ViewController: NSViewController {
             return
         }
         
-        let words = file.components(separatedBy: .whitespacesAndNewlines).filter { $0.characters.count > 0 }
+        let words = file.components(separatedBy: .whitespacesAndNewlines).filter { $0.count > 0 }
         let ranges = [0...10, 11...11, 12...12, 13...13, 14...14, 15...15, 16...Int.max]
         
         ranges.forEach { range in
             autoreleasepool {
-                let filterWords = words.filter { range.contains($0.characters.count) }
+                let filterWords = words.filter { range.contains($0.count) }
                 guard !filterWords.isEmpty else { return }
                 let newFileName = fileURL.deletingPathExtension().lastPathComponent + "_\(range.upperBound).txt"
                 let url = fileURL.deletingLastPathComponent().appendingPathComponent(newFileName)

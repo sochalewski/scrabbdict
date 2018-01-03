@@ -49,11 +49,11 @@ final class WordChecker {
             updateDictionary(multipartIndex: word.count)
         }
         
-        let exists = dictionaryTrie?.contains(word.lowercased()) ?? false
+        let exists = dictionaryTrie?.contains(word.lowercased()) == true
         
         Answers.logCustomEvent(withName: "Word check", customAttributes: ["language" : language.name, "exists" : exists ? "yes" : "no"])
         
-        return exists ? Result.exists(points: language.points(for: word)) : Result.notExists
+        return exists ? .exists(points: language.points(for: word)) : .notExists
     }
     
     func words(from letters: String) -> [Word]? {
@@ -89,7 +89,7 @@ final class WordChecker {
             .sorted { $0.points > $1.points }
     }
     
-    private func isMultipartDictionarySwapRequired(for word: String) -> Bool {
+    func isMultipartDictionarySwapRequired(for word: String) -> Bool {
         guard let language = language, let dictionaryFileURL = dictionaryFileURL else { return false }
         
         return language.isMultipartFile && dictionaryFileURL != language.fileURL(multipartIndex: word.count)

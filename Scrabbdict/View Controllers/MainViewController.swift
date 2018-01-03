@@ -42,7 +42,7 @@ final class MainViewController: UIViewController {
     @IBOutlet private weak var modeSwitch: UISwitch!
     @IBOutlet private weak var modeLabel: UILabel!
     
-    fileprivate let wordChecker = WordChecker()
+    private let wordChecker = WordChecker()
     private var mode = Mode.standard {
         didSet {
             UIView.transition(with: modeLabel, duration: 0.35, options: .transitionCrossDissolve, animations: {
@@ -55,8 +55,8 @@ final class MainViewController: UIViewController {
             }
         }
     }
-    fileprivate var words: [Word]?
-    fileprivate var isSpinnerVisible = false {
+    private var words: [Word]?
+    private var isSpinnerVisible = false {
         didSet { setNeedsStatusBarAppearanceUpdate() }
     }
     
@@ -95,17 +95,17 @@ final class MainViewController: UIViewController {
         mode = sender.isOn ? .tiles : .standard
     }
     
-    @IBAction func searchButtonAction(_ sender: Any) {
+    @IBAction private func searchButtonAction(_ sender: Any) {
         search()
     }
     
-    fileprivate func search() {
+    private func search() {
         if let word = textField.text, !word.isEmpty {
             showResultAlert(for: word)
         }
     }
     
-    fileprivate func showResultAlert(`for` word: String) {
+    private func showResultAlert(`for` word: String) {
         let isRegex = word.contains("?")
         let isStandard = mode == .standard
         let isWordLongerThanEight = word.count > 8
@@ -121,7 +121,7 @@ final class MainViewController: UIViewController {
         }
 
         textField.resignFirstResponder()
-        if !(isStandard && !isRegex) {
+        if !(isStandard && !isRegex) || wordChecker.isMultipartDictionarySwapRequired(for: word) {
             showSpinner(title: "Searching…")
         }
 
@@ -171,13 +171,13 @@ final class MainViewController: UIViewController {
         }
     }
     
-    fileprivate func setTableView(visible: Bool, animated: Bool = true) {
+    private func setTableView(visible: Bool, animated: Bool = true) {
         UIView.animate(withDuration: animated ? 0.4 : 0.0) {
             self.tableView.alpha = visible ? 1.0 : 0.0
         }
     }
     
-    fileprivate func setResultView(visible: Bool, animated: Bool = true) {
+    private func setResultView(visible: Bool, animated: Bool = true) {
         UIView.animate(withDuration: animated ? 0.4 : 0.0) {
             self.resultView.alpha = visible ? 1.0 : 0.0
         }
@@ -194,12 +194,12 @@ final class MainViewController: UIViewController {
 }
 
 extension MainViewController {
-    fileprivate func showSpinner(title: String) {
+    private func showSpinner(title: String) {
         SwiftSpinner.show(title)
         isSpinnerVisible = true
     }
     
-    fileprivate func hideSpinner() {
+    private func hideSpinner() {
         SwiftSpinner.hide { 
             self.isSpinnerVisible = false
         }
