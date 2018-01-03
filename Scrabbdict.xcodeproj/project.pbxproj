@@ -18,6 +18,7 @@
 		AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */; };
 		AE3D64E31EEC5F050048C9EC /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3D64E21EEC5F050048C9EC /* SettingsViewController.swift */; };
 		AE3D64E61EEC71D70048C9EC /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3D64E51EEC71D70048C9EC /* UIButton.swift */; };
+		AE78C27B1FFD267600874685 /* WordCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE78C27A1FFD267600874685 /* WordCheckerTests.swift */; };
 		AE94A0F31EE4076A0072F2AF /* pl_PL_11.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0ED1EE4076A0072F2AF /* pl_PL_11.txt */; };
 		AE94A0F41EE4076A0072F2AF /* pl_PL_12.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0EE1EE4076A0072F2AF /* pl_PL_12.txt */; };
 		AE94A0F51EE4076A0072F2AF /* pl_PL_13.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE94A0EF1EE4076A0072F2AF /* pl_PL_13.txt */; };
@@ -31,6 +32,16 @@
 		AEF8AC8D1EBA02AA005996D5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AEF8AC8C1EBA02AA005996D5 /* Assets.xcassets */; };
 		AEF8AC901EBA02AA005996D5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AEF8AC8E1EBA02AA005996D5 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AE78C27D1FFD267600874685 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AEF8AC7A1EBA02AA005996D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AEF8AC811EBA02AA005996D5;
+			remoteInfo = Scrabbdict;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		AE7420BE1EBA07CA000AA67B /* Embed App Extensions */ = {
@@ -58,6 +69,9 @@
 		AE3A5FAB1EBA44390069C6FF /* WordChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WordChecker.swift; sourceTree = "<group>"; };
 		AE3D64E21EEC5F050048C9EC /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		AE3D64E51EEC71D70048C9EC /* UIButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
+		AE78C2781FFD267600874685 /* ScrabbdictTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScrabbdictTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE78C27A1FFD267600874685 /* WordCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordCheckerTests.swift; sourceTree = "<group>"; };
+		AE78C27C1FFD267600874685 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AE94A0ED1EE4076A0072F2AF /* pl_PL_11.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_11.txt; sourceTree = "<group>"; };
 		AE94A0EE1EE4076A0072F2AF /* pl_PL_12.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_12.txt; sourceTree = "<group>"; };
 		AE94A0EF1EE4076A0072F2AF /* pl_PL_13.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL_13.txt; sourceTree = "<group>"; };
@@ -76,6 +90,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AE78C2751FFD267600874685 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEF8AC7F1EBA02AA005996D5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -156,10 +177,20 @@
 			path = "View Controllers";
 			sourceTree = "<group>";
 		};
+		AE78C2791FFD267600874685 /* ScrabbdictTests */ = {
+			isa = PBXGroup;
+			children = (
+				AE78C27A1FFD267600874685 /* WordCheckerTests.swift */,
+				AE78C27C1FFD267600874685 /* Info.plist */,
+			);
+			path = ScrabbdictTests;
+			sourceTree = "<group>";
+		};
 		AEF8AC791EBA02AA005996D5 = {
 			isa = PBXGroup;
 			children = (
 				AEF8AC841EBA02AA005996D5 /* Scrabbdict */,
+				AE78C2791FFD267600874685 /* ScrabbdictTests */,
 				AEF8AC831EBA02AA005996D5 /* Products */,
 				6CAF4DF77C7F138C65F0327B /* Pods */,
 				2E7E80A4D33ABD44AFDF2EAE /* Frameworks */,
@@ -170,6 +201,7 @@
 			isa = PBXGroup;
 			children = (
 				AEF8AC821EBA02AA005996D5 /* Scrabbdict.app */,
+				AE78C2781FFD267600874685 /* ScrabbdictTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -195,6 +227,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AE78C2771FFD267600874685 /* ScrabbdictTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE78C2811FFD267600874685 /* Build configuration list for PBXNativeTarget "ScrabbdictTests" */;
+			buildPhases = (
+				AE78C2741FFD267600874685 /* Sources */,
+				AE78C2751FFD267600874685 /* Frameworks */,
+				AE78C2761FFD267600874685 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AE78C27E1FFD267600874685 /* PBXTargetDependency */,
+			);
+			name = ScrabbdictTests;
+			productName = ScrabbdictTests;
+			productReference = AE78C2781FFD267600874685 /* ScrabbdictTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		AEF8AC811EBA02AA005996D5 /* Scrabbdict */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AEF8AC941EBA02AA005996D5 /* Build configuration list for PBXNativeTarget "Scrabbdict" */;
@@ -223,10 +273,16 @@
 		AEF8AC7A1EBA02AA005996D5 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0830;
-				LastUpgradeCheck = 0830;
+				LastSwiftUpdateCheck = 0920;
+				LastUpgradeCheck = 0920;
 				ORGANIZATIONNAME = "Piotr Sochalewski";
 				TargetAttributes = {
+					AE78C2771FFD267600874685 = {
+						CreatedOnToolsVersion = 9.2;
+						DevelopmentTeam = 8PM48474J4;
+						ProvisioningStyle = Automatic;
+						TestTargetID = AEF8AC811EBA02AA005996D5;
+					};
 					AEF8AC811EBA02AA005996D5 = {
 						CreatedOnToolsVersion = 8.3.2;
 						DevelopmentTeam = 8PM48474J4;
@@ -249,11 +305,19 @@
 			projectRoot = "";
 			targets = (
 				AEF8AC811EBA02AA005996D5 /* Scrabbdict */,
+				AE78C2771FFD267600874685 /* ScrabbdictTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AE78C2761FFD267600874685 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEF8AC801EBA02AA005996D5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -347,6 +411,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AE78C2741FFD267600874685 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AE78C27B1FFD267600874685 /* WordCheckerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AEF8AC7E1EBA02AA005996D5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -363,6 +435,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AE78C27E1FFD267600874685 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AEF8AC811EBA02AA005996D5 /* Scrabbdict */;
+			targetProxy = AE78C27D1FFD267600874685 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		AEF8AC891EBA02AA005996D5 /* Main.storyboard */ = {
@@ -384,6 +464,60 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		AE78C27F1FFD267600874685 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8PM48474J4;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = ScrabbdictTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.ScrabbdictTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Scrabbdict.app/Scrabbdict";
+			};
+			name = Debug;
+		};
+		AE78C2801FFD267600874685 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8PM48474J4;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = ScrabbdictTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.ScrabbdictTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Scrabbdict.app/Scrabbdict";
+			};
+			name = Release;
+		};
 		AEF8AC921EBA02AA005996D5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -394,7 +528,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -402,7 +538,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -445,7 +585,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -453,7 +595,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -514,6 +660,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AE78C2811FFD267600874685 /* Build configuration list for PBXNativeTarget "ScrabbdictTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AE78C27F1FFD267600874685 /* Debug */,
+				AE78C2801FFD267600874685 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AEF8AC7D1EBA02AA005996D5 /* Build configuration list for PBXProject "Scrabbdict" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

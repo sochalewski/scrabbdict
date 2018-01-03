@@ -9,7 +9,7 @@
 import Foundation
 import Crashlytics
 
-enum Result {
+enum Result: Equatable {
     case exists(points: Int)
     case notExists
     
@@ -26,9 +26,24 @@ enum Result {
         case .notExists: return "That is not a valid word"
         }
     }
+    
+    static func ==(lhs: Result, rhs: Result) -> Bool {
+        switch (lhs, rhs) {
+        case (.exists(let points1), .exists(let points2)): return points1 == points2
+        case (.notExists, .notExists): return true
+        default: return false
+        }
+    }
 }
 
-typealias Word = (string: String, points: Int)
+struct Word: Equatable {
+    let string: String
+    let points: Int
+
+    static func ==(lhs: Word, rhs: Word) -> Bool {
+        return lhs.string == rhs.string && lhs.points == rhs.points
+    }
+}
 
 final class WordChecker {
     
