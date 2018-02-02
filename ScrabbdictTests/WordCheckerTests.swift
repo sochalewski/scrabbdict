@@ -19,65 +19,112 @@ final class WordCheckerTests: XCTestCase {
         sut.language = .englishGB
     }
     
-    func testCheckWord() {
-        let resultThatShouldExist = sut.check(word: "pizza")
-        switch resultThatShouldExist {
-        case .exists(let points):
-            XCTAssert(points == 25)
-        case .notExists:
-            XCTFail()
+    func testCheckValidWord() {
+        let exceptation = XCTestExpectation(description: "Closure for check(word:)")
+        
+        sut.check(word: "pizza") { result in
+            switch result {
+            case .exists(let points):
+                XCTAssert(points == 25)
+            case .notExists:
+                XCTFail()
+            }
+            
+            exceptation.fulfill()
         }
         
-        let resultThatShouldNotExist = sut.check(word: "pizzapie")
-        switch resultThatShouldNotExist {
-        case .exists:
-            XCTFail()
-        case .notExists:
-            XCTAssert(true)
+        wait(for: [exceptation], timeout: 10.0)
+    }
+    
+    func testCheckInvalidWord() {
+        let exceptation = XCTestExpectation(description: "Closure for check(word:)")
+        
+        sut.check(word: "pizzapie") { result in
+            switch result {
+            case .exists:
+                XCTFail()
+            case .notExists:
+                XCTAssert(true)
+            }
+            
+            exceptation.fulfill()
         }
+
+        wait(for: [exceptation], timeout: 10.0)
     }
     
     func testWordsFromLetters() {
-        let words = sut.words(from: "pizza")!
+        let exceptation = XCTestExpectation(description: "Closure for words(from:)")
+
         let expectedWords = ["pizza", "ziz", "zip", "zap", "za", "pia", "pa", "pi", "ai"]
-        
-        words.forEach { word in
-            if !expectedWords.contains(word.string) {
-                XCTFail()
+
+        sut.words(from: "pizza") { words in
+            XCTAssert(expectedWords.count == words!.count)
+            words!.forEach { word in
+                if !expectedWords.contains(word.string) {
+                    XCTFail()
+                }
             }
+            
+            exceptation.fulfill()
         }
         
-        XCTAssert(expectedWords.count == words.count)
+        wait(for: [exceptation], timeout: 20.0)
     }
     
     func testRegexFromPhrase() {
-        let words = sut.regex(from: "piz??")!
+        let exceptation = XCTestExpectation(description: "Closure for regex(phrase:)")
+
         let expectedWords = ["pizza", "pized", "pizes"]
-        
-        words.forEach { word in
-            if !expectedWords.contains(word.string) {
-                XCTFail()
+
+        sut.regex(phrase: "piz??") { words in
+            XCTAssert(expectedWords.count == words!.count)
+            words!.forEach { word in
+                if !expectedWords.contains(word.string) {
+                    XCTFail()
+                }
             }
+            
+            exceptation.fulfill()
         }
         
-        XCTAssert(expectedWords.count == words.count)
+        wait(for: [exceptation], timeout: 20.0)
     }
     
     func testLowerAndUppercaseCharacters() {
-        XCTAssert(sut.check(word: "pizza") == sut.check(word: "PiZZa"))
-        XCTAssert(sut.check(word: "pizzapie") == sut.check(word: "pIZzapIe"))
+        let exceptation1 = XCTestExpectation(description: "Closure 1")
+        let exceptation2 = XCTestExpectation(description: "Closure 2")
+        let exceptation3 = XCTestExpectation(description: "Closure 3")
+        let exceptation4 = XCTestExpectation(description: "Closure 4")
+
+        sut.check(word: "pizza") { result1 in
+            self.sut.check(word: "PiZZa") { result2 in
+                XCTAssert(result1 == result2)
+                exceptation1.fulfill()
+            }
+        }
         
-        XCTAssert(sut.words(from: "pizza")! == sut.words(from: "pIZZa")!)
+        sut.check(word: "pizzapie") { result1 in
+            self.sut.check(word: "pIZzapIe") { result2 in
+                XCTAssert(result1 == result2)
+                exceptation2.fulfill()
+            }
+        }
         
-        XCTAssert(sut.words(from: "piz??")! == sut.words(from: "PiZ??")!)
-    }
-    
-    func testMultipartDictionaries() {
-        XCTAssertFalse(sut.isMultipartDictionarySwapRequired(for: "shorten"))
-        XCTAssertFalse(sut.isMultipartDictionarySwapRequired(for: "averylongenglish"))
+        sut.words(from: "pizzapie") { result1 in
+            self.sut.words(from: "pIZzapIe") { result2 in
+                XCTAssert(result1! == result2!)
+                exceptation3.fulfill()
+            }
+        }
         
-        sut.language = .polish
-        XCTAssertFalse(sut.isMultipartDictionarySwapRequired(for: "krotkipl"))
-        XCTAssertTrue(sut.isMultipartDictionarySwapRequired(for: "dlugieslowopol"))
+        sut.regex(phrase: "piz??") { result1 in
+            self.sut.regex(phrase: "PiZ??") { result2 in
+                XCTAssert(result1! == result2!)
+                exceptation4.fulfill()
+            }
+        }
+        
+        wait(for: [exceptation1, exceptation2, exceptation3, exceptation4], timeout: 60.0)
     }
 }

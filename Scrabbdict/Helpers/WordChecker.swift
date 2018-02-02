@@ -8,6 +8,7 @@
 
 import Foundation
 import Crashlytics
+import RealmSwift
 
 enum Result: Equatable {
     case exists(points: Int)
@@ -22,7 +23,7 @@ enum Result: Equatable {
     
     var message: String {
         switch self {
-        case .exists(let points): return "Word exists and is worth \(points) points."
+        case .exists(let points): return "The word exists and is worth \(points) points."
         case .notExists: return "That is not a valid word"
         }
     }
@@ -47,93 +48,87 @@ struct Word: Equatable {
 
 final class WordChecker {
     
-    var language: Language? {
-        didSet {
-            updateDictionary()
-        }
-    }
-    private var dictionaryTrie: Trie?
-    private var dictionaryFileURL: URL?
+    var language: Language?
+    private let queue = DispatchQueue(label: "pl.sochalewski.Scrabbdict.realm.queue", qos: .userInitiated)
+    private let configuration = Realm.Configuration(fileURL: Bundle.main.url(forResource: "Database", withExtension: "realm"), readOnly: true)
     
-    func check(word: String) -> Result {
-        guard let language = language else { return Result.notExists }
+    func check(word: String, completion: @escaping ((Result) -> ())) {
+        guard let language = language else { completion(.notExists); return }
         
         let word = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
-        
-        if isMultipartDictionarySwapRequired(for: word) {
-            updateDictionary(multipartIndex: word.count)
+
+        queue.async {
+            let realm = try! Realm(configuration: self.configuration)
+            let words = self.words(from: realm)
+            guard words.count > word.count && word.count >= 2 else { completion(.notExists); return }
+            let predicate = NSPredicate(format: "%K == %@", "value", word.lowercased())
+            let exists = !words[word.count].filter(predicate).isEmpty
+            
+            Answers.logCustomEvent(withName: "Word check", customAttributes: ["language" : language.name, "exists" : exists ? "yes" : "no"])
+            
+            completion(exists ? .exists(points: language.points(for: word)) : .notExists)
         }
-        
-        let exists = dictionaryTrie?.contains(word.lowercased()) == true
-        
-        Answers.logCustomEvent(withName: "Word check", customAttributes: ["language" : language.name, "exists" : exists ? "yes" : "no"])
-        
-        return exists ? .exists(points: language.points(for: word)) : .notExists
     }
     
-    func words(from letters: String) -> [Word]? {
-        guard let language = language else { return nil }
+    func words(from letters: String, completion: @escaping (([Word]?) -> ())) {
+        guard let language = language else { completion(nil); return }
         let letters = language.shouldRemoveDiacritics ? letters.folding(options: .diacriticInsensitive, locale: nil) : letters
         
-        if isMultipartDictionarySwapRequired(for: letters) {
-            updateDictionary(multipartIndex: letters.count)
+        queue.async {
+            let realm = try! Realm(configuration: self.configuration)
+            let words = self.words(from: realm)
+            guard words.count > letters.count else { completion(nil); return }
+            
+            let permutes = letters.lowercased()
+                .map { String($0) }
+                .permute()
+            
+            var dividedPermutes = (0...letters.count).map { _ in [String]() }
+            
+            permutes.forEach { permute in
+                dividedPermutes[permute.count].append(permute)
+            }
+            
+            let result = dividedPermutes
+                .filter { !$0.isEmpty }
+                .map { permute -> LazyMapRandomAccessCollection<Results<StringObject>, String> in
+                    let predicate = NSPredicate(format: "%K IN %@", "value", permute)
+                    
+                    return words[permute.first!.count]
+                        .filter(predicate)
+                        .map { $0.value }
+                }
+                .flatMap { $0 }
+                .mapToWords(language: language)
+            
+            Answers.logCustomEvent(withName: "Tiles", customAttributes: ["language" : language.name])
+            
+            completion(result)
         }
-        guard let dictionaryTrie = dictionaryTrie else { return nil }
-        let words = permute(list: letters.lowercased().map { String($0) }).filter { dictionaryTrie.contains($0) }
-        
-        Answers.logCustomEvent(withName: "Tiles", customAttributes: ["language" : language.name])
-        
-        return words
-            .map { Word(string: $0, points: language.points(for: $0)) }
-            .sorted { $0.points > $1.points }
     }
     
-    func regex(from phrase: String) -> [Word]? {
-        guard let language = language else { return nil }
+    func regex(phrase: String, completion: @escaping (([Word]?) -> ())) {
+        guard let language = language else { completion(nil); return }
         let phrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase
         
-        if isMultipartDictionarySwapRequired(for: phrase) {
-            updateDictionary(multipartIndex: phrase.count)
+        queue.async {
+            let realm = try! Realm(configuration: self.configuration)
+            let words = self.words(from: realm)
+            guard words.count > phrase.count else { completion(nil); return }
+            let predicate = NSPredicate(format: "%K LIKE %@", "value", phrase.lowercased())
+            let result = words[phrase.count]
+                .filter(predicate)
+                .map { $0.value }
+                .mapToWords(language: language)
+            
+            Answers.logCustomEvent(withName: "Regex", customAttributes: ["language" : language.name])
+            
+            completion(result)
         }
-        
-        Answers.logCustomEvent(withName: "Regex", customAttributes: ["language" : language.name])
-        
-        return dictionaryTrie?
-            .findPattern(phrase.lowercased())
-            .map { Word(string: $0, points: language.points(for: $0)) }
-            .sorted { $0.points > $1.points }
     }
     
-    func isMultipartDictionarySwapRequired(for word: String) -> Bool {
-        guard let language = language, let dictionaryFileURL = dictionaryFileURL else { return false }
-        
-        return language.isMultipartFile && dictionaryFileURL != language.fileURL(multipartIndex: word.count)
-    }
-    
-    private func updateDictionary(multipartIndex: Int? = nil) {
-        dictionaryFileURL = language?.fileURL(multipartIndex: multipartIndex)
-        guard let url = dictionaryFileURL, let words = try? String(contentsOf: url, encoding: .utf8) else { dictionaryTrie = nil; return }
-        let dictionary = words.components(separatedBy: .whitespacesAndNewlines)
-        dictionaryTrie = Trie(dictionary)
-    }
-    
-    private func permute(list: [String], minimumStringLength: Int = 2) -> Set<String> {
-        func permute(from fromList: [String], to toList: [String], minimumStringLength: Int, set: inout Set<String>) {
-            if toList.count >= minimumStringLength {
-                set.insert(toList.joined())
-            }
-            if !fromList.isEmpty {
-                for (index, item) in fromList.enumerated() {
-                    var newFrom = fromList
-                    newFrom.remove(at: index)
-                    permute(from: newFrom, to: toList + [item], minimumStringLength: minimumStringLength, set: &set)
-                }
-            }
-        }
-        
-        var set = Set<String>()
-        permute(from: list, to: [], minimumStringLength: minimumStringLength, set: &set)
-        
-        return set
+    private func words(from realm: Realm) -> [List<StringObject>] {
+        let predicate = NSPredicate(format: "%K == %@", "_language", language!.rawValue)
+        return realm.objects(Vocabulary.self).filter(predicate).first!.words
     }
 }

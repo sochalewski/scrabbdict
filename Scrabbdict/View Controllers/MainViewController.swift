@@ -119,33 +119,14 @@ final class MainViewController: UIViewController {
             
             return
         }
-
-        textField.resignFirstResponder()
-        if !(isStandard && !isRegex) || wordChecker.isMultipartDictionarySwapRequired(for: word) {
-            showSpinner(title: "Searching…")
-        }
-
-        let semaphore = DispatchSemaphore(value: 1)
         
-        DispatchQueue.global(qos: .background).async { [unowned self] in
-            semaphore.wait()
-            
-            let result = self.wordChecker.check(word: word)
-            
-            switch self.mode {
-            case .standard:
-                if isRegex {
-                    self.words = self.wordChecker.regex(from: word)
-                } else {
-                    self.words = nil
-                }
-            case .tiles:
-                self.words = self.wordChecker.words(from: word)
-            }
-            
-            semaphore.signal()
-            
-            DispatchQueue.main.async {
+        textField.resignFirstResponder()
+        if !(isStandard && !isRegex) {
+            self.showSpinner(title: "Searching…")
+        }
+        
+        let closureToCallWhenComplete: ((Result) -> ()) = { result in
+            DispatchQueue.main.async { [unowned self] in
                 self.hideSpinner()
                 
                 guard self.words == nil else {
@@ -166,6 +147,28 @@ final class MainViewController: UIViewController {
                     }
                 case .tiles:
                     self.presentAlertController(withTitle: "Oops!", message: "Found no words that can be made only from these letters.", completion: nil)
+                }
+            }
+        }
+
+        wordChecker.check(word: word) { result in
+            DispatchQueue.main.async { [unowned self] in
+                switch self.mode {
+                case .standard:
+                    if isRegex {
+                        self.wordChecker.regex(phrase: word) { [unowned self] words in
+                            self.words = words
+                            closureToCallWhenComplete(result)
+                        }
+                    } else {
+                        self.words = nil
+                        closureToCallWhenComplete(result)
+                    }
+                case .tiles:
+                    self.wordChecker.words(from: word) { [unowned self] words in
+                        self.words = words
+                        closureToCallWhenComplete(result)
+                    }
                 }
             }
         }
@@ -265,10 +268,6 @@ extension MainViewController: SettingsViewControllerDelegate {
         Answers.logCustomEvent(withName: "Language changed", customAttributes: ["language" : Language.current.name])
         setTableView(visible: false)
         setResultView(visible: false)
-        showSpinner(title: "Changing dictionary…")
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            self?.wordChecker.language = Language.current
-            self?.hideSpinner()
-        }
+        wordChecker.language = Language.current
     }
 }
