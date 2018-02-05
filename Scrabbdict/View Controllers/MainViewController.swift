@@ -108,8 +108,8 @@ final class MainViewController: UIViewController {
     private func showResultAlert(`for` word: String) {
         let isRegex = word.contains("?")
         let isStandard = mode == .standard
-        let isWordLongerThanEight = word.count > 8
-        let cannotProceed = !isStandard && (isRegex || isWordLongerThanEight)
+        let isWordLongerThanSeven = word.count > 7
+        let cannotProceed = !isStandard && (isRegex || isWordLongerThanSeven)
         
         if cannotProceed {
             presentAlertController(withTitle: "Warning", message: "You've typed more letters than tiles you've got. Choose STANDARD or remove blanks (?) to proceed.", completion: nil)
