@@ -48,15 +48,33 @@ struct Word: Equatable {
 
 final class WordChecker {
     
-    var language: Language?
+    var language: Language? {
+        didSet { reloadTrie() }
+    }
     private let queue = DispatchQueue(label: "pl.sochalewski.Scrabbdict.realm.queue", qos: .userInitiated)
     private let configuration = Realm.Configuration(fileURL: Bundle.main.url(forResource: "Database", withExtension: "realm"), readOnly: true)
+    private var trie: Trie?
+    private var isReloadingTrie = false {
+        didSet {
+            if isAwaitingForWordsFromLetters {
+                if let wordsFromLettersPhrase = wordsFromLettersPhrase, let wordsFromLettersCompletion = wordsFromLettersCompletion {
+                    words(from: wordsFromLettersPhrase, completion: wordsFromLettersCompletion)
+                }
+            }
+            isAwaitingForWordsFromLetters = false
+            wordsFromLettersPhrase = nil
+            wordsFromLettersCompletion = nil
+        }
+    }
+    private var isAwaitingForWordsFromLetters = false
+    private var wordsFromLettersPhrase: String?
+    private var wordsFromLettersCompletion: (([Word]?) -> ())?
     
     func check(word: String, completion: @escaping ((Result) -> ())) {
-        guard let language = language else { completion(.notExists); return }
+        guard let language = language, word.isLengthValid else { completion(.notExists); return }
         
         let word = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
-
+        
         queue.async {
             let realm = try! Realm(configuration: self.configuration)
             let words = self.words(from: realm)
@@ -71,34 +89,25 @@ final class WordChecker {
     }
     
     func words(from letters: String, completion: @escaping (([Word]?) -> ())) {
-        guard let language = language else { completion(nil); return }
+        guard let language = language, letters.isLengthValid else { completion(nil); return }
         let letters = language.shouldRemoveDiacritics ? letters.folding(options: .diacriticInsensitive, locale: nil) : letters
         
         queue.async {
-            let realm = try! Realm(configuration: self.configuration)
-            let words = self.words(from: realm)
-            guard words.count > letters.count else { completion(nil); return }
+            if self.isReloadingTrie {
+                self.isAwaitingForWordsFromLetters = true
+                self.wordsFromLettersPhrase = letters
+                self.wordsFromLettersCompletion = completion
+                return
+            }
+            
+            guard let trie = self.trie else { completion(nil); return }
             
             let permutes = letters.lowercased()
                 .map { String($0) }
                 .permute()
             
-            var dividedPermutes = (0...letters.count).map { _ in [String]() }
-            
-            permutes.forEach { permute in
-                dividedPermutes[permute.count].append(permute)
-            }
-            
-            let result = dividedPermutes
-                .filter { !$0.isEmpty }
-                .map { permute -> LazyMapRandomAccessCollection<Results<StringObject>, String> in
-                    let predicate = NSPredicate(format: "%K IN %@", "value", permute)
-                    
-                    return words[permute.first!.count]
-                        .filter(predicate)
-                        .map { $0.value }
-                }
-                .flatMap { $0 }
+            let result = permutes
+                .filter { trie.contains($0) }
                 .mapToWords(language: language)
             
             Answers.logCustomEvent(withName: "Tiles", customAttributes: ["language" : language.name])
@@ -108,7 +117,7 @@ final class WordChecker {
     }
     
     func regex(phrase: String, completion: @escaping (([Word]?) -> ())) {
-        guard let language = language else { completion(nil); return }
+        guard let language = language, phrase.isLengthValid else { completion(nil); return }
         let phrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase
         
         queue.async {
@@ -130,5 +139,15 @@ final class WordChecker {
     private func words(from realm: Realm) -> [List<StringObject>] {
         let predicate = NSPredicate(format: "%K == %@", "_language", language!.rawValue)
         return realm.objects(Vocabulary.self).filter(predicate).first!.words
+    }
+    
+    private func reloadTrie() {
+        DispatchQueue.global(qos: .userInitiated).async {
+            guard let language = self.language else { return }
+            self.isReloadingTrie = true
+            guard let words = try? String(contentsOf: language.shortWordsURL) else { self.isReloadingTrie = false; return }
+            self.trie = Trie(words.components(separatedBy: .newlines))
+            self.isReloadingTrie = false
+        }
     }
 }

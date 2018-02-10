@@ -9,6 +9,10 @@
 import TinySwift
 
 extension Language {
+    var shortWordsURL: URL {
+        return Bundle.main.url(forResource: rawValue, withExtension: "txt")!
+    }
+    
     private var letterPoints: [Character: Int] {
         switch self {
         case .englishUS, .englishGB:
