@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -28,7 +29,7 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="xlq-oW-CpQ" secondAttribute="trailing" id="IP6-1j-vM9"/>
-                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="xlq-oW-CpQ" secondAttribute="bottom" id="Wq8-ly-S7Y"/>
+                            <constraint firstAttribute="bottom" secondItem="xlq-oW-CpQ" secondAttribute="bottom" id="Wq8-ly-S7Y"/>
                             <constraint firstItem="xlq-oW-CpQ" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="gb8-ei-dWn"/>
                             <constraint firstItem="xlq-oW-CpQ" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="uB7-OH-gch"/>
                         </constraints>
@@ -40,6 +41,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="Splash Screen" width="414" height="736"/>
+        <image name="Splash Screen" width="750" height="1334"/>
     </resources>
 </document>

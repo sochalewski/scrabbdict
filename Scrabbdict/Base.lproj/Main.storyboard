@@ -194,7 +194,7 @@
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="zef-2R-60l" secondAttribute="bottom" constant="19" id="LqA-cR-1Gq"/>
                             <constraint firstAttribute="trailing" secondItem="n9f-tJ-uIx" secondAttribute="trailing" id="Ngn-8h-bk1"/>
                             <constraint firstItem="zef-2R-60l" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="19" id="OH2-ZA-Ups"/>
-                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="n9f-tJ-uIx" secondAttribute="bottom" id="OJQ-8e-SSn"/>
+                            <constraint firstAttribute="bottom" secondItem="n9f-tJ-uIx" secondAttribute="bottom" id="OJQ-8e-SSn"/>
                             <constraint firstItem="zef-2R-60l" firstAttribute="top" secondItem="hxI-5Z-gR3" secondAttribute="bottom" constant="38" id="Rq7-Aa-8d5"/>
                             <constraint firstItem="zef-2R-60l" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="aPq-0f-RDg"/>
                             <constraint firstItem="cXL-j7-mWI" firstAttribute="centerY" secondItem="zef-2R-60l" secondAttribute="centerY" id="bK1-aU-APx"/>
