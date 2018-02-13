@@ -37,6 +37,7 @@
 		AE8B5BDB202F7BD10013094A /* en_GB_sowpods.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE8B5BD7202F7BD10013094A /* en_GB_sowpods.txt */; };
 		AE8B5BDC202F7BD10013094A /* en_US_twl.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE8B5BD8202F7BD10013094A /* en_US_twl.txt */; };
 		AE8B5BDE202F83250013094A /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B5BDD202F83250013094A /* String.swift */; };
+		AECBBCF8203377F7001A40D8 /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECBBCF7203377F7001A40D8 /* GradientView.swift */; };
 		AEF782201EBA560700CC64EC /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7821F1EBA560700CC64EC /* MainViewController.swift */; };
 		AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF8AC851EBA02AA005996D5 /* AppDelegate.swift */; };
 		AEF8AC8B1EBA02AA005996D5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AEF8AC891EBA02AA005996D5 /* Main.storyboard */; };
@@ -107,6 +108,7 @@
 		AE8B5BD7202F7BD10013094A /* en_GB_sowpods.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_GB_sowpods.txt; sourceTree = "<group>"; };
 		AE8B5BD8202F7BD10013094A /* en_US_twl.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_US_twl.txt; sourceTree = "<group>"; };
 		AE8B5BDD202F83250013094A /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
+		AECBBCF7203377F7001A40D8 /* GradientView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		AEF7821F1EBA560700CC64EC /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		AEF8AC821EBA02AA005996D5 /* Scrabbdict.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scrabbdict.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEF8AC851EBA02AA005996D5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 			children = (
 				AE1B1A641EF2792700AD81CA /* ResultView.swift */,
 				AE1B1A661EF2792F00AD81CA /* ResultView.xib */,
+				AECBBCF7203377F7001A40D8 /* GradientView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -666,6 +669,7 @@
 				AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */,
 				AE3D64E61EEC71D70048C9EC /* UIButton.swift in Sources */,
 				AE1B1A651EF2792700AD81CA /* ResultView.swift in Sources */,
+				AECBBCF8203377F7001A40D8 /* GradientView.swift in Sources */,
 				AE3A5FAC1EBA44390069C6FF /* WordChecker.swift in Sources */,
 				AE3D64E31EEC5F050048C9EC /* SettingsViewController.swift in Sources */,
 			);

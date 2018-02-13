@@ -32,6 +32,10 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YcA-m9-gcw" customClass="GradientView" customModule="Scrabbdict" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="30" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="zef-2R-60l">
                                 <rect key="frame" x="19" y="188" width="337" height="460"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -197,9 +201,13 @@
                             <constraint firstAttribute="bottom" secondItem="n9f-tJ-uIx" secondAttribute="bottom" id="OJQ-8e-SSn"/>
                             <constraint firstItem="zef-2R-60l" firstAttribute="top" secondItem="hxI-5Z-gR3" secondAttribute="bottom" constant="38" id="Rq7-Aa-8d5"/>
                             <constraint firstItem="zef-2R-60l" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="aPq-0f-RDg"/>
+                            <constraint firstItem="YcA-m9-gcw" firstAttribute="trailing" secondItem="n9f-tJ-uIx" secondAttribute="trailing" id="ank-BZ-dF4"/>
                             <constraint firstItem="cXL-j7-mWI" firstAttribute="centerY" secondItem="zef-2R-60l" secondAttribute="centerY" id="bK1-aU-APx"/>
+                            <constraint firstItem="YcA-m9-gcw" firstAttribute="leading" secondItem="n9f-tJ-uIx" secondAttribute="leading" id="cRL-s7-9tm"/>
                             <constraint firstItem="Rlf-5D-bNI" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="10" id="dMS-IU-c4i"/>
                             <constraint firstItem="qtN-Uz-QDa" firstAttribute="centerY" secondItem="hxI-5Z-gR3" secondAttribute="centerY" id="fSY-5z-PmC"/>
+                            <constraint firstItem="YcA-m9-gcw" firstAttribute="top" secondItem="n9f-tJ-uIx" secondAttribute="top" id="jBD-5I-VPH"/>
+                            <constraint firstItem="YcA-m9-gcw" firstAttribute="bottom" secondItem="n9f-tJ-uIx" secondAttribute="bottom" id="o7E-Xa-YVe"/>
                             <constraint firstItem="hxI-5Z-gR3" firstAttribute="leading" secondItem="qtN-Uz-QDa" secondAttribute="trailing" constant="8" id="uBZ-wO-jbS"/>
                             <constraint firstItem="n9f-tJ-uIx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="wxL-yh-MNT"/>
                             <constraint firstItem="n9f-tJ-uIx" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="xkL-B1-mcV"/>
