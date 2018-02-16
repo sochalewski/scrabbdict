@@ -29,8 +29,8 @@ extension Array where Element == String {
         return set
     }
     
-    func mapToWords(language: Language) -> [Word]? {
-        guard !isEmpty else { return nil }
+    func mapToWords(language: Language) -> [Word] {
+        guard !isEmpty else { return [] }
         
         return map { Word(string: $0, points: language.points(for: $0)) }
             .sorted {

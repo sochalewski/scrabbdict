@@ -16,8 +16,8 @@ enum Mode: String {
 }
 
 final class WordTableViewCell: UITableViewCell {
-    @IBOutlet private(set) weak var wordLabel: UILabel!
-    @IBOutlet private(set) weak var pointsLabel: UILabel!
+    @IBOutlet private weak var wordLabel: UILabel!
+    @IBOutlet private weak var pointsLabel: UILabel!
     
     var word: String? {
         set { wordLabel.text = newValue }
@@ -42,7 +42,7 @@ final class MainViewController: UIViewController {
     @IBOutlet private weak var modeSwitch: UISwitch!
     @IBOutlet private weak var modeLabel: UILabel!
     
-    private let wordChecker = WordChecker()
+    private let validator = Validator()
     private var mode = Mode.standard {
         didSet {
             UIView.transition(with: modeLabel, duration: 0.35, options: .transitionCrossDissolve, animations: {
@@ -55,7 +55,7 @@ final class MainViewController: UIViewController {
             }
         }
     }
-    private var words: [Word]?
+    private var words = [Word]()
     private var isSpinnerVisible = false {
         didSet { setNeedsStatusBarAppearanceUpdate() }
     }
@@ -74,7 +74,7 @@ final class MainViewController: UIViewController {
         setTableView(visible: false, animated: false)
         setResultView(visible: false, animated: false)
         
-        wordChecker.language = Language.current
+        validator.language = Language.current
         textField.delegate = self
         tableView.delegate = self
         tableView.dataSource = self
@@ -108,28 +108,23 @@ final class MainViewController: UIViewController {
     private func showResultAlert(`for` word: String) {
         let isRegex = word.contains("?")
         let isStandard = mode == .standard
-        let isWordLongerThanEight = word.count > 8
-        let cannotProceed = !isStandard && (isRegex || isWordLongerThanEight)
         
-        if cannotProceed {
-            presentAlertController(withTitle: "Warning", message: "You've typed more letters than tiles you've got. Choose STANDARD or remove blanks (?) to proceed.", completion: nil)
-            words = nil
+        func onError(_ error: ValidatorError) {
+            presentAlertController(withTitle: "Warning", message: error.localizedDescription, completion: nil)
             setTableView(visible: false)
             setResultView(visible: false)
-            
-            return
         }
         
         textField.resignFirstResponder()
         if !(isStandard && !isRegex) {
-            self.showSpinner(title: "Searching…")
+            showSpinner(title: "Searching…")
         }
         
-        let closureToCallWhenComplete: ((Result) -> ()) = { result in
-            DispatchQueue.main.async { [unowned self] in
+        let closureToCallWhenComplete: ((ValidatorResult?) -> ()) = { result in
+            DispatchQueue.main.async {
                 self.hideSpinner()
                 
-                guard self.words == nil else {
+                guard self.words.isEmpty else {
                     self.setTableView(visible: true)
                     self.setResultView(visible: false)
                     self.tableView.reloadData()
@@ -146,30 +141,45 @@ final class MainViewController: UIViewController {
                         self.setResultView(visible: true)
                     }
                 case .tiles:
+                    guard self.presentedViewController == nil else { return }
                     self.presentAlertController(withTitle: "Oops!", message: "Found no words that can be made only from these letters.", completion: nil)
                 }
             }
         }
-
-        wordChecker.check(word: word) { result in
-            DispatchQueue.main.async { [unowned self] in
-                switch self.mode {
-                case .standard:
-                    if isRegex {
-                        self.wordChecker.regex(phrase: word) { [unowned self] words in
-                            self.words = words
-                            closureToCallWhenComplete(result)
-                        }
-                    } else {
-                        self.words = nil
-                        closureToCallWhenComplete(result)
-                    }
-                case .tiles:
-                    self.wordChecker.words(from: word) { [unowned self] words in
+        
+        switch mode {
+        case .standard:
+            if isRegex {
+                validator.regex(phrase: word) { [unowned self] result in
+                    switch result {
+                    case .success(let words):
                         self.words = words
+                    case .error:
+                        self.words = []
+                    }
+                    closureToCallWhenComplete(nil)
+                }
+            } else {
+                words = []
+                validator.check(word: word) { result in
+                    switch result {
+                    case .success(let result):
                         closureToCallWhenComplete(result)
+                    case .error:
+                        closureToCallWhenComplete(nil)
                     }
                 }
+            }
+        case .tiles:
+            validator.words(from: word) { [unowned self] result in
+                switch result {
+                case .success(let words):
+                    self.words = words
+                case .error(let error):
+                    self.words = []
+                    DispatchQueue.main.async { onError(error) }
+                }
+                closureToCallWhenComplete(nil)
             }
         }
     }
@@ -246,13 +256,13 @@ extension MainViewController: UITextFieldDelegate {
 
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return words?.count ?? 0
+        return words.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! WordTableViewCell
-        cell.word = words?[indexPath.row].string
-        cell.points = words?[indexPath.row].points
+        cell.word = words[indexPath.row].string
+        cell.points = words[indexPath.row].points
         
         return cell
     }
@@ -264,10 +274,10 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension MainViewController: SettingsViewControllerDelegate {
     func didFinishPresentation() {
-        guard wordChecker.language != Language.current else { return }
+        guard validator.language != Language.current else { return }
         Answers.logCustomEvent(withName: "Language changed", customAttributes: ["language" : Language.current.name])
         setTableView(visible: false)
         setResultView(visible: false)
-        wordChecker.language = Language.current
+        validator.language = Language.current
     }
 }

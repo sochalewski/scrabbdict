@@ -177,11 +177,11 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cXL-j7-mWI" customClass="ResultView" customModule="Scrabbdict" customModuleProvider="target">
-                                <rect key="frame" x="76" y="332" width="222" height="172"/>
+                                <rect key="frame" x="67" y="344" width="240" height="148"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="222" id="3dC-Ce-eJe"/>
-                                    <constraint firstAttribute="height" constant="172" id="BSJ-s8-toT"/>
+                                    <constraint firstAttribute="width" constant="240" id="3dC-Ce-eJe"/>
+                                    <constraint firstAttribute="height" constant="148" id="BSJ-s8-toT"/>
                                 </constraints>
                             </view>
                         </subviews>

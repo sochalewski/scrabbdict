@@ -1,5 +1,5 @@
 //
-//  WordChecker.swift
+//  Validator.swift
 //  Scrabbdict
 //
 //  Created by Piotr Sochalewski on 03.05.2017.
@@ -10,25 +10,42 @@ import Foundation
 import Crashlytics
 import RealmSwift
 
-enum Result: Equatable {
+enum Result<T> {
+    case success(T)
+    case error(ValidatorError)
+}
+
+enum ValidatorError: Error {
+    case tooManyLetters
+    case unknown
+    
+    var localizedDescription: String {
+        switch self {
+        case .tooManyLetters: return "You've typed more letters than tiles you've got. Choose STANDARD or make a shorter query to proceed."
+        case .unknown: return "Something went wrong."
+        }
+    }
+}
+
+enum ValidatorResult: Equatable {
     case exists(points: Int)
     case notExists
     
     var title: String {
         switch self {
-        case .exists: return "Hooray!"
-        case .notExists: return "Oops!"
+        case .exists: return "😀"//"Hooray!"
+        case .notExists: return "😞"//"Oops!"
         }
     }
     
     var message: String {
         switch self {
-        case .exists(let points): return "The word exists and is worth \(points) points."
+        case .exists(let points): return "The word is valid and worth \(points) points."
         case .notExists: return "That is not a valid word"
         }
     }
     
-    static func ==(lhs: Result, rhs: Result) -> Bool {
+    static func ==(lhs: ValidatorResult, rhs: ValidatorResult) -> Bool {
         switch (lhs, rhs) {
         case (.exists(let points1), .exists(let points2)): return points1 == points2
         case (.notExists, .notExists): return true
@@ -46,7 +63,7 @@ struct Word: Equatable {
     }
 }
 
-final class WordChecker {
+final class Validator {
     
     var language: Language? {
         didSet { reloadTrie() }
@@ -68,28 +85,31 @@ final class WordChecker {
     }
     private var isAwaitingForWordsFromLetters = false
     private var wordsFromLettersPhrase: String?
-    private var wordsFromLettersCompletion: (([Word]?) -> ())?
+    private var wordsFromLettersCompletion: ((Result<[Word]>) -> ())?
     
-    func check(word: String, completion: @escaping ((Result) -> ())) {
-        guard let language = language, word.isLengthValid else { completion(.notExists); return }
+    func check(word: String, completion: @escaping ((Result<ValidatorResult>) -> ())) {
+        guard let language = language else { completion(.error(.unknown)); return }
+        guard word.isLengthValid else { completion(.success(.notExists)); return }
         
         let word = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
         
         queue.async {
             let realm = try! Realm(configuration: self.configuration)
             let words = self.words(from: realm)
-            guard words.count > word.count && word.count >= 2 else { completion(.notExists); return }
             let predicate = NSPredicate(format: "%K == %@", "value", word.lowercased())
             let exists = !words[word.count].filter(predicate).isEmpty
             
             Answers.logCustomEvent(withName: "Word check", customAttributes: ["language" : language.name, "exists" : exists ? "yes" : "no"])
             
-            completion(exists ? .exists(points: language.points(for: word)) : .notExists)
+            completion(.success(exists ? .exists(points: language.points(for: word)) : .notExists))
         }
     }
     
-    func words(from letters: String, completion: @escaping (([Word]?) -> ())) {
-        guard let language = language, letters.isLengthValid else { completion(nil); return }
+    func words(from letters: String, completion: @escaping ((Result<[Word]>) -> ())) {
+        guard let language = language else { completion(.error(.unknown)); return }
+        guard letters.count <= Trie.maximumWordLength else { completion(.error(.tooManyLetters)); return }
+        guard letters.isLengthValid else { completion(.success([])); return }
+        
         let letters = language.shouldRemoveDiacritics ? letters.folding(options: .diacriticInsensitive, locale: nil) : letters
         
         queue.async {
@@ -100,7 +120,7 @@ final class WordChecker {
                 return
             }
             
-            guard let trie = self.trie else { completion(nil); return }
+            guard let trie = self.trie else { completion(.error(.unknown)); return }
             
             let permutes = letters.lowercased()
                 .map { String($0) }
@@ -112,18 +132,19 @@ final class WordChecker {
             
             Answers.logCustomEvent(withName: "Tiles", customAttributes: ["language" : language.name])
             
-            completion(result)
+            completion(.success(result))
         }
     }
     
-    func regex(phrase: String, completion: @escaping (([Word]?) -> ())) {
-        guard let language = language, phrase.isLengthValid else { completion(nil); return }
+    func regex(phrase: String, completion: @escaping ((Result<[Word]>) -> ())) {
+        guard let language = language else { completion(.error(.unknown)); return }
+        guard phrase.isLengthValid else { completion(.success([])); return }
+        
         let phrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase
         
         queue.async {
             let realm = try! Realm(configuration: self.configuration)
             let words = self.words(from: realm)
-            guard words.count > phrase.count else { completion(nil); return }
             let predicate = NSPredicate(format: "%K LIKE %@", "value", phrase.lowercased())
             let result = words[phrase.count]
                 .filter(predicate)
@@ -132,7 +153,7 @@ final class WordChecker {
             
             Answers.logCustomEvent(withName: "Regex", customAttributes: ["language" : language.name])
             
-            completion(result)
+            completion(.success(result))
         }
     }
     
