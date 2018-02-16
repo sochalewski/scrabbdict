@@ -11,12 +11,19 @@ import XCTest
 
 final class WordCheckerTests: XCTestCase {
     
-    private let sut = WordChecker()
+    private var sut: WordChecker!
     
     override func setUp() {
         super.setUp()
         
+        sut = WordChecker()
         sut.language = .englishGB
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+        
+        sut = nil
     }
     
     func testCheckValidWord() {
