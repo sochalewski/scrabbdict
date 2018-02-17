@@ -10,6 +10,10 @@ import Foundation
 
 extension String {
     var isLengthValid: Bool {
-        return 2...15 ~= count
+        return 2...String.maximumWordLength ~= count
     }
+    
+    static let maximumTrieWordLength = 8
+
+    static let maximumWordLength = 15
 }

@@ -21,7 +21,7 @@ enum ValidatorError: Error {
     
     var localizedDescription: String {
         switch self {
-        case .tooManyLetters: return "You've typed more letters than tiles you've got. Choose STANDARD or make a shorter query to proceed."
+        case .tooManyLetters: return "You've typed more letters than tiles you've got. Choose STANDARD or create a shorter query to proceed."
         case .unknown: return "Something went wrong."
         }
     }
@@ -30,20 +30,6 @@ enum ValidatorError: Error {
 enum ValidatorResult: Equatable {
     case exists(points: Int)
     case notExists
-    
-    var title: String {
-        switch self {
-        case .exists: return "😀"//"Hooray!"
-        case .notExists: return "😞"//"Oops!"
-        }
-    }
-    
-    var message: String {
-        switch self {
-        case .exists(let points): return "The word is valid and worth \(points) points."
-        case .notExists: return "That is not a valid word"
-        }
-    }
     
     static func ==(lhs: ValidatorResult, rhs: ValidatorResult) -> Bool {
         switch (lhs, rhs) {
@@ -107,7 +93,7 @@ final class Validator {
     
     func words(from letters: String, completion: @escaping ((Result<[Word]>) -> ())) {
         guard let language = language else { completion(.error(.unknown)); return }
-        guard letters.count <= Trie.maximumWordLength else { completion(.error(.tooManyLetters)); return }
+        guard letters.count <= String.maximumTrieWordLength else { completion(.error(.tooManyLetters)); return }
         guard letters.isLengthValid else { completion(.success([])); return }
         
         let letters = language.shouldRemoveDiacritics ? letters.folding(options: .diacriticInsensitive, locale: nil) : letters

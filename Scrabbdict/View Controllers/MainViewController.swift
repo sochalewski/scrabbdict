@@ -38,9 +38,10 @@ final class MainViewController: UIViewController {
     
     @IBOutlet private weak var textField: UITextField!
     @IBOutlet private weak var tableView: UITableView!
-    @IBOutlet private weak var resultView: ResultView!
     @IBOutlet private weak var modeSwitch: UISwitch!
     @IBOutlet private weak var modeLabel: UILabel!
+    
+    private weak var resultView: UIView?
     
     private let validator = Validator()
     private var mode = Mode.standard {
@@ -72,7 +73,7 @@ final class MainViewController: UIViewController {
         modeSwitchValueChanged(modeSwitch)
         
         setTableView(visible: false, animated: false)
-        setResultView(visible: false, animated: false)
+        dismissResultView(animated: false)
         
         validator.language = Language.current
         textField.delegate = self
@@ -89,7 +90,7 @@ final class MainViewController: UIViewController {
     
     @IBAction private func modeSwitchValueChanged(_ sender: UISwitch) {
         view.endEditing(true)
-        setResultView(visible: false)
+        dismissResultView()
         setTableView(visible: false)
         
         mode = sender.isOn ? .tiles : .standard
@@ -112,7 +113,7 @@ final class MainViewController: UIViewController {
         func onError(_ error: ValidatorError) {
             presentAlertController(withTitle: "Warning", message: error.localizedDescription, completion: nil)
             setTableView(visible: false)
-            setResultView(visible: false)
+            dismissResultView()
         }
         
         textField.resignFirstResponder()
@@ -126,7 +127,7 @@ final class MainViewController: UIViewController {
                 
                 guard self.words.isEmpty else {
                     self.setTableView(visible: true)
-                    self.setResultView(visible: false)
+                    self.dismissResultView()
                     self.tableView.reloadData()
                     return
                 }
@@ -137,8 +138,8 @@ final class MainViewController: UIViewController {
                     if isRegex {
                         self.presentAlertController(withTitle: "Oops!", message: "Found no words matching the regular expression.", completion: nil)
                     } else {
-                        self.resultView.result = result
-                        self.setResultView(visible: true)
+                        guard let result = result else { return }
+                        self.showResultView(result: result)
                     }
                 case .tiles:
                     guard self.presentedViewController == nil else { return }
@@ -190,9 +191,32 @@ final class MainViewController: UIViewController {
         }
     }
     
-    private func setResultView(visible: Bool, animated: Bool = true) {
-        UIView.animate(withDuration: animated ? 0.4 : 0.0) {
-            self.resultView.alpha = visible ? 1.0 : 0.0
+    private func showResultView(result: ValidatorResult, animated: Bool = true) {
+        dismissResultView(animated: false)
+        
+        let resultView = ResultView(result: result)
+        view.addSubview(resultView)
+        self.resultView = resultView
+        resultView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor).isActive = true
+        let constraint = resultView.topAnchor.constraint(equalTo: bottomLayoutGuide.bottomAnchor)
+        constraint.isActive = true
+        view.layoutIfNeeded()
+        
+        constraint.isActive = false
+        resultView.centerYAnchor.constraint(equalTo: tableView.centerYAnchor, constant: -10.0).isActive = true
+
+        UIView.animate(withDuration: animated ? 0.4 : 0.0, delay: 0.0, usingSpringWithDamping: 0.7, initialSpringVelocity: 4.0, options: .curveEaseIn, animations: {
+            self.view.layoutIfNeeded()
+        })
+    }
+    
+    private func dismissResultView(animated: Bool = true) {
+        guard let resultView = resultView else { return }
+        
+        UIView.animate(withDuration: animated ? 0.4 : 0.0, animations: {
+            resultView.alpha = 0.0
+        }) { _ in
+            resultView.removeFromSuperview()
         }
     }
     
@@ -203,6 +227,7 @@ final class MainViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let settingsViewController = (segue.destination as! UINavigationController).viewControllers.first! as! SettingsViewController
         settingsViewController.delegate = self
+        settingsViewController.preferredContentSize = CGSize(width: 375.0, height: 410.0)
     }
 }
 
@@ -227,21 +252,21 @@ extension MainViewController: UITextFieldDelegate {
     }
     
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        setResultView(visible: false)
+        dismissResultView()
         setTableView(visible: false)
         
         return true
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        setResultView(visible: false)
+        dismissResultView()
         setTableView(visible: false)
         
         guard let text = textField.text else { return true }
 
         let newLength = text.count + string.count - range.length
         
-        guard newLength <= 15 else { return false }
+        guard newLength <= String.maximumWordLength else { return false }
         guard !string.isEmpty else { return true }
     
         var allowedCharacterSet = CharacterSet.letters
@@ -277,7 +302,7 @@ extension MainViewController: SettingsViewControllerDelegate {
         guard validator.language != Language.current else { return }
         Answers.logCustomEvent(withName: "Language changed", customAttributes: ["language" : Language.current.name])
         setTableView(visible: false)
-        setResultView(visible: false)
+        dismissResultView()
         validator.language = Language.current
     }
 }

@@ -176,14 +176,6 @@
                                 <color key="textColor" red="0.2666666667" green="0.85882352939999995" blue="0.36862745099999999" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cXL-j7-mWI" customClass="ResultView" customModule="Scrabbdict" customModuleProvider="target">
-                                <rect key="frame" x="67" y="344" width="240" height="148"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="240" id="3dC-Ce-eJe"/>
-                                    <constraint firstAttribute="height" constant="148" id="BSJ-s8-toT"/>
-                                </constraints>
-                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -202,7 +194,6 @@
                             <constraint firstItem="zef-2R-60l" firstAttribute="top" secondItem="hxI-5Z-gR3" secondAttribute="bottom" constant="38" id="Rq7-Aa-8d5"/>
                             <constraint firstItem="zef-2R-60l" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="aPq-0f-RDg"/>
                             <constraint firstItem="YcA-m9-gcw" firstAttribute="trailing" secondItem="n9f-tJ-uIx" secondAttribute="trailing" id="ank-BZ-dF4"/>
-                            <constraint firstItem="cXL-j7-mWI" firstAttribute="centerY" secondItem="zef-2R-60l" secondAttribute="centerY" id="bK1-aU-APx"/>
                             <constraint firstItem="YcA-m9-gcw" firstAttribute="leading" secondItem="n9f-tJ-uIx" secondAttribute="leading" id="cRL-s7-9tm"/>
                             <constraint firstItem="Rlf-5D-bNI" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="10" id="dMS-IU-c4i"/>
                             <constraint firstItem="qtN-Uz-QDa" firstAttribute="centerY" secondItem="hxI-5Z-gR3" secondAttribute="centerY" id="fSY-5z-PmC"/>
@@ -211,7 +202,6 @@
                             <constraint firstItem="hxI-5Z-gR3" firstAttribute="leading" secondItem="qtN-Uz-QDa" secondAttribute="trailing" constant="8" id="uBZ-wO-jbS"/>
                             <constraint firstItem="n9f-tJ-uIx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="wxL-yh-MNT"/>
                             <constraint firstItem="n9f-tJ-uIx" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="xkL-B1-mcV"/>
-                            <constraint firstItem="cXL-j7-mWI" firstAttribute="centerX" secondItem="zef-2R-60l" secondAttribute="centerX" id="zcG-lD-khy"/>
                         </constraints>
                         <variation key="heightClass=regular-widthClass=regular">
                             <mask key="constraints">
@@ -223,7 +213,6 @@
                     <connections>
                         <outlet property="modeLabel" destination="qtN-Uz-QDa" id="dJk-yJ-R6n"/>
                         <outlet property="modeSwitch" destination="hxI-5Z-gR3" id="Tiw-Ey-Ipc"/>
-                        <outlet property="resultView" destination="cXL-j7-mWI" id="w4R-OL-pq0"/>
                         <outlet property="tableView" destination="zef-2R-60l" id="Ywa-MJ-VP9"/>
                         <outlet property="textField" destination="ybF-Q6-O9M" id="zkw-ad-QTE"/>
                     </connections>

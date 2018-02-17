@@ -10,13 +10,11 @@
 		44568F612F86A969462A2CF7 /* Pods_Scrabbdict.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FE96A4F4403B1856452A782 /* Pods_Scrabbdict.framework */; };
 		606ABC14185B2713FB4A7EDF /* Pods_ScrabbdictTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21AF0A49B45E2A53135B05B5 /* Pods_ScrabbdictTests.framework */; };
 		AE1B1A651EF2792700AD81CA /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE1B1A641EF2792700AD81CA /* ResultView.swift */; };
-		AE1B1A671EF2792F00AD81CA /* ResultView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE1B1A661EF2792F00AD81CA /* ResultView.xib */; };
 		AE39AB8C1EFF7470001818A1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = AE39AB8B1EFF7470001818A1 /* Settings.bundle */; };
 		AE3A5F551EBA33F20069C6FF /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5F541EBA33F20069C6FF /* Language.swift */; };
 		AE3A5FAC1EBA44390069C6FF /* Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5FAB1EBA44390069C6FF /* Validator.swift */; };
 		AE3D64E31EEC5F050048C9EC /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3D64E21EEC5F050048C9EC /* SettingsViewController.swift */; };
 		AE3D64E61EEC71D70048C9EC /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3D64E51EEC71D70048C9EC /* UIButton.swift */; };
-		AE3E832D20374DBC00D560D8 /* Trie.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B5BD2202F7A680013094A /* Trie.swift */; };
 		AE62F7242024EA8C00A57DAE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE62F7232024EA8C00A57DAE /* AppDelegate.swift */; };
 		AE62F7262024EA8C00A57DAE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE62F7252024EA8C00A57DAE /* ViewController.swift */; };
 		AE62F7282024EA8C00A57DAE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE62F7272024EA8C00A57DAE /* Assets.xcassets */; };
@@ -38,6 +36,7 @@
 		AE8B5BDB202F7BD10013094A /* en_GB_sowpods.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE8B5BD7202F7BD10013094A /* en_GB_sowpods.txt */; };
 		AE8B5BDC202F7BD10013094A /* en_US_twl.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE8B5BD8202F7BD10013094A /* en_US_twl.txt */; };
 		AE8B5BDE202F83250013094A /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B5BDD202F83250013094A /* String.swift */; };
+		AEA3C7F220383CD900A741C3 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B5BDD202F83250013094A /* String.swift */; };
 		AECBBCF8203377F7001A40D8 /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECBBCF7203377F7001A40D8 /* GradientView.swift */; };
 		AEF782201EBA560700CC64EC /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7821F1EBA560700CC64EC /* MainViewController.swift */; };
 		AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF8AC851EBA02AA005996D5 /* AppDelegate.swift */; };
@@ -79,7 +78,6 @@
 		7C693B9CFE2B561455381616 /* Pods_RealmDatabaseWizard.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RealmDatabaseWizard.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A59DF36C8ED3B789DBD6455C /* Pods-ScrabbdictTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScrabbdictTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ScrabbdictTests/Pods-ScrabbdictTests.release.xcconfig"; sourceTree = "<group>"; };
 		AE1B1A641EF2792700AD81CA /* ResultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
-		AE1B1A661EF2792F00AD81CA /* ResultView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ResultView.xib; sourceTree = "<group>"; };
 		AE39AB8B1EFF7470001818A1 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		AE3A5F541EBA33F20069C6FF /* Language.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		AE3A5FAB1EBA44390069C6FF /* Validator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Validator.swift; sourceTree = "<group>"; };
@@ -176,7 +174,6 @@
 			isa = PBXGroup;
 			children = (
 				AE1B1A641EF2792700AD81CA /* ResultView.swift */,
-				AE1B1A661EF2792F00AD81CA /* ResultView.xib */,
 				AECBBCF7203377F7001A40D8 /* GradientView.swift */,
 			);
 			path = Views;
@@ -450,7 +447,6 @@
 				AE8B5BDB202F7BD10013094A /* en_GB_sowpods.txt in Resources */,
 				AEF8AC901EBA02AA005996D5 /* LaunchScreen.storyboard in Resources */,
 				AE39AB8C1EFF7470001818A1 /* Settings.bundle in Resources */,
-				AE1B1A671EF2792F00AD81CA /* ResultView.xib in Resources */,
 				AEF8AC8D1EBA02AA005996D5 /* Assets.xcassets in Resources */,
 				AE8B5BD9202F7BD10013094A /* fr_ODS6.txt in Resources */,
 				AE6317D12024F30500EF42B2 /* Database.realm in Resources */,
@@ -641,9 +637,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AE3E832D20374DBC00D560D8 /* Trie.swift in Sources */,
 				AE6317D22024F30900EF42B2 /* RealmObjects.swift in Sources */,
 				AE62F73A2024EB7F00A57DAE /* Language.swift in Sources */,
+				AEA3C7F220383CD900A741C3 /* String.swift in Sources */,
 				AE62F7262024EA8C00A57DAE /* ViewController.swift in Sources */,
 				AE62F7242024EA8C00A57DAE /* AppDelegate.swift in Sources */,
 			);

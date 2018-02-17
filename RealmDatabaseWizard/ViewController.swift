@@ -68,7 +68,7 @@ final class ViewController: NSViewController {
             autoreleasepool {
                 let string = try! String(contentsOf: language.url, encoding: .utf8)
                 let words = string.components(separatedBy: .newlines)
-                let newWords = words.filter { $0.count <= Trie.maximumWordLength }
+                let newWords = words.filter { $0.count <= String.maximumTrieWordLength }
                 
                 let url = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("\(language.rawValue).txt")
                 try? FileManager.default.removeItem(at: url)

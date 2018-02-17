@@ -16,9 +16,7 @@ import Foundation
 ///
 /// Conforms to `CustomStringConvertible`, `Hashable`.
 public struct Trie {
-    
-    static let maximumWordLength = 8
-        
+            
     // MARK: Creating a Trie
     
     /// Constructs an empty Trie.
