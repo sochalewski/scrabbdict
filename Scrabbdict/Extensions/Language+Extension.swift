@@ -25,6 +25,6 @@ extension Language {
     }
     
     func points(`for` word: String) -> Int {
-        return word.uppercased().flatMap({ letterPoints[$0] }).sum
+        return word.uppercased().compactMap({ letterPoints[$0] }).sum
     }
 }

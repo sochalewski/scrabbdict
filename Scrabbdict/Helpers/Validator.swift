@@ -30,23 +30,11 @@ enum ValidatorError: Error {
 enum ValidatorResult: Equatable {
     case exists(points: Int)
     case notExists
-    
-    static func ==(lhs: ValidatorResult, rhs: ValidatorResult) -> Bool {
-        switch (lhs, rhs) {
-        case (.exists(let points1), .exists(let points2)): return points1 == points2
-        case (.notExists, .notExists): return true
-        default: return false
-        }
-    }
 }
 
 struct Word: Equatable {
     let string: String
     let points: Int
-
-    static func ==(lhs: Word, rhs: Word) -> Bool {
-        return lhs.string == rhs.string && lhs.points == rhs.points
-    }
 }
 
 final class Validator {
