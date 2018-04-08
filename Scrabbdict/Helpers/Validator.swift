@@ -44,7 +44,11 @@ final class Validator {
     }
     private let queue = DispatchQueue(label: "pl.sochalewski.Scrabbdict.realm.queue", qos: .userInitiated)
     private let configuration = Realm.Configuration(fileURL: Bundle.main.url(forResource: "Database", withExtension: "realm"), readOnly: true)
-    private var trie: Trie?
+    private var trie: Trie? {
+        didSet {
+            queue.async { self.isReloadingTrie = false }
+        }
+    }
     private var isReloadingTrie = false {
         didSet {
             if isAwaitingForWordsFromLetters {
@@ -137,12 +141,14 @@ final class Validator {
     }
     
     private func reloadTrie() {
-        DispatchQueue.global(qos: .userInitiated).async {
+        queue.async {
             guard let language = self.language else { return }
             self.isReloadingTrie = true
-            guard let words = try? String(contentsOf: language.shortWordsURL) else { self.isReloadingTrie = false; return }
-            self.trie = Trie(words.components(separatedBy: .newlines))
-            self.isReloadingTrie = false
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                guard let words = try? String(contentsOf: language.shortWordsURL) else { self.isReloadingTrie = false; return }
+                self.trie = Trie(words.components(separatedBy: .newlines))
+            }
         }
     }
 }
