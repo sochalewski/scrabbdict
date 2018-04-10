@@ -36,6 +36,8 @@ playground.xcworkspace
 # CocoaPods
 Pods/
 
+Scrabbdict/Files/Futura Bold.otf
+
 ### Dictionaries ###
 Scrabbdict/Files/*.txt
 RealmDatabaseWizard/Files/*.txt

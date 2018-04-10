@@ -131,7 +131,7 @@ final class ResultView: UIView {
 
 fileprivate extension UIFont {
     class func futura(size: CGFloat) -> UIFont {
-        return UIFont(name: "Futura-Bold", size: size)!
+        return UIFont(name: "Futura-Bold", size: size) ?? UIFont.boldSystemFont(ofSize: size)
     }
 }
 

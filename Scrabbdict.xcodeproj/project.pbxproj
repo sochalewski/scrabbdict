@@ -10,6 +10,7 @@
 		44568F612F86A969462A2CF7 /* Pods_Scrabbdict.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FE96A4F4403B1856452A782 /* Pods_Scrabbdict.framework */; };
 		606ABC14185B2713FB4A7EDF /* Pods_ScrabbdictTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21AF0A49B45E2A53135B05B5 /* Pods_ScrabbdictTests.framework */; };
 		AE1B1A651EF2792700AD81CA /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE1B1A641EF2792700AD81CA /* ResultView.swift */; };
+		AE2E686D207D3D5E0044F8F9 /* Futura Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AE2E686C207D3D5E0044F8F9 /* Futura Bold.otf */; };
 		AE39AB8C1EFF7470001818A1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = AE39AB8B1EFF7470001818A1 /* Settings.bundle */; };
 		AE3A5F551EBA33F20069C6FF /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5F541EBA33F20069C6FF /* Language.swift */; };
 		AE3A5FAC1EBA44390069C6FF /* Validator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5FAB1EBA44390069C6FF /* Validator.swift */; };
@@ -78,6 +79,7 @@
 		7C693B9CFE2B561455381616 /* Pods_RealmDatabaseWizard.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RealmDatabaseWizard.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A59DF36C8ED3B789DBD6455C /* Pods-ScrabbdictTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScrabbdictTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ScrabbdictTests/Pods-ScrabbdictTests.release.xcconfig"; sourceTree = "<group>"; };
 		AE1B1A641EF2792700AD81CA /* ResultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
+		AE2E686C207D3D5E0044F8F9 /* Futura Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Futura Bold.otf"; sourceTree = "<group>"; };
 		AE39AB8B1EFF7470001818A1 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		AE3A5F541EBA33F20069C6FF /* Language.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		AE3A5FAB1EBA44390069C6FF /* Validator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Validator.swift; sourceTree = "<group>"; };
@@ -259,6 +261,7 @@
 				AE8B5BD6202F7BD10013094A /* pl_PL.txt */,
 				AE8B5BD7202F7BD10013094A /* en_GB_sowpods.txt */,
 				AE8B5BD8202F7BD10013094A /* en_US_twl.txt */,
+				AE2E686C207D3D5E0044F8F9 /* Futura Bold.otf */,
 			);
 			path = Files;
 			sourceTree = "<group>";
@@ -440,6 +443,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AE2E686D207D3D5E0044F8F9 /* Futura Bold.otf in Resources */,
 				AE8B5BDB202F7BD10013094A /* en_GB_sowpods.txt in Resources */,
 				AEF8AC901EBA02AA005996D5 /* LaunchScreen.storyboard in Resources */,
 				AE39AB8C1EFF7470001818A1 /* Settings.bundle in Resources */,
