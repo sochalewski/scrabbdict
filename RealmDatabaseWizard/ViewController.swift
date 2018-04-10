@@ -24,6 +24,8 @@ final class ViewController: NSViewController {
         
         cleverDatabase()
         textFiles()
+        
+        NSWorkspace.shared.openFile(NSHomeDirectory())
     }
     
     /// Creates a database with `CleverVocabulary` object and writes `Database.realm` to Home directory.

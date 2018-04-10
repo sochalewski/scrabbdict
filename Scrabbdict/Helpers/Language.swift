@@ -43,11 +43,11 @@ enum Language: String, CustomStringConvertible {
     var description: String {
         switch self {
         case .englishGB:
-            return "English word list used in tournament Scrabble™ in most countries except the USA, Thailand and Canada\n\nNumber of words: 267,751"
+            return "English word list used in tournament Scrabble™ in most countries except the USA, Thailand and Canada\n\nNumber of words: 276,643"
         case .englishUS:
-            return "Official Tournament and Club Word List\nEnglish official word authority for tournament Scrabble™ in the USA, Canada and Thailand\n\nNumber of words: 178,691"
+            return "Official Tournament and Club Word List\nEnglish official word authority for tournament Scrabble™ in the USA, Canada and Thailand\n\nNumber of words: 187,632"
         case .polish:
-            return "Polish open dictionary by sjp.pl (CC BY 4.0).\n\nNumber of words: 2,965,190"
+            return "Polish open dictionary by sjp.pl (CC BY 4.0).\n\nNumber of words: 2,965,223"
         case .french:
             return "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble OSD6\n\nNumber of words: 386,264"
         }
