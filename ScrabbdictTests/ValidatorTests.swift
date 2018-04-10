@@ -212,4 +212,29 @@ final class ValidatorTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1.0)
     }
+    
+    func testRemoveDiacritics() {
+        sut.language = .french
+        
+        let expectation = XCTestExpectation(description: "Closure for check(word:) with a French diacritic word")
+        
+        sut.check(word: "même") { result1 in
+            switch result1 {
+            case .success(let result1):
+                self.sut.check(word: "meme") { result2 in
+                    switch result2 {
+                    case .success(let result2):
+                        XCTAssert(result1 == result2)
+                    case .error:
+                        XCTFail()
+                    }
+                    expectation.fulfill()
+                }
+            case .error(let error):
+                XCTAssert(error == .tooManyLetters)
+            }
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+    }
 }
