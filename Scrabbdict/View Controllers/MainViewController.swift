@@ -186,6 +186,11 @@ final class MainViewController: UIViewController {
     }
     
     private func setTableView(visible: Bool, animated: Bool = true) {
+        // If not visible, then stop scrolling to not crash on tableView(_:cellForRowAt:).
+        // If visible, scroll to the top.
+        let contentOffset: CGPoint = visible ? .zero : tableView.contentOffset
+        tableView.setContentOffset(contentOffset, animated: false)
+
         UIView.animate(withDuration: animated ? 0.4 : 0.0) {
             self.tableView.alpha = visible ? 1.0 : 0.0
         }
@@ -280,6 +285,10 @@ extension MainViewController: UITextFieldDelegate {
 }
 
 extension MainViewController: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return words.isEmpty ? 0 : 1
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return words.count
     }
