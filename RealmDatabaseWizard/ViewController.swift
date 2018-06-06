@@ -23,7 +23,6 @@ final class ViewController: NSViewController {
         super.viewDidAppear()
         
         cleverDatabase()
-        textFiles()
         
         NSWorkspace.shared.openFile(NSHomeDirectory())
     }
@@ -34,49 +33,38 @@ final class ViewController: NSViewController {
             realm.deleteAll()
         }
         
-        var vocabularies = [Vocabulary]()
-        
         Language.allValues.forEach { language in
             autoreleasepool {
                 let string = try! String(contentsOf: language.url, encoding: .utf8)
-                let words = string.components(separatedBy: .newlines)
+                let words = string.components(separatedBy: .newlines).sorted { $0.count < $1.count }
                 
                 let vocabulary = Vocabulary()
                 vocabulary.language = language
                 
                 words.forEach { word in
                     autoreleasepool {
-                        let object = StringObject()
-                        object.value = word
+                        let object: StringObject
+                        let predicate = NSPredicate(format: "%K == %@", "value", word)
+                        if let anObject = realm.objects(StringObject.self).filter(predicate).first {
+                            object = anObject
+                        } else {
+                            object = StringObject()
+                            object.value = word
+                        }
                         vocabulary.words[word.count].append(object)
                     }
                 }
                 
-                vocabularies.append(vocabulary)
+                try! realm.write {
+                    realm.add(vocabulary)
+                }
             }
         }
         
-        try! realm.write {
-            realm.add(vocabularies)
-        }
+        try! realm.write { }
         
         let url = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Database.realm")
         try? FileManager.default.removeItem(at: url)
         try! realm.writeCopy(toFile: url)
-    }
-    
-    private func textFiles() {
-        Language.allValues.forEach { language in
-            autoreleasepool {
-                let string = try! String(contentsOf: language.url, encoding: .utf8)
-                let words = string.components(separatedBy: .newlines)
-                let newWords = words.filter { $0.count <= String.maximumTrieWordLength }
-                
-                let url = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("\(language.rawValue).txt")
-                try? FileManager.default.removeItem(at: url)
-
-                try! newWords.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
-            }
-        }
     }
 }

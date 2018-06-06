@@ -72,8 +72,7 @@ final class Validator {
         let word = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
         
         queue.async {
-            let realm = try! Realm(configuration: self.configuration)
-            let words = self.words(from: realm)
+            let words = self.words()
             let predicate = NSPredicate(format: "%K == %@", "value", word.lowercased())
             let exists = !words[word.count].filter(predicate).isEmpty
             
@@ -121,8 +120,7 @@ final class Validator {
         let phrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase
         
         queue.async {
-            let realm = try! Realm(configuration: self.configuration)
-            let words = self.words(from: realm)
+            let words = self.words()
             let predicate = NSPredicate(format: "%K LIKE %@", "value", phrase.lowercased())
             let result = words[phrase.count]
                 .filter(predicate)
@@ -135,19 +133,22 @@ final class Validator {
         }
     }
     
-    private func words(from realm: Realm) -> [List<StringObject>] {
+    private func words() -> [List<StringObject>] {
+        let realm = try! Realm(configuration: self.configuration)
         let predicate = NSPredicate(format: "%K == %@", "_language", language!.rawValue)
         return realm.objects(Vocabulary.self).filter(predicate).first!.words
     }
     
     private func reloadTrie() {
         queue.async {
-            guard let language = self.language else { return }
             self.isReloadingTrie = true
             
             DispatchQueue.global(qos: .userInitiated).async {
-                guard let words = try? String(contentsOf: language.shortWordsURL) else { self.isReloadingTrie = false; return }
-                self.trie = Trie(words.components(separatedBy: .newlines))
+                let words = self.words()
+                    .prefix(String.maximumTrieWordLength + 1)
+                    .flatMap { $0.map { $0.value } }
+
+                self.trie = Trie(words)
             }
         }
     }
