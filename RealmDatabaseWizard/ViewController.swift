@@ -60,9 +60,7 @@ final class ViewController: NSViewController {
                 }
             }
         }
-        
-        try! realm.write { }
-        
+                
         let url = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Database.realm")
         try? FileManager.default.removeItem(at: url)
         try! realm.writeCopy(toFile: url)
