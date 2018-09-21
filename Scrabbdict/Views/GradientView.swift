@@ -10,7 +10,7 @@ import UIKit
 
 final class GradientView: UIView {
     
-    override open class var layerClass: AnyClass {
+    override class var layerClass: AnyClass {
         return CAGradientLayer.classForCoder()
     }
     

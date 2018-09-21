@@ -370,18 +370,20 @@
 					AE62F7202024EA8C00A57DAE = {
 						CreatedOnToolsVersion = 9.2;
 						DevelopmentTeam = 8PM48474J4;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Automatic;
 					};
 					AE78C2771FFD267600874685 = {
 						CreatedOnToolsVersion = 9.2;
 						DevelopmentTeam = 8PM48474J4;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Automatic;
 						TestTargetID = AEF8AC811EBA02AA005996D5;
 					};
 					AEF8AC811EBA02AA005996D5 = {
 						CreatedOnToolsVersion = 8.3.2;
 						DevelopmentTeam = 8PM48474J4;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -654,7 +656,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.RealmDatabaseWizard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -677,7 +679,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.RealmDatabaseWizard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};
@@ -703,7 +705,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.ScrabbdictTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Scrabbdict.app/Scrabbdict";
 			};
@@ -731,7 +733,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.ScrabbdictTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Scrabbdict.app/Scrabbdict";
 			};
@@ -860,7 +862,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.Scrabbdict;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -875,7 +877,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.Scrabbdict;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};

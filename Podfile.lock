@@ -1,14 +1,14 @@
 PODS:
-  - Crashlytics (3.10.2):
-    - Fabric (~> 1.7.7)
-  - Fabric (1.7.7)
-  - Realm (3.7.2):
-    - Realm/Headers (= 3.7.2)
-  - Realm/Headers (3.7.2)
-  - RealmSwift (3.7.2):
-    - Realm (= 3.7.2)
-  - SwiftSpinner (1.5.0)
-  - TinySwift (2.1.0)
+  - Crashlytics (3.10.7):
+    - Fabric (~> 1.7.11)
+  - Fabric (1.7.11)
+  - Realm (3.10.0):
+    - Realm/Headers (= 3.10.0)
+  - Realm/Headers (3.10.0)
+  - RealmSwift (3.10.0):
+    - Realm (= 3.10.0)
+  - SwiftSpinner (1.6.2)
+  - TinySwift (2.2.0)
 
 DEPENDENCIES:
   - Crashlytics
@@ -27,12 +27,12 @@ SPEC REPOS:
     - TinySwift
 
 SPEC CHECKSUMS:
-  Crashlytics: 0360624eea1c978a743feddb2fb1ef8b37fb7a0d
-  Fabric: bda89e242bce1b7b8ab264248cf3407774ce0095
-  Realm: dd18c3014e8d90df300b83c6da740067436089c5
-  RealmSwift: 79917cae59a0c43ef8118b233a5978891dd50b4a
-  SwiftSpinner: 4c058c7a1d6b444dd2e1d70988ead40783097133
-  TinySwift: 262d76c601e4303a5b5c14a09b09b4708bfcdbd5
+  Crashlytics: ccaac42660eb9351b9960c0d66106b0bcf99f4fa
+  Fabric: f233c9492b3bbc1f04e3882986740f7988a58edb
+  Realm: 85ab9e4f779d66f6e9ffeb118dc25b7f130c96ac
+  RealmSwift: 69121c8b86d0ae005fb779efdb10e606732e1c74
+  SwiftSpinner: 3a4c6dea425e5a31b908a8b1dd5dcd1ad4d96340
+  TinySwift: b23877b1fd3a7d0e81f15f29120b7879c8953867
 
 PODFILE CHECKSUM: 9ad7353de7b0dfa6b4d4d22f60d78ce162244f0a
 
