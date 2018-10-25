@@ -8,14 +8,12 @@
 
 import Foundation
 
-enum Language: String, CustomStringConvertible {
+enum Language: String, CaseIterable, CustomStringConvertible {
     case englishGB = "en_GB_sowpods"
     case englishUS = "en_US_twl"
+	case french = "fr_ODS6"
     case polish = "pl_PL"
-    case french = "fr_ODS6"
-    
-    static let allValues: [Language] = [.englishGB, .englishUS, .french, .polish]
-    
+	
     static var current: Language {
         get {
             guard let language = UserDefaults.standard.string(forKey: "dictionaryLang") else { return .englishUS }
@@ -47,7 +45,7 @@ enum Language: String, CustomStringConvertible {
         case .englishUS:
             return "Official Tournament and Club Word List\nEnglish official word authority for tournament Scrabble™ in the USA, Canada and Thailand\n\nNumber of words: 187,632"
         case .polish:
-            return "Polish open dictionary by sjp.pl (CC BY 4.0)\n\nNumber of words: 2,965,223"
+            return "Polish open dictionary by sjp.pl (CC BY 4.0)\n\nNumber of words: 2,965,375"
         case .french:
             return "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble OSD6\n\nNumber of words: 386,264"
         }

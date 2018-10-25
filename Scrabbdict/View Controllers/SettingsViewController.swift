@@ -31,7 +31,7 @@ final class SettingsViewController: UIViewController {
         
         tableViewHeightConstraint.constant = CGFloat(tableView.numberOfRows(inSection: 0)) * 44.0
         
-        let indexPath = IndexPath(row: Language.allValues.index(of: Language.current)!, section: 0)
+        let indexPath = IndexPath(row: Language.allCases.index(of: Language.current)!, section: 0)
         tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
         tableView.delegate?.tableView?(tableView, didSelectRowAt: indexPath)
         
@@ -51,19 +51,19 @@ final class SettingsViewController: UIViewController {
     }
     
     @IBAction private func saveButtonAction(_ sender: Any) {
-        Language.current = Language.allValues[tableView.indexPathForSelectedRow!.row]
+        Language.current = Language.allCases[tableView.indexPathForSelectedRow!.row]
         dismiss()
     }
 }
 
 extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Language.allValues.count
+        return Language.allCases.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        cell.textLabel?.text = Language.allValues[indexPath.row].name
+        cell.textLabel?.text = Language.allCases[indexPath.row].name
         
         return cell
     }
@@ -72,7 +72,7 @@ extension SettingsViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.cellForRow(at: indexPath)
         cell?.accessoryType = .checkmark
         
-        descriptionLabel.text = Language.allValues[indexPath.row].description
+        descriptionLabel.text = Language.allCases[indexPath.row].description
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

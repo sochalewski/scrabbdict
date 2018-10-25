@@ -33,7 +33,7 @@ final class ViewController: NSViewController {
             realm.deleteAll()
         }
         
-        Language.allValues.forEach { language in
+        Language.allCases.forEach { language in
             autoreleasepool {
                 let string = try! String(contentsOf: language.url, encoding: .utf8)
                 let words = string.components(separatedBy: .newlines).sorted { $0.count < $1.count }
