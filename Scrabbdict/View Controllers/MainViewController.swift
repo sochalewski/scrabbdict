@@ -155,7 +155,7 @@ final class MainViewController: UIViewController {
                     switch result {
                     case .success(let words):
                         self.words = words
-                    case .error:
+                    case .failure:
                         self.words = []
                     }
                     closureToCallWhenComplete(nil)
@@ -166,7 +166,7 @@ final class MainViewController: UIViewController {
                     switch result {
                     case .success(let result):
                         closureToCallWhenComplete(result)
-                    case .error:
+                    case .failure:
                         closureToCallWhenComplete(nil)
                     }
                 }
@@ -176,7 +176,7 @@ final class MainViewController: UIViewController {
                 switch result {
                 case .success(let words):
                     self.words = words
-                case .error(let error):
+                case .failure(let error):
                     self.words = []
                     DispatchQueue.main.async { onError(error) }
                 }

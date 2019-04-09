@@ -38,7 +38,7 @@ final class ValidatorTests: XCTestCase {
                 case .notExists:
                     XCTFail()
                 }
-            case .error:
+            case .failure:
                 XCTFail()
             }
             
@@ -60,7 +60,7 @@ final class ValidatorTests: XCTestCase {
                 case .notExists:
                     XCTAssert(true)
                 }
-            case .error:
+            case .failure:
                 XCTFail()
             }
             
@@ -84,7 +84,7 @@ final class ValidatorTests: XCTestCase {
                         XCTFail()
                     }
                 }
-            case .error:
+            case .failure:
                 XCTFail()
             }
             
@@ -108,7 +108,7 @@ final class ValidatorTests: XCTestCase {
                         XCTFail()
                     }
                 }
-            case .error:
+            case .failure:
                 XCTFail()
             }
             
@@ -131,12 +131,12 @@ final class ValidatorTests: XCTestCase {
                     switch result2 {
                     case .success(let result2):
                         XCTAssert(result1 == result2)
-                    case .error:
+                    case .failure:
                         XCTFail()
                     }
                     expectation1.fulfill()
                 }
-            case .error:
+            case .failure:
                 XCTFail()
             }
         }
@@ -148,12 +148,12 @@ final class ValidatorTests: XCTestCase {
                     switch result2 {
                     case .success(let result2):
                         XCTAssert(result1 == result2)
-                    case .error:
+                    case .failure:
                         XCTFail()
                     }
                     expectation2.fulfill()
                 }
-            case .error:
+            case .failure:
                 XCTFail()
             }
         }
@@ -166,12 +166,12 @@ final class ValidatorTests: XCTestCase {
                     case .success(let words2):
                         XCTAssertFalse(words1.isEmpty)
                         XCTAssert(words1 == words2)
-                    case .error:
+                    case .failure:
                         XCTFail()
                     }
                     expectation3.fulfill()
                 }
-            case .error:
+            case .failure:
                 XCTFail()
             }
         }
@@ -184,12 +184,12 @@ final class ValidatorTests: XCTestCase {
                     case .success(let result2):
                         XCTAssertFalse(result1.isEmpty)
                         XCTAssert(result1 == result2)
-                    case .error:
+                    case .failure:
                         XCTFail()
                     }
                     expectation4.fulfill()
                 }
-            case .error:
+            case .failure:
                 XCTFail()
             }
         }
@@ -204,7 +204,7 @@ final class ValidatorTests: XCTestCase {
             switch result {
             case .success:
                 XCTFail()
-            case .error(let error):
+            case .failure(let error):
                 XCTAssert(error == .tooManyLetters)
             }
             expectation.fulfill()
@@ -225,12 +225,12 @@ final class ValidatorTests: XCTestCase {
                     switch result2 {
                     case .success(let result2):
                         XCTAssert(result1 == result2)
-                    case .error:
+                    case .failure:
                         XCTFail()
                     }
                     expectation.fulfill()
                 }
-            case .error(let error):
+            case .failure(let error):
                 XCTAssert(error == .tooManyLetters)
             }
         }

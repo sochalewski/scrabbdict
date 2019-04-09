@@ -31,7 +31,7 @@ final class SettingsViewController: UIViewController {
         
         tableViewHeightConstraint.constant = CGFloat(tableView.numberOfRows(inSection: 0)) * 44.0
         
-        let indexPath = IndexPath(row: Language.allCases.index(of: Language.current)!, section: 0)
+        let indexPath = IndexPath(row: Language.allCases.firstIndex(of: Language.current)!, section: 0)
         tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
         tableView.delegate?.tableView?(tableView, didSelectRowAt: indexPath)
         

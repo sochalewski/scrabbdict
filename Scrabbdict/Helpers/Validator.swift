@@ -10,11 +10,6 @@ import Foundation
 import Crashlytics
 import RealmSwift
 
-enum Result<T> {
-    case success(T)
-    case error(ValidatorError)
-}
-
 enum ValidatorError: Error {
     case tooManyLetters
     case unknown
@@ -63,10 +58,10 @@ final class Validator {
     }
     private var isAwaitingForWordsFromLetters = false
     private var wordsFromLettersPhrase: String?
-    private var wordsFromLettersCompletion: ((Result<[Word]>) -> ())?
+    private var wordsFromLettersCompletion: ((Result<[Word], ValidatorError>) -> ())?
     
-    func check(word: String, completion: @escaping ((Result<ValidatorResult>) -> ())) {
-        guard let language = language else { completion(.error(.unknown)); return }
+    func check(word: String, completion: @escaping ((Result<ValidatorResult, ValidatorError>) -> ())) {
+        guard let language = language else { completion(.failure(.unknown)); return }
         guard word.isLengthValid else { completion(.success(.notExists)); return }
         
         let word = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
@@ -82,9 +77,9 @@ final class Validator {
         }
     }
     
-    func words(from letters: String, completion: @escaping ((Result<[Word]>) -> ())) {
-        guard let language = language else { completion(.error(.unknown)); return }
-        guard letters.count <= String.maximumTrieWordLength else { completion(.error(.tooManyLetters)); return }
+    func words(from letters: String, completion: @escaping ((Result<[Word], ValidatorError>) -> ())) {
+        guard let language = language else { completion(.failure(.unknown)); return }
+        guard letters.count <= String.maximumTrieWordLength else { completion(.failure(.tooManyLetters)); return }
         guard letters.isLengthValid else { completion(.success([])); return }
         
         let letters = language.shouldRemoveDiacritics ? letters.folding(options: .diacriticInsensitive, locale: nil) : letters
@@ -97,7 +92,7 @@ final class Validator {
                 return
             }
             
-            guard let trie = self.trie else { completion(.error(.unknown)); return }
+            guard let trie = self.trie else { completion(.failure(.unknown)); return }
             
             let permutes = letters.lowercased()
                 .map { String($0) }
@@ -113,8 +108,8 @@ final class Validator {
         }
     }
     
-    func regex(phrase: String, completion: @escaping ((Result<[Word]>) -> ())) {
-        guard let language = language else { completion(.error(.unknown)); return }
+    func regex(phrase: String, completion: @escaping ((Result<[Word], ValidatorError>) -> ())) {
+        guard let language = language else { completion(.failure(.unknown)); return }
         guard phrase.isLengthValid else { completion(.success([])); return }
         
         let phrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase

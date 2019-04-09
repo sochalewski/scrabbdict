@@ -270,24 +270,12 @@ extension Trie: CustomStringConvertible, CustomDebugStringConvertible {
     }
 }
 
+// MARK: Hashable Protocol Conformance
+
 extension Trie: Hashable {
     
-    // MARK: Hashable Protocol Conformance
-    
-    /// The hash value.
-    /// `x == y` implies `x.hashValue == y.hashValue`
-    public var hashValue: Int {
-        return hashValue(root)
-    }
-    
-    private func hashValue(_ node: TrieNode) -> Int {
-        var result = 71
-        result = (31 ^ result) ^ node.isWord.hashValue
-        result = (31 ^ result) ^ (node.key?.hashValue ?? 0)
-        for (_, subNode) in node.children {
-            result = (31 ^ result) ^ hashValue(subNode)
-        }
-        return result
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(root)
     }
 }
 
@@ -304,7 +292,7 @@ public func ==(lhs: Trie, rhs: Trie) -> Bool {
 
 // MARK: - TrieNode
 
-private final class TrieNode: Equatable {
+private final class TrieNode: Equatable, Hashable {
     let key: UnicodeScalar?
     var isWord : Bool = false
     var children = [UnicodeScalar : TrieNode]()
@@ -312,6 +300,14 @@ private final class TrieNode: Equatable {
     init(key: UnicodeScalar?, isWord: Bool = false) {
         self.key = key
         self.isWord = isWord
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(isWord)
+        hasher.combine(key?.hashValue ?? 0)
+        for (_, subnode) in children {
+            hasher.combine(subnode)
+        }
     }
 }
 
