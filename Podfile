@@ -1,3 +1,5 @@
+source 'https://cdn.cocoapods.org/'
+
 target 'Scrabbdict' do
   use_frameworks!
 
