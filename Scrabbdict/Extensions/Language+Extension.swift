@@ -9,10 +9,6 @@
 import TinySwift
 
 extension Language {
-    var shortWordsURL: URL {
-        return Bundle.main.url(forResource: rawValue, withExtension: "txt")!
-    }
-    
     private var letterPoints: [Character: Int] {
         switch self {
         case .englishUS, .englishGB:
@@ -24,7 +20,7 @@ extension Language {
         }
     }
     
-    func points(`for` word: String) -> Int {
+    func points(for word: String) -> Int {
         return word.uppercased().compactMap({ letterPoints[$0] }).sum
     }
 }

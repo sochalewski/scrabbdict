@@ -106,7 +106,7 @@ final class MainViewController: UIViewController {
         }
     }
     
-    private func showResultAlert(`for` word: String) {
+    private func showResultAlert(for word: String) {
         let isRegex = word.contains("?")
         let isStandard = mode == .standard
         
