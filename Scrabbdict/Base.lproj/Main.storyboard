@@ -41,14 +41,14 @@
                                             <rect key="frame" x="0.0" y="0.0" width="337" height="30"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NiN-vW-iu0">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="10" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NiN-vW-iu0">
                                                     <rect key="frame" x="312.5" y="5.5" width="16.5" height="19.5"/>
                                                     <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="14"/>
                                                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Word" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4O7-fP-Yrm">
-                                                    <rect key="frame" x="8" y="5.5" width="36" height="19.5"/>
+                                                    <rect key="frame" x="8" y="5.5" width="35.5" height="19.5"/>
                                                     <fontDescription key="fontDescription" name="AvenirNext-Regular" family="Avenir Next" pointSize="14"/>
                                                     <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                                     <nil key="highlightedColor"/>
@@ -58,6 +58,7 @@
                                                 <constraint firstItem="NiN-vW-iu0" firstAttribute="centerY" secondItem="iGV-9d-27z" secondAttribute="centerY" id="80C-wg-veK"/>
                                                 <constraint firstItem="4O7-fP-Yrm" firstAttribute="centerY" secondItem="iGV-9d-27z" secondAttribute="centerY" id="SDc-Cl-VFG"/>
                                                 <constraint firstAttribute="trailing" secondItem="NiN-vW-iu0" secondAttribute="trailing" constant="8" id="TMH-FT-19A"/>
+                                                <constraint firstItem="NiN-vW-iu0" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="4O7-fP-Yrm" secondAttribute="trailing" constant="16" id="b2o-jR-0Wa"/>
                                                 <constraint firstItem="4O7-fP-Yrm" firstAttribute="leading" secondItem="iGV-9d-27z" secondAttribute="leading" constant="8" id="pwf-Je-MUj"/>
                                             </constraints>
                                         </tableViewCellContentView>
@@ -172,6 +173,7 @@
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="Po4-eY-9e9" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="12P-GT-Dg0"/>
+                            <constraint firstItem="qtN-Uz-QDa" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="38" id="1x9-g5-4Ve"/>
                             <constraint firstItem="hxI-5Z-gR3" firstAttribute="trailing" secondItem="Po4-eY-9e9" secondAttribute="trailing" id="ARL-UR-C6a"/>
                             <constraint firstItem="Po4-eY-9e9" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="46" id="Bu4-hm-npJ">
                                 <variation key="heightClass=regular-widthClass=regular" constant="80"/>
