@@ -16,8 +16,8 @@ enum Language: String, CaseIterable, CustomStringConvertible {
 	
     static var current: Language {
         get {
-            guard let language = UserDefaults.standard.string(forKey: "dictionaryLang") else { return .englishUS }
-            return Language(rawValue: language)!
+            guard let rawValue = UserDefaults.standard.string(forKey: "dictionaryLang"), let language = Language(rawValue: rawValue) else { return .englishUS }
+            return language
         }
         set {
             UserDefaults.standard.set(newValue.rawValue, forKey: "dictionaryLang")
