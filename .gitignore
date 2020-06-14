@@ -36,9 +36,8 @@ playground.xcworkspace
 # CocoaPods
 Pods/
 
-Scrabbdict/GoogleService-Info.plist
-
 Scrabbdict/Files/Futura Bold.otf
+Scrabbdict/GoogleService-Info.plist
 
 ### Dictionaries ###
 Scrabbdict/Files/*.txt
