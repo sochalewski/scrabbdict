@@ -1,13 +1,11 @@
-source 'https://cdn.cocoapods.org/'
-
 target 'Scrabbdict' do
   use_frameworks!
 
-  pod 'Fabric'
-  pod 'Crashlytics'
+  pod 'Firebase/Crashlytics'
+  pod 'Firebase/Analytics'
   pod 'TinySwift'
   pod 'SwiftSpinner'
-  pod 'RealmSwift'
+  pod 'RealmSwift', '~> 4.0'
 
   target 'ScrabbdictTests' do
     inherit! :search_paths
@@ -17,5 +15,5 @@ end
 target 'RealmDatabaseWizard' do
   use_frameworks!
 
-  pod 'RealmSwift'
+  pod 'RealmSwift', '~> 4.0'
 end

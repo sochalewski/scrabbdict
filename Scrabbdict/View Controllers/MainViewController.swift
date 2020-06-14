@@ -8,7 +8,7 @@
 
 import UIKit
 import SwiftSpinner
-import Crashlytics
+import FirebaseAnalytics
 
 enum Mode: String {
     case standard = "Standard"
@@ -309,7 +309,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource {
 extension MainViewController: SettingsViewControllerDelegate {
     func didFinishPresentation() {
         guard validator.language != Language.current else { return }
-        Answers.logCustomEvent(withName: "Language changed", customAttributes: ["language" : Language.current.name])
+        Analytics.logEvent("Language changed", parameters: ["language" : Language.current.name])
         setTableView(visible: false)
         dismissResultView()
         validator.language = Language.current

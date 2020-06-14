@@ -10,6 +10,7 @@
 		44568F612F86A969462A2CF7 /* Pods_Scrabbdict.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FE96A4F4403B1856452A782 /* Pods_Scrabbdict.framework */; };
 		606ABC14185B2713FB4A7EDF /* Pods_ScrabbdictTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21AF0A49B45E2A53135B05B5 /* Pods_ScrabbdictTests.framework */; };
 		AE1B1A651EF2792700AD81CA /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE1B1A641EF2792700AD81CA /* ResultView.swift */; };
+		AE2D3BE72496178300475076 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AE2D3BE62496178300475076 /* GoogleService-Info.plist */; };
 		AE2E686D207D3D5E0044F8F9 /* Futura Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AE2E686C207D3D5E0044F8F9 /* Futura Bold.otf */; };
 		AE39AB8C1EFF7470001818A1 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = AE39AB8B1EFF7470001818A1 /* Settings.bundle */; };
 		AE3A5F551EBA33F20069C6FF /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5F541EBA33F20069C6FF /* Language.swift */; };
@@ -75,6 +76,7 @@
 		7C693B9CFE2B561455381616 /* Pods_RealmDatabaseWizard.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RealmDatabaseWizard.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A59DF36C8ED3B789DBD6455C /* Pods-ScrabbdictTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScrabbdictTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ScrabbdictTests/Pods-ScrabbdictTests.release.xcconfig"; sourceTree = "<group>"; };
 		AE1B1A641EF2792700AD81CA /* ResultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
+		AE2D3BE62496178300475076 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AE2E686C207D3D5E0044F8F9 /* Futura Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Futura Bold.otf"; sourceTree = "<group>"; };
 		AE39AB8B1EFF7470001818A1 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		AE3A5F541EBA33F20069C6FF /* Language.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
@@ -291,6 +293,7 @@
 				AEF8AC8E1EBA02AA005996D5 /* LaunchScreen.storyboard */,
 				AE39AB8B1EFF7470001818A1 /* Settings.bundle */,
 				AEF8AC911EBA02AA005996D5 /* Info.plist */,
+				AE2D3BE62496178300475076 /* GoogleService-Info.plist */,
 			);
 			path = Scrabbdict;
 			sourceTree = "<group>";
@@ -344,7 +347,7 @@
 				AEF8AC7E1EBA02AA005996D5 /* Sources */,
 				AEF8AC7F1EBA02AA005996D5 /* Frameworks */,
 				AEF8AC801EBA02AA005996D5 /* Resources */,
-				AECB3DD71EE9E15D00A8006E /* ShellScript */,
+				AECB3DD71EE9E15D00A8006E /* Crashlytics */,
 				AE7420BE1EBA07CA000AA67B /* Embed App Extensions */,
 				0B2B84C17B8985FC62AAF10B /* [CP] Embed Pods Frameworks */,
 			);
@@ -439,6 +442,7 @@
 				AEF8AC8D1EBA02AA005996D5 /* Assets.xcassets in Resources */,
 				AE6317D12024F30500EF42B2 /* Database.realm in Resources */,
 				AEF8AC8B1EBA02AA005996D5 /* Main.storyboard in Resources */,
+				AE2D3BE72496178300475076 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -480,18 +484,19 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		AECB3DD71EE9E15D00A8006E /* ShellScript */ = {
+		AECB3DD71EE9E15D00A8006E /* Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = Crashlytics;
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Fabric/run\" 4ff4b7501f09bb4276c783db7c67ad3f82f48bb3 97d7f7e026750f3a8b88b33583f2770f821528bf5285bce9ef47a5d8e070bd05";
+			shellScript = "${PODS_ROOT}/FirebaseCrashlytics/run\n";
 		};
 		C82D751F0802B61B42300C58 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
