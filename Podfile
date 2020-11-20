@@ -5,7 +5,7 @@ target 'Scrabbdict' do
   pod 'Firebase/Analytics'
   pod 'TinySwift'
   pod 'SwiftSpinner'
-  pod 'RealmSwift', '~> 4.0'
+  pod 'RealmSwift', '~> 5.0'
 
   target 'ScrabbdictTests' do
     inherit! :search_paths
@@ -15,5 +15,5 @@ end
 target 'RealmDatabaseWizard' do
   use_frameworks!
 
-  pod 'RealmSwift', '~> 4.0'
+  pod 'RealmSwift', '~> 5.0'
 end
