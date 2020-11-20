@@ -71,7 +71,7 @@ final class Validator {
             let predicate = NSPredicate(format: "%K == %@", "value", word.lowercased())
             let exists = !words[word.count].filter(predicate).isEmpty
             
-            Analytics.logEvent("Word check", parameters: ["language" : language.name, "exists" : exists ? "yes" : "no"])
+            Analytics.logEvent("word_check", parameters: ["language" : language.name, "exists" : exists ? "yes" : "no"])
             
             completion(.success(exists ? .exists(points: language.points(for: word)) : .notExists))
         }
@@ -102,7 +102,7 @@ final class Validator {
                 .filter { trie.contains($0) }
                 .mapToWords(language: language)
             
-            Analytics.logEvent("Tiles", parameters: ["language" : language.name])
+            Analytics.logEvent("tiles", parameters: ["language" : language.name])
             
             completion(.success(result))
         }
@@ -122,7 +122,7 @@ final class Validator {
                 .map { $0.value }
                 .mapToWords(language: language)
             
-            Analytics.logEvent("Regex", parameters: ["language" : language.name])
+            Analytics.logEvent("regex", parameters: ["language" : language.name])
             
             completion(.success(result))
         }
