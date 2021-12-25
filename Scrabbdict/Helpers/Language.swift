@@ -43,9 +43,9 @@ enum Language: String, CaseIterable, CustomStringConvertible {
         case .englishGB:
             return "English word list used in tournament Scrabble™ in most countries except the USA, Thailand and Canada\n\nNumber of words: 279,496"
         case .englishUS:
-            return "Official Tournament and Club Word List\nEnglish official word authority for tournament Scrabble™ in the USA, Canada and Thailand\n\nNumber of words: 192,111"
+            return "Official Tournament and Club Word List\nEnglish official word authority for tournament Scrabble™ in the USA, Canada and Thailand\n\nNumber of words: 191,852"
         case .polish:
-            return "Polish open dictionary by sjp.pl (CC BY 4.0)\n\nNumber of words: 3,045,878"
+            return "Polish open dictionary by sjp.pl (CC BY 4.0)\n\nNumber of words: 3,057,911"
         case .french:
             return "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble ODS8\n\nNumber of words: 402,325"
         }
