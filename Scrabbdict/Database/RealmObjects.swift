@@ -34,7 +34,7 @@ final class Vocabulary: Object {
     private let words14 = List<StringObject>()
     private let words15 = List<StringObject>()
     
-    /// An array of list of String objects sorted from zero to fiteen letters.
+    /// An array of list of String objects sorted from zero to fifteen letters.
     lazy private(set) var words: [List<StringObject>] = {
         return [List<StringObject>(), List<StringObject>(), words2, words3, words4, words5, words6, words7, words8, words9, words10, words11, words12, words13, words14, words15]
     }()
