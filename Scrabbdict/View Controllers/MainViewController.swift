@@ -203,7 +203,7 @@ final class MainViewController: UIViewController {
         view.addSubview(resultView)
         self.resultView = resultView
         resultView.centerXAnchor.constraint(equalTo: tableView.centerXAnchor).isActive = true
-        let constraint = resultView.topAnchor.constraint(equalTo: bottomLayoutGuide.bottomAnchor)
+        let constraint = resultView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         constraint.isActive = true
         view.layoutIfNeeded()
         

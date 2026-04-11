@@ -94,12 +94,7 @@ final class Validator {
             
             guard let trie = self.trie else { completion(.failure(.unknown)); return }
             
-            let permutes = letters.lowercased()
-                .map { String($0) }
-                .permute()
-            
-            let result = permutes
-                .filter { trie.contains($0) }
+            let result = trie.words(from: letters.lowercased())
                 .mapToWords(language: language)
             
             Analytics.logEvent("tiles", parameters: ["language" : language.name])

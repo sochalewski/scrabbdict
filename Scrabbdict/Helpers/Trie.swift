@@ -84,6 +84,19 @@ public struct Trie {
         findPattern(prefixKeys, charStack: &lastKeys, result:&result, node: root)
         return result
     }
+
+    /// Returns all the words in the trie that can be formed from the given letters.
+    public func words(from letters: String, minLength: Int = 2) -> [String] {
+        guard !letters.isEmpty else { return [] }
+
+        var availableLetters = [UnicodeScalar: Int]()
+        letters.unicodeScalars.forEach { availableLetters[$0, default: 0] += 1 }
+
+        var currentWord = [Character]()
+        var result = [String]()
+        collectWords(from: root, using: &availableLetters, minLength: minLength, currentWord: &currentWord, result: &result)
+        return result
+    }
     
     /// Returns the longest prefix in the trie matching the given word.
     /// The returned value is not necessarily a full word in the trie.
@@ -248,6 +261,27 @@ public struct Trie {
             copy.children[key] = deepCopyNode(subNode)
         }
         return copy
+    }
+
+    private func collectWords(from node: TrieNode,
+                              using availableLetters: inout [UnicodeScalar: Int],
+                              minLength: Int,
+                              currentWord: inout [Character],
+                              result: inout [String]) {
+        if node.isWord, currentWord.count >= minLength {
+            result.append(String(currentWord))
+        }
+
+        for (letter, childNode) in node.children {
+            guard let remainingCount = availableLetters[letter], remainingCount > 0 else { continue }
+
+            availableLetters[letter] = remainingCount - 1
+            currentWord.append(Character(letter.escaped(asASCII: false)))
+            collectWords(from: childNode, using: &availableLetters, minLength: minLength, currentWord: &currentWord, result: &result)
+            currentWord.removeLast()
+
+            availableLetters[letter] = remainingCount
+        }
     }
 }
 

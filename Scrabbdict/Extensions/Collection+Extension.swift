@@ -9,26 +9,6 @@
 import Foundation
 
 extension Array where Element == String {
-    private func permute(fromList: [String], toList: [String], minStringLen: Int, set: inout Set<String>) {
-        if toList.count >= minStringLen {
-            set.insert(toList.joined())
-        }
-        guard !fromList.isEmpty else { return }
-        for (index, item) in fromList.enumerated() {
-            var newFrom = fromList
-            newFrom.remove(at: index)
-            permute(fromList: newFrom, toList: toList + [item], minStringLen: minStringLen, set: &set)
-        }
-    }
-    
-    /// Returns set of unique permutations of `self`.
-    /// - parameter minStringLen: The minimum desired string length. Default is 2.
-    func permute(minStringLen: Int = 2) -> Set<String> {
-        var set = Set<String>()
-        permute(fromList: self, toList: [], minStringLen: minStringLen, set: &set)
-        return set
-    }
-    
     func mapToWords(language: Language) -> [Word] {
         guard !isEmpty else { return [] }
         
