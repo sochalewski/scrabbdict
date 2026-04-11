@@ -9,13 +9,13 @@
 import Foundation
 
 enum Language: String, CaseIterable, CustomStringConvertible {
-    /// CSW22 (Collins Scrabble Words)
+    /// CSW24 (Collins Scrabble Words)
     case englishGB = "en_GB_sowpods"
-    /// NWL2020 (NASPA Word List)
+    /// NWL2023 (NASPA Word List)
     case englishUS = "en_US_twl"
-    /// OSD 8 (L'Officiel du Scrabble)
+    /// ODS 8 (L'Officiel du Scrabble)
     case french = "fr_ODS"
-    /// sjp-20230430
+    /// sjp-20260401
     case polish = "pl_PL"
     
     static var current: Language {
@@ -45,11 +45,11 @@ enum Language: String, CaseIterable, CustomStringConvertible {
     var description: String {
         switch self {
         case .englishGB:
-            return "English word list used in tournament Scrabble™ in most countries except the USA, Thailand and Canada\n\nNumber of words: 279,077"
+            return "English word list used in tournament Scrabble™ in most countries except the USA, Thailand and Canada\n\nNumber of words: 280,887"
         case .englishUS:
-            return "Official Tournament and Club Word List\nEnglish official word authority for tournament Scrabble™ in the USA, Canada and Thailand\n\nNumber of words: 191,852"
+            return "Official Tournament and Club Word List\nEnglish official word authority for tournament Scrabble™ in the USA, Canada and Thailand\n\nNumber of words: 196,601"
         case .polish:
-            return "Polish open dictionary by sjp.pl (CC BY 4.0)\n\nNumber of words: 3,186,044"
+            return "Polish open dictionary by sjp.pl (CC BY 4.0)\n\nNumber of words: 3,238,764"
         case .french:
             return "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble ODS8\n\nNumber of words: 402,325"
         }
