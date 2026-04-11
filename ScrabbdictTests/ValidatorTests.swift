@@ -213,14 +213,6 @@ final class ValidatorTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
 
-    func testTrieWordsFromLettersWithRepeatedLetters() {
-        let trie = Trie(["aa", "ab", "aba", "baa", "bb", "cab"])
-
-        let words = trie.words(from: "aab").sorted()
-
-        XCTAssertEqual(words, ["aa", "ab", "aba", "baa"])
-    }
-    
     func testRemoveDiacritics() {
         sut.language = .french
         
