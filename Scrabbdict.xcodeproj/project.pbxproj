@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		44568F612F86A969462A2CF7 /* Pods_Scrabbdict.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FE96A4F4403B1856452A782 /* Pods_Scrabbdict.framework */; };
-		606ABC14185B2713FB4A7EDF /* Pods_ScrabbdictTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21AF0A49B45E2A53135B05B5 /* Pods_ScrabbdictTests.framework */; };
 		AE1B1A651EF2792700AD81CA /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE1B1A641EF2792700AD81CA /* ResultView.swift */; };
 		AE2D3BE72496178300475076 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AE2D3BE62496178300475076 /* GoogleService-Info.plist */; };
 		AE2E686D207D3D5E0044F8F9 /* Futura Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AE2E686C207D3D5E0044F8F9 /* Futura Bold.otf */; };
@@ -31,6 +29,10 @@
 		AE62F73A2024EB7F00A57DAE /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5F541EBA33F20069C6FF /* Language.swift */; };
 		AE6317CC2024F12A00EF42B2 /* Language+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6317CB2024F12A00EF42B2 /* Language+Extension.swift */; };
 		AE6317D42024F7DC00EF42B2 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6317D32024F7DC00EF42B2 /* Collection+Extension.swift */; };
+		AE63C2682F8C45EB00E1DB8E /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AE63C2672F8C45EB00E1DB8E /* FirebaseAnalytics */; };
+		AE63C26A2F8C45EB00E1DB8E /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AE63C2692F8C45EB00E1DB8E /* FirebaseCrashlytics */; };
+		AE63C26D2F8C45F300E1DB8E /* TinySwift in Frameworks */ = {isa = PBXBuildFile; productRef = AE63C26C2F8C45F300E1DB8E /* TinySwift */; };
+		AE63C2702F8C45FB00E1DB8E /* SwiftSpinner in Frameworks */ = {isa = PBXBuildFile; productRef = AE63C26F2F8C45FB00E1DB8E /* SwiftSpinner */; };
 		AE78C27B1FFD267600874685 /* ValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE78C27A1FFD267600874685 /* ValidatorTests.swift */; };
 		AE78DEAC2F8BF48C00D1984E /* DAWGPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE78DEAB2F8BF48C00D1984E /* DAWGPerformanceTests.swift */; };
 		AE7900022F8C000100D1984E /* DAWG.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7900012F8C000100D1984E /* DAWG.swift */; };
@@ -70,11 +72,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		18777994602FD9F69FF788A8 /* Pods-Scrabbdict.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scrabbdict.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Scrabbdict/Pods-Scrabbdict.debug.xcconfig"; sourceTree = "<group>"; };
-		21AF0A49B45E2A53135B05B5 /* Pods_ScrabbdictTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ScrabbdictTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		5B5DF4A95CF3A1905FB95B48 /* Pods-ScrabbdictTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScrabbdictTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ScrabbdictTests/Pods-ScrabbdictTests.debug.xcconfig"; sourceTree = "<group>"; };
-		5FE96A4F4403B1856452A782 /* Pods_Scrabbdict.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Scrabbdict.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A59DF36C8ED3B789DBD6455C /* Pods-ScrabbdictTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ScrabbdictTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-ScrabbdictTests/Pods-ScrabbdictTests.release.xcconfig"; sourceTree = "<group>"; };
 		AE1B1A641EF2792700AD81CA /* ResultView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
 		AE2D3BE62496178300475076 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AE2E686C207D3D5E0044F8F9 /* Futura Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Futura Bold.otf"; sourceTree = "<group>"; };
@@ -115,7 +112,6 @@
 		AEF8AC8C1EBA02AA005996D5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AEF8AC8F1EBA02AA005996D5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AEF8AC911EBA02AA005996D5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DDCB1610B426694FFFC8A7C4 /* Pods-Scrabbdict.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scrabbdict.release.xcconfig"; path = "Pods/Target Support Files/Pods-Scrabbdict/Pods-Scrabbdict.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,7 +126,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				606ABC14185B2713FB4A7EDF /* Pods_ScrabbdictTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,33 +133,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				44568F612F86A969462A2CF7 /* Pods_Scrabbdict.framework in Frameworks */,
+				AE63C26A2F8C45EB00E1DB8E /* FirebaseCrashlytics in Frameworks */,
+				AE63C2702F8C45FB00E1DB8E /* SwiftSpinner in Frameworks */,
+				AE63C2682F8C45EB00E1DB8E /* FirebaseAnalytics in Frameworks */,
+				AE63C26D2F8C45F300E1DB8E /* TinySwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		53F741C6042EED55E84B35A9 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				5FE96A4F4403B1856452A782 /* Pods_Scrabbdict.framework */,
-				21AF0A49B45E2A53135B05B5 /* Pods_ScrabbdictTests.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		994FB0AE89BFAF41E6A28599 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				18777994602FD9F69FF788A8 /* Pods-Scrabbdict.debug.xcconfig */,
-				DDCB1610B426694FFFC8A7C4 /* Pods-Scrabbdict.release.xcconfig */,
-				5B5DF4A95CF3A1905FB95B48 /* Pods-ScrabbdictTests.debug.xcconfig */,
-				A59DF36C8ED3B789DBD6455C /* Pods-ScrabbdictTests.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		AE1B1A631EF2791C00AD81CA /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -267,8 +245,6 @@
 				AE78C2791FFD267600874685 /* ScrabbdictTests */,
 				AE62F7222024EA8C00A57DAE /* DAWGWizard */,
 				AEF8AC831EBA02AA005996D5 /* Products */,
-				994FB0AE89BFAF41E6A28599 /* Pods */,
-				53F741C6042EED55E84B35A9 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -325,7 +301,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AE78C2811FFD267600874685 /* Build configuration list for PBXNativeTarget "ScrabbdictTests" */;
 			buildPhases = (
-				C82D751F0802B61B42300C58 /* [CP] Check Pods Manifest.lock */,
 				AE78C2741FFD267600874685 /* Sources */,
 				AE78C2751FFD267600874685 /* Frameworks */,
 				AE78C2761FFD267600874685 /* Resources */,
@@ -344,12 +319,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AEF8AC941EBA02AA005996D5 /* Build configuration list for PBXNativeTarget "Scrabbdict" */;
 			buildPhases = (
-				198BEF9602D73FF0D4B71511 /* [CP] Check Pods Manifest.lock */,
 				AEF8AC7E1EBA02AA005996D5 /* Sources */,
 				AEF8AC7F1EBA02AA005996D5 /* Frameworks */,
 				AEF8AC801EBA02AA005996D5 /* Resources */,
 				AE7420BE1EBA07CA000AA67B /* Embed Foundation Extensions */,
-				35B94CD1FE5D876730A93C3F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -401,6 +374,11 @@
 			);
 			mainGroup = AEF8AC791EBA02AA005996D5;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AE63C2662F8C45EB00E1DB8E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				AE63C26B2F8C45F300E1DB8E /* XCRemoteSwiftPackageReference "TinySwift" */,
+				AE63C26E2F8C45FB00E1DB8E /* XCRemoteSwiftPackageReference "SwiftSpinner" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AEF8AC831EBA02AA005996D5 /* Products */;
 			projectDirPath = "";
@@ -452,66 +430,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		198BEF9602D73FF0D4B71511 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Scrabbdict-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		35B94CD1FE5D876730A93C3F /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Scrabbdict/Pods-Scrabbdict-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Scrabbdict/Pods-Scrabbdict-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Scrabbdict/Pods-Scrabbdict-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C82D751F0802B61B42300C58 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ScrabbdictTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AE62F71D2024EA8C00A57DAE /* Sources */ = {
@@ -646,7 +564,6 @@
 		};
 		AE78C27F1FFD267600874685 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5B5DF4A95CF3A1905FB95B48 /* Pods-ScrabbdictTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -680,7 +597,6 @@
 		};
 		AE78C2801FFD267600874685 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A59DF36C8ED3B789DBD6455C /* Pods-ScrabbdictTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -832,7 +748,6 @@
 		};
 		AEF8AC951EBA02AA005996D5 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 18777994602FD9F69FF788A8 /* Pods-Scrabbdict.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 32;
@@ -856,7 +771,6 @@
 		};
 		AEF8AC961EBA02AA005996D5 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DDCB1610B426694FFFC8A7C4 /* Pods-Scrabbdict.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 32;
@@ -918,6 +832,56 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AE63C2662F8C45EB00E1DB8E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.12.0;
+			};
+		};
+		AE63C26B2F8C45F300E1DB8E /* XCRemoteSwiftPackageReference "TinySwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sochalewski/TinySwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.0;
+			};
+		};
+		AE63C26E2F8C45FB00E1DB8E /* XCRemoteSwiftPackageReference "SwiftSpinner" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/icanzilb/SwiftSpinner";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AE63C2672F8C45EB00E1DB8E /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AE63C2662F8C45EB00E1DB8E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		AE63C2692F8C45EB00E1DB8E /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AE63C2662F8C45EB00E1DB8E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		AE63C26C2F8C45F300E1DB8E /* TinySwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AE63C26B2F8C45F300E1DB8E /* XCRemoteSwiftPackageReference "TinySwift" */;
+			productName = TinySwift;
+		};
+		AE63C26F2F8C45FB00E1DB8E /* SwiftSpinner */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AE63C26E2F8C45FB00E1DB8E /* XCRemoteSwiftPackageReference "SwiftSpinner" */;
+			productName = SwiftSpinner;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AEF8AC7A1EBA02AA005996D5 /* Project object */;
 }
