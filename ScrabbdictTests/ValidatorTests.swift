@@ -198,14 +198,15 @@ final class ValidatorTests: XCTestCase {
     }
     
     func testErrors() {
-        let expectation = XCTestExpectation(description: "Error when words(from:) with more than eight letters")
+        let expectation = XCTestExpectation(description: "Error when words(from:) has no selected language")
 
-        sut.words(from: "abcdefghi") { result in
+        sut.language = nil
+        sut.words(from: "pizza") { result in
             switch result {
             case .success:
                 XCTFail()
             case .failure(let error):
-                XCTAssert(error == .tooManyLetters)
+                XCTAssert(error == .unknown)
             }
             expectation.fulfill()
         }
@@ -231,7 +232,7 @@ final class ValidatorTests: XCTestCase {
                     expectation.fulfill()
                 }
             case .failure(let error):
-                XCTAssert(error == .tooManyLetters)
+                XCTFail("Unexpected error: \(error)")
             }
         }
         

@@ -124,18 +124,12 @@ PODS:
   - PromisesObjC (2.4.0)
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
-  - Realm (20.0.4):
-    - Realm/Headers (= 20.0.4)
-  - Realm/Headers (20.0.4)
-  - RealmSwift (20.0.4):
-    - Realm (= 20.0.4)
   - SwiftSpinner (2.2.0)
   - TinySwift (2.9.0)
 
 DEPENDENCIES:
   - Firebase/Analytics
   - Firebase/Crashlytics
-  - RealmSwift
   - SwiftSpinner
   - TinySwift
 
@@ -157,8 +151,6 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - PromisesSwift
-    - Realm
-    - RealmSwift
     - SwiftSpinner
     - TinySwift
 
@@ -179,11 +171,9 @@ SPEC CHECKSUMS:
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
-  Realm: 1fca83c42ac1d5c7767974882c8de5a7abca4d89
-  RealmSwift: 84f36320f6133dea78d05c55bb46bba4387d6828
   SwiftSpinner: f9b59477fe107427f2b5b835497d6636fa167ede
   TinySwift: f9bbe675016ba30bb9a76c4ee1a431e916bc3b55
 
-PODFILE CHECKSUM: f72fa625ff63b870d74f8f99ac14fa20cddbda18
+PODFILE CHECKSUM: 5cc52b8d44cfd1eaebbe76045cc69530f64b5d7b
 
 COCOAPODS: 1.16.2

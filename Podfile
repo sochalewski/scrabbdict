@@ -6,18 +6,10 @@ target 'Scrabbdict' do
   pod 'Firebase/Analytics'
   pod 'TinySwift'
   pod 'SwiftSpinner'
-  pod 'RealmSwift'
 
   target 'ScrabbdictTests' do
     inherit! :search_paths
   end
-end
-
-target 'RealmDatabaseWizard' do
-  platform :macos, '15.0'
-  use_frameworks! :linkage => :static
-
-  pod 'RealmSwift'
 end
 
 post_install do |installer|

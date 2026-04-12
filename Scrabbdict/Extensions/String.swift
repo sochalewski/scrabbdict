@@ -13,7 +13,5 @@ extension String {
         return 2...String.maximumWordLength ~= count
     }
     
-    static let maximumTrieWordLength = 8
-
     static let maximumWordLength = 15
 }
