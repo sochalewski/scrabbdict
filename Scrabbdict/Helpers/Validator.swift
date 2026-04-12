@@ -38,6 +38,7 @@ final class Validator {
         didSet { reloadTrie() }
     }
     private let queue = DispatchQueue(label: "pl.sochalewski.Scrabbdict.realm.queue", qos: .userInitiated)
+    private let trieBuildQueue = DispatchQueue(label: "pl.sochalewski.Scrabbdict.trie.queue", qos: .userInitiated)
     private let configuration = Realm.Configuration(fileURL: Bundle.main.url(forResource: "Database", withExtension: "realm"), readOnly: true)
     private var trie: Trie? {
         didSet {
@@ -131,14 +132,23 @@ final class Validator {
     
     private func reloadTrie() {
         queue.async {
+            guard let language = self.language else { return }
             self.isReloadingTrie = true
             
-            DispatchQueue.global(qos: .userInitiated).async {
-                let words = self.words()
+            self.trieBuildQueue.async {
+                let realm = try! Realm(configuration: self.configuration)
+                let predicate = NSPredicate(format: "%K == %@", "_language", language.rawValue)
+                let words = realm.objects(Vocabulary.self).filter(predicate).first!.words
+                let sequence = words
                     .prefix(String.maximumTrieWordLength + 1)
-                    .flatMap { $0.map { $0.value } }
+                    .lazy
+                    .flatMap { wordList in wordList.map { $0.value } }
+                let trie = Trie(sequence)
 
-                self.trie = Trie(words)
+                self.queue.async {
+                    guard self.language == language else { return }
+                    self.trie = trie
+                }
             }
         }
     }
