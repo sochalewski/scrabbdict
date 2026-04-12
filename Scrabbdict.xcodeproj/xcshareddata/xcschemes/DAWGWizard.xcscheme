@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AE62F7202024EA8C00A57DAE"
-               BuildableName = "DAWGWizard.app"
+               BuildableName = "DAWGWizard"
                BlueprintName = "DAWGWizard"
                ReferencedContainer = "container:Scrabbdict.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AE62F7202024EA8C00A57DAE"
-            BuildableName = "DAWGWizard.app"
+            BuildableName = "DAWGWizard"
             BlueprintName = "DAWGWizard"
             ReferencedContainer = "container:Scrabbdict.xcodeproj">
          </BuildableReference>
@@ -63,7 +63,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AE62F7202024EA8C00A57DAE"
-            BuildableName = "DAWGWizard.app"
+            BuildableName = "DAWGWizard"
             BlueprintName = "DAWGWizard"
             ReferencedContainer = "container:Scrabbdict.xcodeproj">
          </BuildableReference>

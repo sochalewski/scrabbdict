@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: Scripts/dawg [options] [language...]
+
+Compiles and runs the DAWGWizard command-line tool.
+
+Options are forwarded to DAWGWizard:
+  --input-dir PATH   Directory with *.txt word lists.
+  --output-dir PATH  Directory for generated *.dawg files.
+  --help             Show this help.
+
+Examples:
+  Scripts/dawg
+  Scripts/dawg pl_PL
+  Scripts/dawg --output-dir /tmp/dawg en_US_twl fr_ODS
+EOF
+}
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  usage
+  exit 0
+fi
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
+configuration="${DAWGWIZARD_CONFIGURATION:-Release}"
+build_dir="${DAWGWIZARD_BUILD_DIR:-${TMPDIR:-/tmp}/scrabbdict-dawgwizard}"
+module_cache_dir="$build_dir/module-cache"
+executable="$build_dir/DAWGWizard"
+source_file="$repo_root/DAWGWizard/main.swift"
+
+case "$configuration" in
+  Debug)
+    optimization="-Onone"
+    ;;
+  Release)
+    optimization="-O"
+    ;;
+  *)
+    echo "Unsupported DAWGWIZARD_CONFIGURATION: $configuration" >&2
+    exit 64
+    ;;
+esac
+
+mkdir -p "$build_dir" "$module_cache_dir"
+
+xcrun swiftc \
+  "$optimization" \
+  -module-cache-path "$module_cache_dir" \
+  "$source_file" \
+  -o "$executable"
+
+exec "$executable" "$@"

@@ -19,13 +19,7 @@
 		AE3D69772F8C050200C51994 /* pl_PL.dawg in Resources */ = {isa = PBXBuildFile; fileRef = AE3D69742F8C050200C51994 /* pl_PL.dawg */; };
 		AE3D69782F8C050200C51994 /* en_GB_sowpods.dawg in Resources */ = {isa = PBXBuildFile; fileRef = AE3D69712F8C050200C51994 /* en_GB_sowpods.dawg */; };
 		AE3D69792F8C050200C51994 /* en_US_twl.dawg in Resources */ = {isa = PBXBuildFile; fileRef = AE3D69722F8C050200C51994 /* en_US_twl.dawg */; };
-		AE62F7242024EA8C00A57DAE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE62F7232024EA8C00A57DAE /* AppDelegate.swift */; };
-		AE62F7262024EA8C00A57DAE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE62F7252024EA8C00A57DAE /* ViewController.swift */; };
-		AE62F7282024EA8C00A57DAE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AE62F7272024EA8C00A57DAE /* Assets.xcassets */; };
-		AE62F72B2024EA8C00A57DAE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AE62F7292024EA8C00A57DAE /* Main.storyboard */; };
-		AE62F7372024EB3D00A57DAE /* pl_PL.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE62F7332024EB3D00A57DAE /* pl_PL.txt */; };
-		AE62F7382024EB3D00A57DAE /* en_GB_sowpods.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE62F7342024EB3D00A57DAE /* en_GB_sowpods.txt */; };
-		AE62F7392024EB3D00A57DAE /* en_US_twl.txt in Resources */ = {isa = PBXBuildFile; fileRef = AE62F7352024EB3D00A57DAE /* en_US_twl.txt */; };
+		AE62F7242024EA8C00A57DAE /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE62F7232024EA8C00A57DAE /* main.swift */; };
 		AE62F73A2024EB7F00A57DAE /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE3A5F541EBA33F20069C6FF /* Language.swift */; };
 		AE6317CC2024F12A00EF42B2 /* Language+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6317CB2024F12A00EF42B2 /* Language+Extension.swift */; };
 		AE6317D42024F7DC00EF42B2 /* Collection+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE6317D32024F7DC00EF42B2 /* Collection+Extension.swift */; };
@@ -40,7 +34,6 @@
 		AEA3C7F220383CD900A741C3 /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B5BDD202F83250013094A /* String.swift */; };
 		AEBF2FAC2F8AF0BB00281556 /* DAWGTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBF2FAB2F8AF0BB00281556 /* DAWGTests.swift */; };
 		AECBBCF8203377F7001A40D8 /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECBBCF7203377F7001A40D8 /* GradientView.swift */; };
-		AED5BCA8245631E800B64249 /* fr_ODS.txt in Resources */ = {isa = PBXBuildFile; fileRef = AED5BCA7245631E800B64249 /* fr_ODS.txt */; };
 		AEF782201EBA560700CC64EC /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7821F1EBA560700CC64EC /* MainViewController.swift */; };
 		AEF8AC861EBA02AA005996D5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF8AC851EBA02AA005996D5 /* AppDelegate.swift */; };
 		AEF8AC8B1EBA02AA005996D5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AEF8AC891EBA02AA005996D5 /* Main.storyboard */; };
@@ -84,13 +77,8 @@
 		AE3D69722F8C050200C51994 /* en_US_twl.dawg */ = {isa = PBXFileReference; lastKnownFileType = file; path = en_US_twl.dawg; sourceTree = "<group>"; };
 		AE3D69732F8C050200C51994 /* fr_ODS.dawg */ = {isa = PBXFileReference; lastKnownFileType = file; path = fr_ODS.dawg; sourceTree = "<group>"; };
 		AE3D69742F8C050200C51994 /* pl_PL.dawg */ = {isa = PBXFileReference; lastKnownFileType = file; path = pl_PL.dawg; sourceTree = "<group>"; };
-		AE62F7212024EA8C00A57DAE /* DAWGWizard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DAWGWizard.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		AE62F7232024EA8C00A57DAE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		AE62F7252024EA8C00A57DAE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		AE62F7272024EA8C00A57DAE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		AE62F72A2024EA8C00A57DAE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		AE62F72C2024EA8C00A57DAE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AE62F72D2024EA8C00A57DAE /* DAWGWizard.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DAWGWizard.entitlements; sourceTree = "<group>"; };
+		AE62F7212024EA8C00A57DAE /* DAWGWizard */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DAWGWizard; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE62F7232024EA8C00A57DAE /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		AE62F7332024EB3D00A57DAE /* pl_PL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pl_PL.txt; sourceTree = "<group>"; };
 		AE62F7342024EB3D00A57DAE /* en_GB_sowpods.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_GB_sowpods.txt; sourceTree = "<group>"; };
 		AE62F7352024EB3D00A57DAE /* en_US_twl.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = en_US_twl.txt; sourceTree = "<group>"; };
@@ -115,13 +103,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		AE62F71E2024EA8C00A57DAE /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AE78C2751FFD267600874685 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -188,12 +169,7 @@
 			isa = PBXGroup;
 			children = (
 				AE62F7312024EB3D00A57DAE /* Files */,
-				AE62F7232024EA8C00A57DAE /* AppDelegate.swift */,
-				AE62F7252024EA8C00A57DAE /* ViewController.swift */,
-				AE62F7272024EA8C00A57DAE /* Assets.xcassets */,
-				AE62F7292024EA8C00A57DAE /* Main.storyboard */,
-				AE62F72C2024EA8C00A57DAE /* Info.plist */,
-				AE62F72D2024EA8C00A57DAE /* DAWGWizard.entitlements */,
+				AE62F7232024EA8C00A57DAE /* main.swift */,
 			);
 			path = DAWGWizard;
 			sourceTree = "<group>";
@@ -253,7 +229,7 @@
 			children = (
 				AEF8AC821EBA02AA005996D5 /* Scrabbdict.app */,
 				AE78C2781FFD267600874685 /* ScrabbdictTests.xctest */,
-				AE62F7212024EA8C00A57DAE /* DAWGWizard.app */,
+				AE62F7212024EA8C00A57DAE /* DAWGWizard */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -285,8 +261,6 @@
 			buildConfigurationList = AE62F72E2024EA8C00A57DAE /* Build configuration list for PBXNativeTarget "DAWGWizard" */;
 			buildPhases = (
 				AE62F71D2024EA8C00A57DAE /* Sources */,
-				AE62F71E2024EA8C00A57DAE /* Frameworks */,
-				AE62F71F2024EA8C00A57DAE /* Resources */,
 			);
 			buildRules = (
 			);
@@ -294,8 +268,8 @@
 			);
 			name = DAWGWizard;
 			productName = DAWGWizard;
-			productReference = AE62F7212024EA8C00A57DAE /* DAWGWizard.app */;
-			productType = "com.apple.product-type.application";
+			productReference = AE62F7212024EA8C00A57DAE /* DAWGWizard */;
+			productType = "com.apple.product-type.tool";
 		};
 		AE78C2771FFD267600874685 /* ScrabbdictTests */ = {
 			isa = PBXNativeTarget;
@@ -392,19 +366,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		AE62F71F2024EA8C00A57DAE /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AE62F7282024EA8C00A57DAE /* Assets.xcassets in Resources */,
-				AE62F72B2024EA8C00A57DAE /* Main.storyboard in Resources */,
-				AED5BCA8245631E800B64249 /* fr_ODS.txt in Resources */,
-				AE62F7382024EB3D00A57DAE /* en_GB_sowpods.txt in Resources */,
-				AE62F7392024EB3D00A57DAE /* en_US_twl.txt in Resources */,
-				AE62F7372024EB3D00A57DAE /* pl_PL.txt in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		AE78C2761FFD267600874685 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -436,10 +397,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AE62F73A2024EB7F00A57DAE /* Language.swift in Sources */,
-				AEA3C7F220383CD900A741C3 /* String.swift in Sources */,
-				AE62F7262024EA8C00A57DAE /* ViewController.swift in Sources */,
-				AE62F7242024EA8C00A57DAE /* AppDelegate.swift in Sources */,
+				AE62F7242024EA8C00A57DAE /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -483,14 +441,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		AE62F7292024EA8C00A57DAE /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				AE62F72A2024EA8C00A57DAE /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		AEF8AC891EBA02AA005996D5 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -513,23 +463,13 @@
 		AE62F72F2024EA8C00A57DAE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = DAWGWizard/DAWGWizard.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
-				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = DAWGWizard/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.DAWGWizard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
@@ -539,23 +479,13 @@
 		AE62F7302024EA8C00A57DAE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = DAWGWizard/DAWGWizard.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
-				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = DAWGWizard/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				PRODUCT_BUNDLE_IDENTIFIER = pl.sochalewski.DAWGWizard;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
