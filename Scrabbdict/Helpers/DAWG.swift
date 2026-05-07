@@ -9,14 +9,16 @@ import Foundation
 
 final class DAWG {
     private static let magic: UInt32 = 0x47574453
-    private static let version: UInt32 = 1
+    private static let version: UInt32 = 2
     private static let headerSize = 24
-    private static let nodeSize = 12
-    private static let edgeSize = 8
+    private static let nodeSize = 8
+    private static let edgeSize = 6
 
-    private static let wildcardKey = UnicodeScalar("?").value
+    private static let wildcardKey = UInt16(UnicodeScalar("?").value)
 
-    private let nodes: [DAWGNode]
+    private let nodeFirstEdges: [UInt32]
+    private let nodeEdgeCounts: [UInt16]
+    private let wordNodes: BitSet
     private let edges: [DAWGEdge]
 
     let count: Int
@@ -54,16 +56,21 @@ final class DAWG {
         let expectedSize = edgesOffset + Int(edgeCount) * Self.edgeSize
         guard data.count == expectedSize else { throw DAWGError.invalidSize }
 
-        var nodes = [DAWGNode]()
-        nodes.reserveCapacity(Int(nodeCount))
+        var nodeFirstEdges = [UInt32]()
+        nodeFirstEdges.reserveCapacity(Int(nodeCount))
+
+        var nodeEdgeCounts = [UInt16]()
+        nodeEdgeCounts.reserveCapacity(Int(nodeCount))
+
+        var wordNodes = BitSet(capacity: Int(nodeCount))
 
         for index in 0..<Int(nodeCount) {
             let offset = nodesOffset + index * Self.nodeSize
-            nodes.append(DAWGNode(
-                firstEdge: data.readLittleEndianUInt32(at: offset),
-                edgeCount: data.readLittleEndianUInt32(at: offset + 4),
-                isWord: data.readLittleEndianUInt32(at: offset + 8) != 0
-            ))
+            nodeFirstEdges.append(data.readLittleEndianUInt32(at: offset))
+            nodeEdgeCounts.append(data.readLittleEndianUInt16(at: offset + 4))
+            if data.readLittleEndianUInt16(at: offset + 6) != 0 {
+                wordNodes.insert(index)
+            }
         }
 
         var edges = [DAWGEdge]()
@@ -71,14 +78,18 @@ final class DAWG {
 
         for index in 0..<Int(edgeCount) {
             let offset = edgesOffset + index * Self.edgeSize
-            edges.append(DAWGEdge(
-                key: data.readLittleEndianUInt32(at: offset),
-                target: data.readLittleEndianUInt32(at: offset + 4)
-            ))
+            edges.append(
+                DAWGEdge(
+                    key: data.readLittleEndianUInt16(at: offset),
+                    target: data.readLittleEndianUInt32(at: offset + 2)
+                )
+            )
         }
 
         self.count = Int(wordCount)
-        self.nodes = nodes
+        self.nodeFirstEdges = nodeFirstEdges
+        self.nodeEdgeCounts = nodeEdgeCounts
+        self.wordNodes = wordNodes
         self.edges = edges
     }
 
@@ -87,16 +98,18 @@ final class DAWG {
             return false
         }
 
-        return nodes[Int(nodeIndex)].isWord
+        return wordNodes.contains(Int(nodeIndex))
     }
 
     func words(from letters: String, minLength: Int = 2) -> [String] {
         guard !letters.isEmpty else { return [] }
 
-        var availableLetters = [UInt32: Int]()
-        letters.unicodeScalars.forEach { availableLetters[$0.value, default: 0] += 1 }
+        var availableLetters = LetterCounter(letters)
+        guard !availableLetters.isEmpty else { return [] }
 
-        var currentWord = [Character]()
+        var currentWord = [UInt16]()
+        currentWord.reserveCapacity(letters.unicodeScalars.count)
+
         var result = [String]()
         collectWords(from: 0, using: &availableLetters, minLength: minLength, currentWord: &currentWord, result: &result)
         return result
@@ -105,8 +118,17 @@ final class DAWG {
     func words(matching pattern: String) -> [String] {
         guard !pattern.isEmpty else { return [] }
 
-        let patternKeys = pattern.unicodeScalars.map(\.value)
-        var currentWord = [Character]()
+        var patternKeys = [UInt16]()
+        patternKeys.reserveCapacity(pattern.unicodeScalars.count)
+
+        for scalar in pattern.unicodeScalars {
+            guard let key = UInt16(exactly: scalar.value) else { return [] }
+            patternKeys.append(key)
+        }
+
+        var currentWord = [UInt16]()
+        currentWord.reserveCapacity(patternKeys.count)
+
         var result = [String]()
         collectWords(matching: patternKeys, patternIndex: 0, nodeIndex: 0, currentWord: &currentWord, result: &result)
         return result
@@ -116,7 +138,8 @@ final class DAWG {
         var nodeIndex: UInt32 = 0
 
         for scalar in word.unicodeScalars {
-            guard let nextNodeIndex = targetNodeIndex(for: scalar.value, from: nodeIndex) else {
+            guard let key = UInt16(exactly: scalar.value),
+                  let nextNodeIndex = targetNodeIndex(for: key, from: nodeIndex) else {
                 return nil
             }
             nodeIndex = nextNodeIndex
@@ -127,43 +150,42 @@ final class DAWG {
 
     private func collectWords(
         from nodeIndex: UInt32,
-        using availableLetters: inout [UInt32: Int],
+        using availableLetters: inout LetterCounter,
         minLength: Int,
-        currentWord: inout [Character],
+        currentWord: inout [UInt16],
         result: inout [String]
     ) {
-        let node = nodes[Int(nodeIndex)]
+        let nodeIndex = Int(nodeIndex)
 
-        if node.isWord, currentWord.count >= minLength {
-            result.append(String(currentWord))
+        if wordNodes.contains(nodeIndex), currentWord.count >= minLength {
+            result.append(Self.string(from: currentWord))
         }
 
-        let firstEdge = Int(node.firstEdge)
-        let lastEdge = firstEdge + Int(node.edgeCount)
+        let firstEdge = Int(nodeFirstEdges[nodeIndex])
+        let lastEdge = firstEdge + Int(nodeEdgeCounts[nodeIndex])
 
         for edgeIndex in firstEdge..<lastEdge {
             let edge = edges[edgeIndex]
-            guard let remainingCount = availableLetters[edge.key], remainingCount > 0 else { continue }
+            guard let letterIndex = availableLetters.consume(edge.key) else { continue }
 
-            availableLetters[edge.key] = remainingCount - 1
-            currentWord.append(Character(UnicodeScalar(edge.key)!))
+            currentWord.append(edge.key)
             collectWords(from: edge.target, using: &availableLetters, minLength: minLength, currentWord: &currentWord, result: &result)
             currentWord.removeLast()
 
-            availableLetters[edge.key] = remainingCount
+            availableLetters.restore(at: letterIndex)
         }
     }
 
     private func collectWords(
-        matching pattern: [UInt32],
+        matching pattern: [UInt16],
         patternIndex: Int,
         nodeIndex: UInt32,
-        currentWord: inout [Character],
+        currentWord: inout [UInt16],
         result: inout [String]
     ) {
         guard patternIndex < pattern.count else {
-            if nodes[Int(nodeIndex)].isWord {
-                result.append(String(currentWord))
+            if wordNodes.contains(Int(nodeIndex)) {
+                result.append(Self.string(from: currentWord))
             }
             return
         }
@@ -171,33 +193,47 @@ final class DAWG {
         let key = pattern[patternIndex]
 
         if key == Self.wildcardKey {
-            let node = nodes[Int(nodeIndex)]
-            let firstEdge = Int(node.firstEdge)
-            let lastEdge = firstEdge + Int(node.edgeCount)
+            let nodeIndex = Int(nodeIndex)
+            let firstEdge = Int(nodeFirstEdges[nodeIndex])
+            let lastEdge = firstEdge + Int(nodeEdgeCounts[nodeIndex])
 
             for edgeIndex in firstEdge..<lastEdge {
                 let edge = edges[edgeIndex]
-                currentWord.append(Character(UnicodeScalar(edge.key)!))
+                currentWord.append(edge.key)
                 collectWords(matching: pattern, patternIndex: patternIndex + 1, nodeIndex: edge.target, currentWord: &currentWord, result: &result)
                 currentWord.removeLast()
             }
         } else if let target = targetNodeIndex(for: key, from: nodeIndex) {
-            currentWord.append(Character(UnicodeScalar(key)!))
+            currentWord.append(key)
             collectWords(matching: pattern, patternIndex: patternIndex + 1, nodeIndex: target, currentWord: &currentWord, result: &result)
             currentWord.removeLast()
         }
     }
 
-    private func targetNodeIndex(for key: UInt32, from nodeIndex: UInt32) -> UInt32? {
-        let node = nodes[Int(nodeIndex)]
-        let firstEdge = Int(node.firstEdge)
-        let lastEdge = firstEdge + Int(node.edgeCount)
+    private func targetNodeIndex(for key: UInt16, from nodeIndex: UInt32) -> UInt32? {
+        let nodeIndex = Int(nodeIndex)
+        let firstEdge = Int(nodeFirstEdges[nodeIndex])
+        let lastEdge = firstEdge + Int(nodeEdgeCounts[nodeIndex])
 
-        for edgeIndex in firstEdge..<lastEdge where edges[edgeIndex].key == key {
-            return edges[edgeIndex].target
+        for edgeIndex in firstEdge..<lastEdge {
+            let edge = edges[edgeIndex]
+            if edge.key == key {
+                return edge.target
+            }
         }
 
         return nil
+    }
+
+    private static func string(from keys: [UInt16]) -> String {
+        var scalars = String.UnicodeScalarView()
+        scalars.reserveCapacity(keys.count)
+
+        for key in keys {
+            scalars.append(UnicodeScalar(key)!)
+        }
+
+        return String(scalars)
     }
 }
 
@@ -206,22 +242,71 @@ private enum DAWGError: Error {
     case invalidSize
 }
 
-private struct DAWGNode {
-    let firstEdge: UInt32
-    let edgeCount: UInt32
-    let isWord: Bool
-}
-
 private struct DAWGEdge {
-    let key: UInt32
+    let key: UInt16
     let target: UInt32
 }
 
+private struct BitSet {
+    private var words: [UInt64]
+
+    init(capacity: Int) {
+        words = Array(repeating: 0, count: (capacity + 63) / 64)
+    }
+
+    mutating func insert(_ index: Int) {
+        words[index / 64] |= UInt64(1) << UInt64(index % 64)
+    }
+
+    func contains(_ index: Int) -> Bool {
+        words[index / 64] & (UInt64(1) << UInt64(index % 64)) != 0
+    }
+}
+
+private struct LetterCounter {
+    private var keys = [UInt16]()
+    private var counts = [Int]()
+
+    var isEmpty: Bool {
+        keys.isEmpty
+    }
+
+    init(_ letters: String) {
+        keys.reserveCapacity(letters.unicodeScalars.count)
+        counts.reserveCapacity(letters.unicodeScalars.count)
+
+        for scalar in letters.unicodeScalars {
+            guard let key = UInt16(exactly: scalar.value) else { continue }
+
+            if let index = keys.firstIndex(of: key) {
+                counts[index] += 1
+            } else {
+                keys.append(key)
+                counts.append(1)
+            }
+        }
+    }
+
+    mutating func consume(_ key: UInt16) -> Int? {
+        for index in keys.indices where keys[index] == key && counts[index] > 0 {
+            counts[index] -= 1
+            return index
+        }
+
+        return nil
+    }
+
+    mutating func restore(at index: Int) {
+        counts[index] += 1
+    }
+}
+
 private extension Data {
+    func readLittleEndianUInt16(at offset: Int) -> UInt16 {
+        UInt16(self[offset]) | UInt16(self[offset + 1]) << 8
+    }
+
     func readLittleEndianUInt32(at offset: Int) -> UInt32 {
-        return UInt32(self[offset])
-            | UInt32(self[offset + 1]) << 8
-            | UInt32(self[offset + 2]) << 16
-            | UInt32(self[offset + 3]) << 24
+        UInt32(self[offset]) | UInt32(self[offset + 1]) << 8 | UInt32(self[offset + 2]) << 16 | UInt32(self[offset + 3]) << 24
     }
 }

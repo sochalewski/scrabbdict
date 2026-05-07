@@ -9,10 +9,10 @@ import Foundation
 
 private enum DAWGFormat {
     static let magic: UInt32 = 0x47574453
-    static let version: UInt32 = 1
+    static let version: UInt32 = 2
     static let headerSize = 24
-    static let nodeSize = 12
-    static let edgeSize = 8
+    static let nodeSize = 8
+    static let edgeSize = 6
 }
 
 private let sourceFileURL = URL(fileURLWithPath: #filePath)
@@ -111,8 +111,8 @@ private struct DAWGBuilder {
         minimizeUncheckedEdges(downTo: 0)
     }
 
-    func data() -> Data {
-        let compactDAWG = compact()
+    func data() throws -> Data {
+        let compactDAWG = try compact()
         var data = Data()
         data.reserveCapacity(DAWGFormat.headerSize + compactDAWG.nodes.count * DAWGFormat.nodeSize + compactDAWG.edges.count * DAWGFormat.edgeSize)
 
@@ -125,12 +125,12 @@ private struct DAWGBuilder {
 
         compactDAWG.nodes.forEach { node in
             data.appendLittleEndianUInt32(node.firstEdge)
-            data.appendLittleEndianUInt32(node.edgeCount)
-            data.appendLittleEndianUInt32(node.isWord ? 1 : 0)
+            data.appendLittleEndianUInt16(node.edgeCount)
+            data.appendLittleEndianUInt16(node.isWord ? 1 : 0)
         }
 
         compactDAWG.edges.forEach { edge in
-            data.appendLittleEndianUInt32(edge.key)
+            data.appendLittleEndianUInt16(edge.key)
             data.appendLittleEndianUInt32(edge.target)
         }
 
@@ -185,7 +185,7 @@ private struct DAWGBuilder {
         return index
     }
 
-    private func compact() -> CompactDAWG {
+    private func compact() throws -> CompactDAWG {
         var remap = [Int: UInt32]()
         var orderedNodes = [Int]()
         var stack = [0]
@@ -208,21 +208,41 @@ private struct DAWGBuilder {
 
         var compactEdges = [CompactEdge]()
 
-        orderedNodes.forEach { buildIndex in
+        for buildIndex in orderedNodes {
             let firstEdge = UInt32(compactEdges.count)
+            guard nodes[buildIndex].edges.count <= Int(UInt16.max) else {
+                throw DAWGBuilderError.tooManyOutgoingEdges
+            }
 
-            nodes[buildIndex].edges.forEach { edge in
-                compactEdges.append(CompactEdge(key: edge.key, target: remap[edge.target]!))
+            for edge in nodes[buildIndex].edges {
+                guard let key = UInt16(exactly: edge.key) else {
+                    throw DAWGBuilderError.unsupportedScalar(edge.key)
+                }
+                compactEdges.append(CompactEdge(key: key, target: remap[edge.target]!))
             }
 
             compactNodes.append(CompactNode(
                 firstEdge: firstEdge,
-                edgeCount: UInt32(nodes[buildIndex].edges.count),
+                edgeCount: UInt16(nodes[buildIndex].edges.count),
                 isWord: nodes[buildIndex].isWord
             ))
         }
 
         return CompactDAWG(nodes: compactNodes, edges: compactEdges)
+    }
+}
+
+private enum DAWGBuilderError: Error, CustomStringConvertible {
+    case tooManyOutgoingEdges
+    case unsupportedScalar(UInt32)
+
+    var description: String {
+        switch self {
+        case .tooManyOutgoingEdges:
+            return "DAWG v2 supports at most \(UInt16.max) outgoing edges per node."
+        case .unsupportedScalar(let scalar):
+            return "DAWG v2 supports Unicode scalars up to \(UInt16.max); unsupported scalar: \(scalar)."
+        }
     }
 }
 
@@ -254,16 +274,20 @@ private struct CompactDAWG {
 
 private struct CompactNode {
     let firstEdge: UInt32
-    let edgeCount: UInt32
+    let edgeCount: UInt16
     let isWord: Bool
 }
 
 private struct CompactEdge {
-    let key: UInt32
+    let key: UInt16
     let target: UInt32
 }
 
 private extension Data {
+    mutating func appendLittleEndianUInt16(_ value: UInt16) {
+        Swift.withUnsafeBytes(of: value.littleEndian) { append(contentsOf: $0) }
+    }
+
     mutating func appendLittleEndianUInt32(_ value: UInt32) {
         Swift.withUnsafeBytes(of: value.littleEndian) { append(contentsOf: $0) }
     }
@@ -302,7 +326,7 @@ for language in languagesToGenerate {
                 .map(String.init)
                 .sorted()
 
-            let data = DAWGBuilder(words: words).data()
+            let data = try DAWGBuilder(words: words).data()
             try data.write(to: outputURL, options: .atomic)
             print("Generated \(outputURL.path) (\(words.count) words, \(formatByteCount(data.count)))")
         } catch {
