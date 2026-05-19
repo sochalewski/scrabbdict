@@ -12,7 +12,7 @@ final class DAWGPerformanceTests: XCTestCase {
     private let wordCountsByLanguage: [Language: Int] = [
         .englishUS: 196_601,
         .englishGB: 280_887,
-        .french: 402_325,
+        .french: 407_128,
         .polish: 3_238_764
     ]
     private let queriesByLanguage: [Language: String] = [

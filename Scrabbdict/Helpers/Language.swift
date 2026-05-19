@@ -13,7 +13,7 @@ enum Language: String, CaseIterable, CustomStringConvertible {
     case englishGB = "en_GB_sowpods"
     /// NWL2023 (NASPA Word List)
     case englishUS = "en_US_twl"
-    /// ODS 8 (L'Officiel du Scrabble)
+    /// ODS 9 (L'Officiel du Scrabble)
     case french = "fr_ODS"
     /// sjp-20260401
     case polish = "pl_PL"
@@ -51,7 +51,7 @@ enum Language: String, CaseIterable, CustomStringConvertible {
         case .polish:
             return "Polish open dictionary by sjp.pl (CC BY 4.0)\n\nNumber of words: 3,238,764"
         case .french:
-            return "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble ODS8\n\nNumber of words: 402,325"
+            return "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble ODS9\n\nNumber of words: 407,128"
         }
     }
 }
