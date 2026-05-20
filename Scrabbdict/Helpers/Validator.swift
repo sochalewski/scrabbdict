@@ -1,99 +1,86 @@
 //
-//  Validator.swift
 //  Scrabbdict
-//
-//  Created by Piotr Sochalewski on 03.05.2017.
-//  Copyright © 2017 Piotr Sochalewski. All rights reserved.
+//  Copyright © 2017 Piotr Sochalewski.
+//  Licensed under the Apache License, Version 2.0.
 //
 
+import Dependencies
 import Foundation
-import FirebaseAnalytics
 
-enum ValidatorError: Error {
-    case unknown
-    
-    var localizedDescription: String {
+enum ValidatorError: Error, Hashable, Sendable {
+    case dictionaryUnavailable
+}
+
+extension ValidatorError: LocalizedError {
+    var errorDescription: String? {
         switch self {
-        case .unknown: return "Something went wrong."
+        case .dictionaryUnavailable:
+            "Dictionary is unavailable. Please try again."
         }
     }
 }
 
-enum ValidatorResult: Equatable {
-    case exists(points: Int)
-    case notExists
+enum ValidatorResult: Hashable, Sendable {
+    case valid(points: Int)
+    case invalid
 }
 
-struct Word: Equatable {
-    let string: String
-    let points: Int
-}
+actor Validator {
+    @Dependency(\.analyticsClient) var analytics
+    @Dependency(\.languageStorage.current) var currentLanguage
 
-final class Validator {
-    
-    var language: Language? {
-        didSet { reloadDAWG() }
-    }
-    private let queue = DispatchQueue(label: "pl.sochalewski.Scrabbdict.dawg.queue", qos: .userInitiated)
     private var dawg: DAWG?
-    
-    func check(word: String, completion: @escaping ((Result<ValidatorResult, ValidatorError>) -> ())) {
-        guard let language = language else { completion(.failure(.unknown)); return }
-        guard word.isLengthValid else { completion(.success(.notExists)); return }
-        
-        let word = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
-        
-        queue.async {
-            guard let dawg = self.dawg else { completion(.failure(.unknown)); return }
+    private var language: Language?
 
-            let exists = dawg.contains(word.lowercased())
-            
-            Analytics.logEvent("word_check", parameters: ["language" : language.name, "exists" : exists ? "yes" : "no"])
-            
-            completion(.success(exists ? .exists(points: language.points(for: word)) : .notExists))
-        }
-    }
-    
-    func words(from letters: String, completion: @escaping ((Result<[Word], ValidatorError>) -> ())) {
-        guard let language = language else { completion(.failure(.unknown)); return }
-        guard letters.isLengthValid else { completion(.success([])); return }
-        
-        let letters = language.shouldRemoveDiacritics ? letters.folding(options: .diacriticInsensitive, locale: nil) : letters
-        
-        queue.async {
-            guard let dawg = self.dawg else { completion(.failure(.unknown)); return }
-            
-            let result = dawg.words(from: letters.lowercased())
-                .mapToWords(language: language)
-            
-            Analytics.logEvent("tiles", parameters: ["language" : language.name])
-            
-            completion(.success(result))
-        }
-    }
-    
-    func regex(phrase: String, completion: @escaping ((Result<[Word], ValidatorError>) -> ())) {
-        guard let language = language else { completion(.failure(.unknown)); return }
-        guard phrase.isLengthValid else { completion(.success([])); return }
-        
-        let phrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase
-        
-        queue.async {
-            guard let dawg = self.dawg else { completion(.failure(.unknown)); return }
+    func check(word: String) async throws(ValidatorError) -> ValidatorResult {
+        let (language, dawg) = try validatorDependencies()
+        guard word.isLengthValid else { return .invalid }
 
-            let result = dawg.words(matching: phrase.lowercased())
-                .mapToWords(language: language)
-            
-            Analytics.logEvent("regex", parameters: ["language" : language.name])
-            
-            completion(.success(result))
-        }
+        let normalizedWord = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
+        let exists = dawg.contains(normalizedWord.lowercased())
+
+        analytics.logWordChecked(language, exists)
+
+        return exists ? .valid(points: language.points(for: normalizedWord)) : .invalid
     }
-    
-    private func reloadDAWG() {
-        queue.async {
-            guard let language = self.language else { return }
-            self.dawg = DAWG(language: language)
+
+    func words(from letters: String) async throws(ValidatorError) -> [Word] {
+        let (language, dawg) = try validatorDependencies()
+        guard letters.isLengthValid else { return [] }
+
+        let normalizedLetters = language.shouldRemoveDiacritics ? letters.folding(options: .diacriticInsensitive, locale: nil) : letters
+        let result = dawg.words(from: normalizedLetters.lowercased())
+            .mapToWords(language: language)
+
+        analytics.logTilesSearch(language)
+
+        return result
+    }
+
+    func regex(phrase: String) async throws(ValidatorError) -> [Word] {
+        let (language, dawg) = try validatorDependencies()
+        guard phrase.isLengthValid else { return [] }
+
+        let normalizedPhrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase
+        let result = dawg.words(matching: normalizedPhrase.lowercased())
+            .mapToWords(language: language)
+
+        analytics.logRegexSearch(language)
+
+        return result
+    }
+
+    private func validatorDependencies() throws(ValidatorError) -> (Language, DAWG) {
+        let currentLanguage = currentLanguage()
+
+        if language != currentLanguage {
+            language = currentLanguage
+            dawg = .init(language: currentLanguage)
+        } else if dawg == nil {
+            dawg = .init(language: currentLanguage)
         }
+
+        guard let dawg else { throw .dictionaryUnavailable }
+        return (currentLanguage, dawg)
     }
 }

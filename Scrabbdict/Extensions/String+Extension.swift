@@ -1,0 +1,22 @@
+//
+//  Scrabbdict
+//  Copyright © 2018 Piotr Sochalewski.
+//  Licensed under the Apache License, Version 2.0.
+//
+
+import Foundation
+
+extension String {
+    var isLengthValid: Bool {
+        2...String.maximumWordLength ~= count
+    }
+
+    var sanitizedWordQuery: String {
+        let filtered = filter { character in
+            character.isLetter || character == "?"
+        }
+        return String(filtered.prefix(String.maximumWordLength))
+    }
+
+    static let maximumWordLength = 15
+}

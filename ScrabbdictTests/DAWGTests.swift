@@ -1,16 +1,13 @@
 //
-//  DAWGTests.swift
 //  ScrabbdictTests
-//
-//  Created by Piotr Sochalewski on 11.04.2026.
-//  Copyright © 2026 Piotr Sochalewski. All rights reserved.
+//  Copyright © 2026 Piotr Sochalewski.
+//  Licensed under the Apache License, Version 2.0.
 //
 
 import XCTest
 @testable import Scrabbdict
 
 final class DAWGTests: XCTestCase {
-
     func testContainsExistingWord() throws {
         let dawg = try XCTUnwrap(DAWG(language: .englishGB))
 

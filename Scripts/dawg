@@ -30,7 +30,7 @@ configuration="${DAWGWIZARD_CONFIGURATION:-Release}"
 build_dir="${DAWGWIZARD_BUILD_DIR:-${TMPDIR:-/tmp}/scrabbdict-dawgwizard}"
 module_cache_dir="$build_dir/module-cache"
 executable="$build_dir/DAWGWizard"
-source_file="$repo_root/DAWGWizard/main.swift"
+source_files=("$repo_root"/DAWGWizard/*.swift)
 
 case "$configuration" in
   Debug)
@@ -50,7 +50,7 @@ mkdir -p "$build_dir" "$module_cache_dir"
 xcrun swiftc \
   "$optimization" \
   -module-cache-path "$module_cache_dir" \
-  "$source_file" \
+  "${source_files[@]}" \
   -o "$executable"
 
 exec "$executable" "$@"

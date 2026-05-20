@@ -1,241 +1,211 @@
 //
-//  ValidatorTests.swift
 //  ScrabbdictTests
-//
-//  Created by Piotr Sochalewski on 03.01.2018.
-//  Copyright © 2018 Piotr Sochalewski. All rights reserved.
+//  Copyright © 2018 Piotr Sochalewski.
+//  Licensed under the Apache License, Version 2.0.
 //
 
+import ComposableArchitecture
 import XCTest
 @testable import Scrabbdict
 
+private enum AnalyticsEvent: Equatable {
+    case regexSearch(Language)
+    case tilesSearch(Language)
+    case wordChecked(Language, exists: Bool)
+}
+
+private final class AnalyticsEventRecorder: @unchecked Sendable {
+    private let events = LockIsolated([AnalyticsEvent]())
+
+    var recordedEvents: [AnalyticsEvent] {
+        events.value
+    }
+
+    func analyticsClient() -> AnalyticsClient {
+        AnalyticsClient(
+            logLanguageChanged: { _ in },
+            logModeChanged: { _ in },
+            logRegexSearch: { [self] language in
+                append(.regexSearch(language))
+            },
+            logTilesSearch: { [self] language in
+                append(.tilesSearch(language))
+            },
+            logWordChecked: { [self] language, exists in
+                append(.wordChecked(language, exists: exists))
+            }
+        )
+    }
+
+    private func append(_ event: AnalyticsEvent) {
+        events.withValue {
+            $0.append(event)
+        }
+    }
+}
+
+private final class CurrentLanguageHolder: @unchecked Sendable {
+    private let language: LockIsolated<Language>
+
+    var current: Language {
+        language.value
+    }
+
+    init(_ language: Language) {
+        self.language = LockIsolated(language)
+    }
+
+    func set(_ language: Language) {
+        self.language.setValue(language)
+    }
+}
+
 final class ValidatorTests: XCTestCase {
-    
     private var sut: Validator!
-    
+    private var currentLanguage: CurrentLanguageHolder!
+
     override func setUp() {
         super.setUp()
-        
-        sut = Validator()
-        sut.language = .englishGB
+
+        currentLanguage = CurrentLanguageHolder(.englishGB)
+        sut = withDependencies {
+            $0.analyticsClient = AnalyticsClient(
+                logLanguageChanged: { _ in },
+                logModeChanged: { _ in },
+                logRegexSearch: { _ in },
+                logTilesSearch: { _ in },
+                logWordChecked: { _, _ in }
+            )
+            $0.languageStorage.current = { [currentLanguage] in
+                currentLanguage!.current
+            }
+        } operation: {
+            Validator()
+        }
     }
-    
+
     override func tearDown() {
         super.tearDown()
-        
+
         sut = nil
+        currentLanguage = nil
     }
-    
-    func testCheckValidWord() {
-        let expectation = XCTestExpectation(description: "Closure for check(word:)")
-        
-        sut.check(word: "pizza") { result in
-            switch result {
-            case .success(let result):
-                switch result {
-                case .exists(let points):
-                    XCTAssert(points == 25)
-                case .notExists:
-                    XCTFail()
-                }
-            case .failure:
-                XCTFail()
-            }
-            
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 10.0)
-    }
-    
-    func testCheckInvalidWord() {
-        let expectation = XCTestExpectation(description: "Closure for check(word:)")
-        
-        sut.check(word: "pizzapie") { result in
-            switch result {
-            case .success(let result):
-                switch result {
-                case .exists:
-                    XCTFail()
-                case .notExists:
-                    XCTAssert(true)
-                }
-            case .failure:
-                XCTFail()
-            }
-            
-            expectation.fulfill()
-        }
 
-        wait(for: [expectation], timeout: 10.0)
+    func testCheckValidWord() async throws {
+        switch try await sut.check(word: "pizza") {
+        case let .valid(points):
+            XCTAssertEqual(points, 25)
+        case .invalid:
+            XCTFail()
+        }
     }
-    
-    func testWordsFromLetters() {
-        let expectation = XCTestExpectation(description: "Closure for words(from:)")
 
+    func testCheckInvalidWord() async throws {
+        switch try await sut.check(word: "pizzapie") {
+        case .invalid:
+            XCTAssert(true)
+        case .valid:
+            XCTFail()
+        }
+    }
+
+    func testWordsFromLetters() async throws {
         let expectedWords = ["pizza", "ziz", "zip", "zap", "za", "pia", "pa", "pi", "ai"]
+        let words = try await sut.words(from: "pizza")
 
-        sut.words(from: "pizza") { result in
-            switch result {
-            case .success(let words):
-                XCTAssert(expectedWords.count == words.count)
-                words.forEach { word in
-                    if !expectedWords.contains(word.string) {
-                        XCTFail()
-                    }
-                }
-            case .failure:
+        XCTAssertEqual(expectedWords.count, words.count)
+        words.forEach { word in
+            if !expectedWords.contains(word.string) {
                 XCTFail()
             }
-            
-            expectation.fulfill()
         }
-        
-        wait(for: [expectation], timeout: 20.0)
     }
-    
-    func testRegexFromPhrase() {
-        let expectation = XCTestExpectation(description: "Closure for regex(phrase:)")
 
+    func testRegexFromPhrase() async throws {
         let expectedWords = ["pizza", "pized", "pizes"]
+        let words = try await sut.regex(phrase: "piz??")
 
-        sut.regex(phrase: "piz??") { result in
-            switch result {
-            case .success(let words):
-                XCTAssert(expectedWords.count == words.count)
-                words.forEach { word in
-                    if !expectedWords.contains(word.string) {
-                        XCTFail()
-                    }
-                }
-            case .failure:
-                XCTFail()
-            }
-            
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 20.0)
-    }
-    
-    func testLowerAndUppercaseCharacters() {
-        let expectation1 = XCTestExpectation(description: "Closure 1")
-        let expectation2 = XCTestExpectation(description: "Closure 2")
-        let expectation3 = XCTestExpectation(description: "Closure 3")
-        let expectation4 = XCTestExpectation(description: "Closure 4")
-
-        sut.check(word: "pizza") { result1 in
-            switch result1 {
-            case .success(let result1):
-                self.sut.check(word: "PiZZa") { result2 in
-                    switch result2 {
-                    case .success(let result2):
-                        XCTAssert(result1 == result2)
-                    case .failure:
-                        XCTFail()
-                    }
-                    expectation1.fulfill()
-                }
-            case .failure:
+        XCTAssertEqual(expectedWords.count, words.count)
+        words.forEach { word in
+            if !expectedWords.contains(word.string) {
                 XCTFail()
             }
         }
-        
-        sut.check(word: "pizzapie") { result1 in
-            switch result1 {
-            case .success(let result1):
-                self.sut.check(word: "pIZzapIe") { result2 in
-                    switch result2 {
-                    case .success(let result2):
-                        XCTAssert(result1 == result2)
-                    case .failure:
-                        XCTFail()
-                    }
-                    expectation2.fulfill()
-                }
-            case .failure:
-                XCTFail()
-            }
-        }
-        
-        sut.words(from: "pizzapie") { result1 in
-            switch result1 {
-            case .success(let words1):
-                self.sut.words(from: "pIZzapIe") { result2 in
-                    switch result2 {
-                    case .success(let words2):
-                        XCTAssertFalse(words1.isEmpty)
-                        XCTAssert(words1 == words2)
-                    case .failure:
-                        XCTFail()
-                    }
-                    expectation3.fulfill()
-                }
-            case .failure:
-                XCTFail()
-            }
-        }
-        
-        sut.regex(phrase: "piz??") { result1 in
-            switch result1 {
-            case .success(let result1):
-                self.sut.regex(phrase: "PiZ??") { result2 in
-                    switch result2 {
-                    case .success(let result2):
-                        XCTAssertFalse(result1.isEmpty)
-                        XCTAssert(result1 == result2)
-                    case .failure:
-                        XCTFail()
-                    }
-                    expectation4.fulfill()
-                }
-            case .failure:
-                XCTFail()
-            }
-        }
-        
-        wait(for: [expectation1, expectation2, expectation3, expectation4], timeout: 60.0)
-    }
-    
-    func testErrors() {
-        let expectation = XCTestExpectation(description: "Error when words(from:) has no selected language")
-
-        sut.language = nil
-        sut.words(from: "pizza") { result in
-            switch result {
-            case .success:
-                XCTFail()
-            case .failure(let error):
-                XCTAssert(error == .unknown)
-            }
-            expectation.fulfill()
-        }
-        
-        wait(for: [expectation], timeout: 1.0)
     }
 
-    func testRemoveDiacritics() {
-        sut.language = .french
-        
-        let expectation = XCTestExpectation(description: "Closure for check(word:) with a French diacritic word")
-        
-        sut.check(word: "même") { result1 in
-            switch result1 {
-            case .success(let result1):
-                self.sut.check(word: "meme") { result2 in
-                    switch result2 {
-                    case .success(let result2):
-                        XCTAssert(result1 == result2)
-                    case .failure:
-                        XCTFail()
-                    }
-                    expectation.fulfill()
-                }
-            case .failure(let error):
-                XCTFail("Unexpected error: \(error)")
-            }
+    func testLowerAndUppercaseCharacters() async throws {
+        let lowercaseValidResult = try await sut.check(word: "pizza")
+        let uppercaseValidResult = try await sut.check(word: "PiZZa")
+        XCTAssertEqual(lowercaseValidResult, uppercaseValidResult)
+
+        let lowercaseInvalidResult = try await sut.check(word: "pizzapie")
+        let uppercaseInvalidResult = try await sut.check(word: "pIZzapIe")
+        XCTAssertEqual(lowercaseInvalidResult, uppercaseInvalidResult)
+
+        let words1 = try await sut.words(from: "pizzapie")
+        let words2 = try await sut.words(from: "pIZzapIe")
+        XCTAssertFalse(words1.isEmpty)
+        XCTAssertEqual(words1, words2)
+
+        let result1 = try await sut.regex(phrase: "piz??")
+        let result2 = try await sut.regex(phrase: "PiZ??")
+        XCTAssertFalse(result1.isEmpty)
+        XCTAssertEqual(result1, result2)
+    }
+
+    func testRemoveDiacritics() async throws {
+        currentLanguage.set(.french)
+
+        let resultWithDiacritic = try await sut.check(word: "même")
+        let resultWithoutDiacritic = try await sut.check(word: "meme")
+        XCTAssertEqual(resultWithDiacritic, resultWithoutDiacritic)
+    }
+
+    func testChangingLanguageReloadsDictionaryAndUsesNewScoring() async throws {
+        _ = try await sut.check(word: "pizza")
+        currentLanguage.set(.polish)
+
+        switch try await sut.check(word: "język") {
+        case let .valid(points):
+            XCTAssertEqual(points, 13)
+        case .invalid:
+            XCTFail()
         }
-        
-        wait(for: [expectation], timeout: 10.0)
+    }
+
+    func testCheckLogsAnalyticsWithResult() async throws {
+        let analytics = AnalyticsEventRecorder()
+        sut = withDependencies {
+            $0.analyticsClient = analytics.analyticsClient()
+            $0.languageStorage.current = { .englishGB }
+        } operation: {
+            Validator()
+        }
+
+        _ = try await sut.check(word: "pizza")
+        _ = try await sut.check(word: "pizzapie")
+
+        XCTAssertEqual(analytics.recordedEvents, [
+            .wordChecked(.englishGB, exists: true),
+            .wordChecked(.englishGB, exists: false)
+        ])
+    }
+
+    func testWordsAndRegexLogAnalytics() async throws {
+        let analytics = AnalyticsEventRecorder()
+        sut = withDependencies {
+            $0.analyticsClient = analytics.analyticsClient()
+            $0.languageStorage.current = { .englishGB }
+        } operation: {
+            Validator()
+        }
+
+        _ = try await sut.words(from: "pizza")
+        _ = try await sut.regex(phrase: "piz??")
+
+        XCTAssertEqual(analytics.recordedEvents, [
+            .tilesSearch(.englishGB),
+            .regexSearch(.englishGB)
+        ])
     }
 }

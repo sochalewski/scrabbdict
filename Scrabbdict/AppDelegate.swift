@@ -1,22 +1,16 @@
 //
-//  AppDelegate.swift
 //  Scrabbdict
-//
-//  Created by Piotr Sochalewski on 03.05.2017.
-//  Copyright © 2017 Piotr Sochalewski. All rights reserved.
+//  Copyright © 2017 Piotr Sochalewski.
+//  Licensed under the Apache License, Version 2.0.
 //
 
-import UIKit
 import Firebase
+import UIKit
 
-@main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
-
-    var window: UIWindow?
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         #if !targetEnvironment(simulator) && !DEBUG
-        FirebaseApp.configure()
+            FirebaseApp.configure()
         #endif
 
         return true

@@ -1,0 +1,39 @@
+{
+  "configurations" : [
+    {
+      "id" : "29D123F5-1C31-4D7C-9F4F-D4DF5C7A8853",
+      "name" : "Default",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "DAWGPerformanceTests",
+        "DAWGPerformanceTests\/testLoadDAWGEnglishGBPerformance()",
+        "DAWGPerformanceTests\/testLoadDAWGEnglishUSPerformance()",
+        "DAWGPerformanceTests\/testLoadDAWGFrenchPerformance()",
+        "DAWGPerformanceTests\/testLoadDAWGPolishPerformance()",
+        "DAWGPerformanceTests\/testPatternDAWGEnglishGBPerformance()",
+        "DAWGPerformanceTests\/testPatternDAWGEnglishUSPerformance()",
+        "DAWGPerformanceTests\/testPatternDAWGFrenchPerformance()",
+        "DAWGPerformanceTests\/testPatternDAWGPolishPerformance()",
+        "DAWGPerformanceTests\/testWordsFromDAWGEnglishGBPerformance()",
+        "DAWGPerformanceTests\/testWordsFromDAWGEnglishUSPerformance()",
+        "DAWGPerformanceTests\/testWordsFromDAWGFrenchPerformance()",
+        "DAWGPerformanceTests\/testWordsFromDAWGPolishPerformance()"
+      ],
+      "target" : {
+        "containerPath" : "container:Scrabbdict.xcodeproj",
+        "identifier" : "AE78C2771FFD267600874685",
+        "name" : "ScrabbdictTests"
+      }
+    }
+  ],
+  "version" : 1
+}

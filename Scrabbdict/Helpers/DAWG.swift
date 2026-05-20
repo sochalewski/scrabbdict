@@ -1,13 +1,12 @@
 //
-//  DAWG.swift
 //  Scrabbdict
-//
-//  Created by OpenAI Codex on 12.04.2026.
+//  Copyright © 2026 Piotr Sochalewski.
+//  Licensed under the Apache License, Version 2.0.
 //
 
 import Foundation
 
-final class DAWG {
+final class DAWG: Sendable {
     private static let magic: UInt32 = 0x47574453
     private static let version: UInt32 = 2
     private static let headerSize = 24
@@ -16,12 +15,12 @@ final class DAWG {
 
     private static let wildcardKey = UInt16(UnicodeScalar("?").value)
 
+    let count: Int
+
     private let nodeFirstEdges: [UInt32]
     private let nodeEdgeCounts: [UInt16]
     private let wordNodes: BitSet
     private let edges: [DAWGEdge]
-
-    let count: Int
 
     convenience init?(language: Language, bundle: Bundle = .main) {
         guard let url = bundle.url(forResource: language.rawValue, withExtension: "dawg") else {
@@ -93,6 +92,17 @@ final class DAWG {
         self.edges = edges
     }
 
+    private static func string(from keys: [UInt16]) -> String {
+        var scalars = String.UnicodeScalarView()
+        scalars.reserveCapacity(keys.count)
+
+        for key in keys {
+            scalars.append(UnicodeScalar(key)!)
+        }
+
+        return String(scalars)
+    }
+
     func contains(_ word: String) -> Bool {
         guard let nodeIndex = nodeIndex(for: word) else {
             return false
@@ -138,8 +148,10 @@ final class DAWG {
         var nodeIndex: UInt32 = 0
 
         for scalar in word.unicodeScalars {
-            guard let key = UInt16(exactly: scalar.value),
-                  let nextNodeIndex = targetNodeIndex(for: key, from: nodeIndex) else {
+            guard
+                let key = UInt16(exactly: scalar.value),
+                let nextNodeIndex = targetNodeIndex(for: key, from: nodeIndex)
+            else {
                 return nil
             }
             nodeIndex = nextNodeIndex
@@ -224,17 +236,6 @@ final class DAWG {
 
         return nil
     }
-
-    private static func string(from keys: [UInt16]) -> String {
-        var scalars = String.UnicodeScalarView()
-        scalars.reserveCapacity(keys.count)
-
-        for key in keys {
-            scalars.append(UnicodeScalar(key)!)
-        }
-
-        return String(scalars)
-    }
 }
 
 private enum DAWGError: Error {
@@ -242,16 +243,16 @@ private enum DAWGError: Error {
     case invalidSize
 }
 
-private struct DAWGEdge {
+private struct DAWGEdge: Sendable {
     let key: UInt16
     let target: UInt32
 }
 
-private struct BitSet {
+private struct BitSet: Sendable {
     private var words: [UInt64]
 
     init(capacity: Int) {
-        words = Array(repeating: 0, count: (capacity + 63) / 64)
+        self.words = Array(repeating: 0, count: (capacity + 63) / 64)
     }
 
     mutating func insert(_ index: Int) {
@@ -263,7 +264,7 @@ private struct BitSet {
     }
 }
 
-private struct LetterCounter {
+private struct LetterCounter: Sendable {
     private var keys = [UInt16]()
     private var counts = [Int]()
 
