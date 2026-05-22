@@ -34,8 +34,8 @@ To build or test Scrabbdict with complete dictionary behavior, provide your own 
 - `Scrabbdict/Models/` - app domain models such as `Language`, `Word`, and `SearchMode`.
 - `Scrabbdict/Files/DAWG/` - generated binary dictionary files used by the app.
 - `Scrabbdict/Settings.bundle/` - iOS Settings app metadata, legal notice, and third-party notices.
-- `DAWGWizard/` - command-line generator that converts `.txt` word lists into compact `.dawg` files.
-- `DAWGWizard/Files/` - source word lists.
+- `DAWGWizard/` - command-line generator that converts zipped `.txt` word lists into compact `.dawg` files.
+- `DAWGWizard/Files/` - source word list archives.
 - `ScrabbdictTests/` - unit and feature tests.
 - `Scripts/dawg` - helper script that builds and runs `DAWGWizard`.
 
@@ -91,7 +91,7 @@ Scrabbdict does not search raw text files at runtime. Instead, each word list is
 
 The generator in `DAWGWizard/` works broadly like this:
 
-1. Read a UTF-8 `.txt` word list, one word per line.
+1. Read a UTF-8 `.txt` word list from a `.zip` archive, one word per line.
 2. Sort the words.
 3. Insert each word into an incremental graph builder.
 4. Minimize completed branches by reusing previously seen equivalent nodes.
@@ -134,7 +134,7 @@ Scripts/dawg --input-dir /path/to/word-lists --output-dir /tmp/dawg
 Input files are matched by language/file stem. For example, `pl_PL` expects:
 
 ```text
-DAWGWizard/Files/pl_PL.txt
+DAWGWizard/Files/pl_PL.zip
 ```
 
 and produces:
@@ -166,7 +166,7 @@ When Swift Package Manager dependencies change, update that file to match `Packa
 
 ## Contributing Notes
 
-- Keep generated `.dawg` files in sync with their source `.txt` word lists when changing dictionary data.
+- Keep generated `.dawg` files in sync with their source `.zip` word list archives when changing dictionary data.
 - Keep legal notices and third-party notices current when changing dependencies, assets, or app branding.
 - Prefix commit messages with `[AI]` when the commit mainly contains AI-generated code, for example `[AI] Optimize DAWG performance`.
 - Do not commit personal signing credentials, provisioning profiles, private API keys, or production service configuration for forks.

@@ -18,7 +18,7 @@ private func usage() -> String {
     Generates .dawg files from text word lists.
 
     Options:
-      --input-dir PATH   Directory with *.txt word lists.
+      --input-dir PATH   Directory with *.zip or *.txt word lists.
                          Default: \(defaultInputDirectory.path)
       --output-dir PATH  Directory for generated *.dawg files.
                          Default: \(defaultOutputDirectory.path)
@@ -84,10 +84,110 @@ private func languages(in inputDirectory: URL, requestedLanguages: [String]) thr
         return requestedLanguages
     }
 
+    let sourceExtensions: Set = ["zip", "txt"]
+
     return try FileManager.default.contentsOfDirectory(at: inputDirectory, includingPropertiesForKeys: nil)
-        .filter { $0.pathExtension == "txt" }
+        .filter { sourceExtensions.contains($0.pathExtension) }
         .map { $0.deletingPathExtension().lastPathComponent }
+        .uniqued()
         .sorted()
+}
+
+private func words(for language: String, in inputDirectory: URL) throws -> [String] {
+    let archiveURL = inputDirectory.appendingPathComponent(language).appendingPathExtension("zip")
+    if FileManager.default.fileExists(atPath: archiveURL.path) {
+        return try words(fromZipFile: archiveURL, language: language)
+    }
+
+    let textURL = inputDirectory.appendingPathComponent(language).appendingPathExtension("txt")
+    if FileManager.default.fileExists(atPath: textURL.path) {
+        return try words(fromTextFile: textURL)
+    }
+
+    throw WordListError.missingWordList(language: language, inputDirectory: inputDirectory)
+}
+
+private func words(fromTextFile url: URL) throws -> [String] {
+    try String(contentsOf: url, encoding: .utf8)
+        .split(whereSeparator: \.isNewline)
+        .map(String.init)
+        .sorted()
+}
+
+private func words(fromZipFile url: URL, language: String) throws -> [String] {
+    let entryName = "\(language).txt"
+    let data = try runUnzip(arguments: ["-p", url.path, entryName])
+
+    guard let contents = String(data: data, encoding: .utf8) else {
+        throw WordListError.invalidUTF8(url)
+    }
+
+    return contents
+        .split(whereSeparator: \.isNewline)
+        .map(String.init)
+        .sorted()
+}
+
+private func runUnzip(arguments: [String]) throws -> Data {
+    let temporaryDirectory = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+    defer {
+        try? FileManager.default.removeItem(at: temporaryDirectory)
+    }
+
+    let outputURL = temporaryDirectory.appendingPathComponent("word-list.txt")
+    let errorURL = temporaryDirectory.appendingPathComponent("unzip.stderr")
+    _ = FileManager.default.createFile(atPath: outputURL.path, contents: nil)
+    _ = FileManager.default.createFile(atPath: errorURL.path, contents: nil)
+
+    let outputHandle = try FileHandle(forWritingTo: outputURL)
+    let errorHandle = try FileHandle(forWritingTo: errorURL)
+    defer {
+        try? outputHandle.close()
+        try? errorHandle.close()
+    }
+
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
+    process.arguments = arguments
+    process.standardOutput = outputHandle
+    process.standardError = errorHandle
+
+    try process.run()
+    process.waitUntilExit()
+
+    guard process.terminationStatus == 0 else {
+        let error = try? String(contentsOf: errorURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        throw WordListError.unzipFailed(error ?? "unzip exited with status \(process.terminationStatus)")
+    }
+
+    return try Data(contentsOf: outputURL)
+}
+
+private enum WordListError: Error, CustomStringConvertible {
+    case invalidUTF8(URL)
+    case missingWordList(language: String, inputDirectory: URL)
+    case unzipFailed(String)
+
+    var description: String {
+        switch self {
+        case let .invalidUTF8(url):
+            "Word list is not valid UTF-8: \(url.path)"
+        case let .missingWordList(language, inputDirectory):
+            "Missing word list for \(language). Expected \(language).zip or \(language).txt in \(inputDirectory.path)."
+        case let .unzipFailed(message):
+            "Could not read zipped word list: \(message)"
+        }
+    }
+}
+
+private extension Sequence where Element: Hashable {
+    func uniqued() -> [Element] {
+        var seen = Set<Element>()
+        return filter { seen.insert($0).inserted }
+    }
 }
 
 private let options = parseOptions(arguments: CommandLine.arguments)
@@ -110,19 +210,10 @@ do {
 
 for language in languagesToGenerate {
     autoreleasepool {
-        let sourceURL = options.inputDirectory.appendingPathComponent(language).appendingPathExtension("txt")
         let outputURL = options.outputDirectory.appendingPathComponent(language).appendingPathExtension("dawg")
 
-        guard FileManager.default.fileExists(atPath: sourceURL.path) else {
-            fail("Missing word list: \(sourceURL.path)", code: 66)
-        }
-
         do {
-            let words = try String(contentsOf: sourceURL, encoding: .utf8)
-                .split(whereSeparator: \.isNewline)
-                .map(String.init)
-                .sorted()
-
+            let words = try words(for: language, in: options.inputDirectory)
             let data = try DAWGBuilder(words: words).data()
             try data.write(to: outputURL, options: .atomic)
             print("Generated \(outputURL.path) (\(words.count) words, \(formatByteCount(data.count)))")

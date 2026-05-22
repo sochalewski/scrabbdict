@@ -8,7 +8,7 @@ Usage: Scripts/dawg [options] [language...]
 Compiles and runs the DAWGWizard command-line tool.
 
 Options are forwarded to DAWGWizard:
-  --input-dir PATH   Directory with *.txt word lists.
+  --input-dir PATH   Directory with *.zip or *.txt word lists.
   --output-dir PATH  Directory for generated *.dawg files.
   --help             Show this help.
 
