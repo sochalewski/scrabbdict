@@ -1,0 +1,57 @@
+# Parse Swift syntax as supported by the current Xcode project.
+--swiftversion 5.10
+
+# Preserve the project's established layout, wrapping, and naming style.
+--allman false
+--binary-grouping 4,8
+--decimal-grouping 3,6
+--else-position same-line
+--exponent-case lowercase
+--exponent-grouping disabled
+--fraction-grouping disabled
+--header ignore
+--hex-grouping 4,8
+--hex-literal-case uppercase
+--ifdef indent
+--import-grouping testable-last
+--indent 4
+--indent-case false
+--linebreaks lf
+--mark-categories false
+--mark-extensions never
+--mark-types never
+--max-width none
+--octal-grouping 4,8
+--operator-func spaced
+--organization-mode type
+--pattern-let hoist
+--ranges no-space
+--self init-only
+--semicolons inline-only
+--strip-unused-args closure-only
+--trailing-commas never
+--trim-whitespace always
+--type-blank-lines remove 
+--void-type Void
+--wrap-arguments preserve
+--wrap-collections preserve
+--wrap-conditions before-first
+
+# Opt in to useful cleanup rules and opt out of rules that do not match this codebase.
+--enable andOperator
+--enable blankLinesAtEndOfScope
+--enable blankLinesAtStartOfScope
+--enable organizeDeclarations
+--enable preferKeyPath
+--enable unusedPrivateDeclarations
+
+--disable docComments
+--disable docCommentsBeforeModifiers
+--disable numberFormatting
+--disable preferForLoop
+--disable redundantSendable
+
+# Skip generated and local build output.
+--exclude .build
+--exclude build
+--exclude DerivedData

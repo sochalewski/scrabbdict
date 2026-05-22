@@ -1,0 +1,11 @@
+[tools]
+swiftformat = "0.61.1"
+"npm:git-format-staged" = "4.0.1"
+
+[tasks.format]
+description = "Format Swift sources with SwiftFormat"
+run = "swiftformat ."
+
+[tasks.format-lint]
+description = "Check SwiftFormat rules without rewriting files"
+run = "swiftformat --lint --lenient --cache ignore ."
