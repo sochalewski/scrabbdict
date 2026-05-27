@@ -9,3 +9,7 @@ run = "swiftformat ."
 [tasks.format-lint]
 description = "Check SwiftFormat rules without rewriting files"
 run = "swiftformat --lint --lenient --cache ignore ."
+
+[tasks.format-lint-strict]
+description = "Check SwiftFormat rules and fail on violations"
+run = "swiftformat --lint --cache ignore ."

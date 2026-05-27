@@ -3,13 +3,14 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 HOOK := $(shell git rev-parse --git-path hooks/pre-commit 2>/dev/null)
-.PHONY: help init install-mise install-dependencies install-hooks format format-lint
+.PHONY: help init install-mise install-dependencies install-hooks format format-lint format-lint-strict
 
 help:
 	@echo "Available targets:"
 	@echo "  make init               Install local tooling and pre-commit hook"
 	@echo "  make format             Format Swift sources"
 	@echo "  make format-lint        Check Swift formatting without rewriting files"
+	@echo "  make format-lint-strict Check Swift formatting and fail on violations"
 
 init: install-mise install-dependencies install-hooks
 
@@ -52,3 +53,6 @@ format:
 
 format-lint:
 	@mise run format-lint
+
+format-lint-strict:
+	@mise run format-lint-strict
