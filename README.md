@@ -38,6 +38,8 @@ To build or test Scrabbdict with complete dictionary behavior, provide your own 
 - `DAWGWizard/Files/` - source word list archives.
 - `ScrabbdictTests/` - unit and feature tests.
 - `Scripts/dawg` - helper script that builds and runs `DAWGWizard`.
+- `Scripts/swiftformat-lint.sh` - Xcode build phase script that checks Swift formatting.
+- `Makefile` and `.mise.toml` - local development tooling setup.
 
 ## Requirements
 
@@ -45,8 +47,26 @@ To build or test Scrabbdict with complete dictionary behavior, provide your own 
 - iOS 17.0 or newer deployment target.
 - Swift Package Manager support through Xcode.
 - A Firebase iOS app configuration file named `GoogleService-Info.plist`.
+- Local development tools managed by [mise](https://mise.jdx.dev/): SwiftFormat and `git-format-staged`.
 
 Xcode resolves the Swift Package Manager dependencies from `Scrabbdict.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
+
+## Local Tooling
+
+The Xcode project includes a `SwiftFormat Lint` build phase. Run the project setup once before building locally:
+
+```sh
+make init
+```
+
+That installs or verifies `mise`, installs the tools pinned in `.mise.toml`, and installs a pre-commit hook that formats staged Swift files.
+
+Useful commands:
+
+```sh
+make format
+make format-lint
+```
 
 ## Firebase Configuration
 
@@ -66,21 +86,30 @@ For public forks, do not commit production Firebase credentials or service confi
 ## Building the App
 
 1. Clone the repository.
-2. Add your own `Scrabbdict/GoogleService-Info.plist`.
-3. Open `Scrabbdict.xcodeproj` in Xcode.
-4. Let Xcode resolve packages.
-5. Select the `Scrabbdict` scheme.
-6. Select an iOS simulator or a signing-capable device.
-7. Build and run from Xcode.
+2. Run `make init`.
+3. Add your own `Scrabbdict/GoogleService-Info.plist`.
+4. Open `Scrabbdict.xcodeproj` in Xcode.
+5. Let Xcode resolve packages.
+6. Select the `Scrabbdict` scheme.
+7. Select an iOS simulator or a signing-capable device.
+8. Build and run from Xcode.
 
 If you use a different Apple developer team or bundle identifier, update the target signing settings in Xcode before building for a device.
 
 ## Running Tests
 
-Open the project in Xcode, select the `Scrabbdict` scheme, and run the test action. The test plan is stored at:
+Open the project in Xcode, select the `Scrabbdict` scheme, and run the test action. The active test plan includes unit tests, feature reducer tests, and snapshot tests. Performance tests are kept in the plan but skipped by default.
+
+The test plan is stored at:
 
 ```text
 ScrabbdictTests/Scrabbdict.xctestplan
+```
+
+Snapshot references are stored under:
+
+```text
+ScrabbdictTests/__Snapshots__/
 ```
 
 The repository samples are not full dictionaries. Tests that depend on complete word-list coverage may fail locally until you provide full dictionaries and regenerate the corresponding `.dawg` files.
@@ -162,7 +191,7 @@ User-visible third-party notices are maintained in:
 Scrabbdict/Settings.bundle/Root.plist
 ```
 
-When Swift Package Manager dependencies change, update that file to match `Package.resolved`.
+When Swift Package Manager dependencies used by the app at runtime change, update that file to match `Package.resolved`. Test-only dependencies, such as snapshot testing tools, do not need to appear in the user-visible Settings bundle unless they become part of the shipped app.
 
 ## Contributing Notes
 
