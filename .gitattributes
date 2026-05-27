@@ -1,1 +1,2 @@
 ScrabbdictTests/__Snapshots__/**/*.png filter=lfs diff=lfs merge=lfs -text
+images/Scrabbdict.butterkit/Assets/*.png filter=lfs diff=lfs merge=lfs -text

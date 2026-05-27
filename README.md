@@ -1,5 +1,12 @@
 # Scrabbdict
 
+<p align="center">
+  <img src="images/Scrabbdict.butterkit/Assets/AE47019C-73E8-4C0B-A949-31C0CC8131EA.png" alt="Screenshot #1" width="180" />
+  <img src="images/Scrabbdict.butterkit/Assets/1BBF5C40-CB0D-4FC3-A298-382A64CC634D.png" alt="Screenshot #2" width="180" />
+  <img src="images/Scrabbdict.butterkit/Assets/4C10B9BF-BCD8-4C27-B92D-12A7CC7540A9.png" alt="Screenshot #3" width="180" />
+  <img src="images/Scrabbdict.butterkit/Assets/60639882-7F0A-4F0D-9345-D11AF2CE5EF4.png" alt="Screenshot #4" width="180" />
+</p>
+
 Scrabbdict is an iOS dictionary helper for word games. It can validate a word, find words that can be built from a set of tiles, and search dictionaries with a simple `?` wildcard pattern.
 
 [![Download Scrabbdict on the App Store](images/app_store.svg)](https://apps.apple.com/pl/app/scrabbdict/id687530221)
@@ -37,6 +44,7 @@ To build or test Scrabbdict with complete dictionary behavior, provide your own 
 - `DAWGWizard/` - command-line generator that converts zipped `.txt` word lists into compact `.dawg` files.
 - `DAWGWizard/Files/` - source word list archives.
 - `ScrabbdictTests/` - unit and feature tests.
+- `images/Scrabbdict.butterkit/` - App Store screenshot project and exported PNG assets.
 - `Scripts/dawg` - helper script that builds and runs `DAWGWizard`.
 - `Scripts/swiftformat-lint.sh` - Xcode build phase script that checks Swift formatting.
 - `Makefile` and `.mise.toml` - local development tooling setup.
@@ -67,6 +75,16 @@ Useful commands:
 make format
 make format-lint
 ```
+
+## App Store Screenshots
+
+App Store screenshots are maintained with [ButterKit](https://butterkit.app). The editable ButterKit project and exported PNG assets live under:
+
+```text
+images/Scrabbdict.butterkit/
+```
+
+The exported screenshots are part of the repository assets and should be regenerated from the ButterKit project when App Store presentation copy, device frames, or screenshot content changes.
 
 ## Firebase Configuration
 
