@@ -1,0 +1,3 @@
+[submodule "Dictionaries"]
+    path = .dictionaries
+    url = git@github.com:sochalewski/scrabbdict-dictionaries.git

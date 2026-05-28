@@ -13,8 +13,8 @@ enum Language: String, CaseIterable, Sendable {
     case englishUS = "en_US_nwl"
     /// ODS 9 (L'Officiel du Scrabble)
     case french = "fr_ODS"
-    /// sjp-20260401
-    case polish = "pl_PL"
+    /// OSPS Update 52 (Oficjalny słownik polskiego scrabblisty)
+    case polish = "pl_OSPS"
 
     var shouldRemoveDiacritics: Bool {
         self == .french
@@ -43,7 +43,7 @@ enum Language: String, CaseIterable, Sendable {
         case .englishGB: 280_887
         case .englishUS: 196_601
         case .french: 407_128
-        case .polish: 3_238_764
+        case .polish: 2_901_474
         }
     }
 

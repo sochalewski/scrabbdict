@@ -17,7 +17,7 @@ The app is written in Swift and SwiftUI. State management uses [The Composable A
 
 © 2013-2026 Piotr Sochalewski
 
-Scrabbdict is an independent, non-commercial hobby project. The developer does not derive profit from the application and has no affiliation, association, authorization, sponsorship, or endorsement from Hasbro, Mattel, NASPA Word List, Collins Coalition, Éditions Larousse, or any other owner or publisher of the referenced word lists, trademarks, or related intellectual property.
+Scrabbdict is an independent, non-commercial hobby project. The developer does not derive profit from the application and has no affiliation, association, authorization, sponsorship, or endorsement from Hasbro, Mattel, NASPA Word List, Collins Coalition, Éditions Larousse, Polska Federacja Scrabble, Wydawnictwo Naukowe PWN or any other owner or publisher of the referenced word lists, trademarks, or related intellectual property.
 
 All trademarks, service marks, trade names, word list names, and other protected designations referenced in or in connection with this application are the property of their respective owners. Their use is for identification and compatibility purposes only and does not imply any relationship with, or endorsement by, the respective owners.
 
@@ -168,7 +168,7 @@ Scrabbdict/Files/DAWG/
 Generate only selected languages:
 
 ```sh
-Scripts/dawg pl_PL
+Scripts/dawg pl_OSPS
 Scripts/dawg en_US_nwl fr_ODS
 ```
 
@@ -178,26 +178,26 @@ Use custom input or output directories:
 Scripts/dawg --input-dir /path/to/word-lists --output-dir /tmp/dawg
 ```
 
-Input files are matched by language/file stem. For example, `pl_PL` expects:
+Input files are matched by language/file stem. For example, `pl_OSPS` expects:
 
 ```text
-DAWGWizard/Files/pl_PL.zip
+DAWGWizard/Files/pl_OSPS.zip
 ```
 
 and produces:
 
 ```text
-Scrabbdict/Files/DAWG/pl_PL.dawg
+Scrabbdict/Files/DAWG/pl_OSPS.dawg
 ```
 
 ## Supported Dictionaries
 
 The app currently references these language identifiers:
 
-- `en_GB_csw` - Collins Scrabble Words (CSW, formerly SOWPODS).
-- `en_US_nwl` - NASPA Word List (NWL, formerly OTCWL).
+- `en_GB_csw` - English CSW-style (formerly SOWPODS) word list.
+- `en_US_nwl` - English NASPA-style (formerly OTCWL) word list.
 - `fr_ODS` - French ODS-style word list.
-- `pl_PL` - Polish word list from [sjp.pl](https://sjp.pl/sl/growy/), licensed under GPL 2 and CC BY 4.0.
+- `pl_OSPS` - Polish OSPS-style word list.
 
 Names, descriptions, and language-specific behavior are defined in `Scrabbdict/Models/Language.swift`.
 

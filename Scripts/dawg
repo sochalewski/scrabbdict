@@ -14,7 +14,7 @@ Options are forwarded to DAWGWizard:
 
 Examples:
   Scripts/dawg
-  Scripts/dawg pl_PL
+  Scripts/dawg pl_OSPS
   Scripts/dawg --output-dir /tmp/dawg en_US_nwl fr_ODS
 EOF
 }

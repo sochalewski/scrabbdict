@@ -12,7 +12,7 @@ final class DAWGPerformanceTests: XCTestCase {
         .englishUS: 196_601,
         .englishGB: 280_887,
         .french: 407_128,
-        .polish: 3_238_764
+        .polish: 2_901_474
     ]
     private let queriesByLanguage: [Language: String] = [
         .englishUS: "pizzapie",

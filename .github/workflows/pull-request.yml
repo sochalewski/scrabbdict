@@ -37,6 +37,8 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
         with:
+          token: ${{ secrets.CHECKOUT_TOKEN || github.token }}
+          submodules: recursive
           lfs: true
 
       - name: Install project tools

@@ -306,25 +306,25 @@
       }
     },
     "language.polish.description" : {
-      "comment" : "Do not translate these terms: sjp.pl, CC BY 4.0.",
+      "comment" : "Do not translate these terms: OSPS, Update 52, Scrabble™.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Polish open dictionary by sjp.pl (CC BY 4.0)"
+            "value" : "Polish Scrabble™ word list based on OSPS Update 52"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dictionnaire polonais ouvert de sjp.pl (CC BY 4.0)"
+            "value" : "Liste de mots polonaise pour le Scrabble™, basée sur OSPS Update 52"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Polski otwarty słownik sjp.pl (CC BY 4.0)"
+            "value" : "Polska lista słów Scrabble™ oparta na OSPS Update 52"
           }
         }
       }

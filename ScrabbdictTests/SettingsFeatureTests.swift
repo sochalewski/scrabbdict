@@ -14,7 +14,7 @@ final class SettingsFeatureTests: XCTestCase {
         XCTAssertEqual(Language(rawValue: "en_GB_csw"), .englishGB)
         XCTAssertEqual(Language(rawValue: "en_US_nwl"), .englishUS)
         XCTAssertEqual(Language(rawValue: "fr_ODS"), .french)
-        XCTAssertEqual(Language(rawValue: "pl_PL"), .polish)
+        XCTAssertEqual(Language(rawValue: "pl_OSPS"), .polish)
     }
 
     func testLanguageRawValueInitializerSupportsLegacyAndLocaleValues() {
@@ -23,6 +23,7 @@ final class SettingsFeatureTests: XCTestCase {
         XCTAssertEqual(Language(rawValue: "en_GB"), .englishGB)
         XCTAssertEqual(Language(rawValue: "en-US"), .englishUS)
         XCTAssertEqual(Language(rawValue: "fr"), .french)
+        XCTAssertEqual(Language(rawValue: "pl_PL"), .polish)
         XCTAssertEqual(Language(rawValue: "pl"), .polish)
     }
 

@@ -131,6 +131,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AE62F72E2024EA8C00A57DAE /* Build configuration list for PBXNativeTarget "DAWGWizard" */;
 			buildPhases = (
+				AE71AD812FCCDC77002632DB /* Copy ZIP Files */,
 				AE5F00022FC7A00000000002 /* SwiftFormat Lint */,
 				AE62F71D2024EA8C00A57DAE /* Sources */,
 			);
@@ -169,6 +170,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AEF8AC941EBA02AA005996D5 /* Build configuration list for PBXNativeTarget "Scrabbdict" */;
 			buildPhases = (
+				AE71AD802FCCDC06002632DB /* Copy DAWG Files */,
 				AE5F00012FC7A00000000001 /* SwiftFormat Lint */,
 				AEF8AC7E1EBA02AA005996D5 /* Sources */,
 				AEF8AC7F1EBA02AA005996D5 /* Frameworks */,
@@ -302,6 +304,44 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "\"$SRCROOT/Scripts/swiftformat-lint.sh\"\n";
+		};
+		AE71AD802FCCDC06002632DB /* Copy DAWG Files */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy DAWG Files";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "DICTIONARIES_SRC=\"${SRCROOT}/.dictionaries/Scrabbdict/Files/DAWG\"\nSAMPLES_SRC=\"${SRCROOT}/.samples/DAWG\"\nDST=\"${SRCROOT}/Scrabbdict/Files/DAWG\"\n\nSRC=\"$DICTIONARIES_SRC\"\n[ -d \"$SRC\" ] || SRC=\"$SAMPLES_SRC\"\n\nmkdir -p \"$DST\" && rsync -a --delete \"$SRC/\" \"$DST/\" || {\n    echo \"warning: Could not copy DAWG files from $SRC\"\n    exit 0\n}\n";
+		};
+		AE71AD812FCCDC77002632DB /* Copy ZIP Files */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy ZIP Files";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "DICTIONARIES_SRC=\"${SRCROOT}/.dictionaries/DAWGWizard/Files\"\nSAMPLES_SRC=\"${SRCROOT}/.samples/Files\"\nDST=\"${SRCROOT}/DAWGWizard/Files\"\n\nSRC=\"$DICTIONARIES_SRC\"\n[ -d \"$SRC\" ] || SRC=\"$SAMPLES_SRC\"\n\nmkdir -p \"$DST\" && rsync -a --delete \"$SRC/\" \"$DST/\" || {\n    echo \"warning: Could not copy ZIP files from $SRC\"\n    exit 0\n}\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
