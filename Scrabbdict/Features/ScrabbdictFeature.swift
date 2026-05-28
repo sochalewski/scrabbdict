@@ -266,7 +266,7 @@ private extension ScrabbdictFeature {
             return .none
         case let .searchResponse(.failed(error)):
             state.search = nil
-            state.alert = .init(title: "Warning", message: error.localizedDescription)
+            state.alert = .init(kind: .dictionaryUnavailable)
             crashlytics.record(error)
             return .none
         case let .searchResponse(.matchedWords(words, emptyResult)):

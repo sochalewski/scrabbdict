@@ -11,7 +11,7 @@ struct RackWordsButton: View {
 
     var body: some View {
         Button(action: action) {
-            Label("Find words from letters", systemImage: "magnifyingglass")
+            Label(.rackWordsButtonTitle, systemImage: "magnifyingglass")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: 268)

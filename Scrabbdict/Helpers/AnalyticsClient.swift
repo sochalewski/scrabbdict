@@ -19,19 +19,19 @@ struct AnalyticsClient: Sendable {
 extension AnalyticsClient: DependencyKey {
     static let liveValue = Self(
         logLanguageChanged: { language in
-            Analytics.logEvent("language_changed", parameters: ["language": language.name])
+            Analytics.logEvent("language_changed", parameters: ["language": language.rawValue])
         },
         logModeChanged: { searchMode in
-            Analytics.logEvent("mode_changed", parameters: ["mode": searchMode.title.lowercased()])
+            Analytics.logEvent("mode_changed", parameters: ["mode": searchMode.name])
         },
         logRegexSearch: { language in
-            Analytics.logEvent("regex", parameters: ["language": language.name])
+            Analytics.logEvent("regex", parameters: ["language": language.rawValue])
         },
         logTilesSearch: { language in
-            Analytics.logEvent("tiles", parameters: ["language": language.name])
+            Analytics.logEvent("tiles", parameters: ["language": language.rawValue])
         },
         logWordChecked: { language, exists in
-            Analytics.logEvent("word_check", parameters: ["language": language.name, "exists": exists ? "yes" : "no"])
+            Analytics.logEvent("word_check", parameters: ["language": language.rawValue, "exists": exists ? "yes" : "no"])
         }
     )
 

@@ -12,14 +12,14 @@ struct WordsListView: View {
     var body: some View {
         List(words, id: \.string) { word in
             HStack(spacing: 0) {
-                Text(word.string)
+                Text(verbatim: word.string)
                     .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(Color.primaryInk)
                     .lineLimit(1)
 
                 Spacer(minLength: 16)
 
-                Text("\(word.points)")
+                Text(verbatim: "\(word.points)")
                     .font(.system(size: 14, weight: .bold, design: .monospaced))
                     .foregroundStyle(Color.brandAccent)
                     .padding(.horizontal, 9)

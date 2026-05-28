@@ -6,11 +6,11 @@
 
 import Foundation
 
-enum Language: String, CaseIterable, CustomStringConvertible, Sendable {
+enum Language: String, CaseIterable, Sendable {
     /// CSW24 (Collins Scrabble Words)
-    case englishGB = "en_GB_sowpods"
+    case englishGB = "en_GB_csw"
     /// NWL2023 (NASPA Word List)
-    case englishUS = "en_US_twl"
+    case englishUS = "en_US_nwl"
     /// ODS 9 (L'Officiel du Scrabble)
     case french = "fr_ODS"
     /// sjp-20260401
@@ -20,25 +20,51 @@ enum Language: String, CaseIterable, CustomStringConvertible, Sendable {
         self == .french
     }
 
-    var name: String {
+    var name: LocalizedStringResource {
         switch self {
-        case .englishGB: "English SOWPODS"
-        case .englishUS: "English TWL"
-        case .polish: "Polish"
-        case .french: "French"
+        case .englishGB: .languageEnglishGbName
+        case .englishUS: .languageEnglishUsName
+        case .polish: .languagePolishName
+        case .french: .languageFrenchName
         }
     }
 
-    var description: String {
+    var description: LocalizedStringResource {
         switch self {
-        case .englishGB:
-            "English word list used for tournament Scrabble™ in most countries except the USA, Thailand, and Canada\n\nNumber of words: 280,887"
-        case .englishUS:
-            "Official Tournament and Club Word List\nOfficial English word authority for tournament Scrabble™ in the USA, Canada, and Thailand\n\nNumber of words: 196,601"
-        case .polish:
-            "Polish open dictionary by sjp.pl (CC BY 4.0)\n\nNumber of words: 3,238,764"
-        case .french:
-            "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble ODS9\n\nNumber of words: 407,128"
+        case .englishGB: .languageEnglishGbDescription
+        case .englishUS: .languageEnglishUsDescription
+        case .polish: .languagePolishDescription
+        case .french: .languageFrenchDescription
+        }
+    }
+
+    var wordCount: Int {
+        switch self {
+        case .englishGB: 280_887
+        case .englishUS: 196_601
+        case .french: 407_128
+        case .polish: 3_238_764
+        }
+    }
+
+    init?(rawValue: String) {
+        let components = rawValue
+            .split { $0 == "_" || $0 == "-" }
+            .map { $0.lowercased() }
+
+        switch components.first {
+        case "en":
+            switch components.dropFirst().first {
+            case "gb": self = .englishGB
+            case "us": self = .englishUS
+            default: return nil
+            }
+        case "fr":
+            self = .french
+        case "pl":
+            self = .polish
+        default:
+            return nil
         }
     }
 }

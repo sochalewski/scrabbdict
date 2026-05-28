@@ -10,6 +10,29 @@ import XCTest
 
 @MainActor
 final class SettingsFeatureTests: XCTestCase {
+    func testLanguageRawValueInitializerSupportsCurrentValues() {
+        XCTAssertEqual(Language(rawValue: "en_GB_csw"), .englishGB)
+        XCTAssertEqual(Language(rawValue: "en_US_nwl"), .englishUS)
+        XCTAssertEqual(Language(rawValue: "fr_ODS"), .french)
+        XCTAssertEqual(Language(rawValue: "pl_PL"), .polish)
+    }
+
+    func testLanguageRawValueInitializerSupportsLegacyAndLocaleValues() {
+        XCTAssertEqual(Language(rawValue: "en_GB_sowpods"), .englishGB)
+        XCTAssertEqual(Language(rawValue: "en_US_twl"), .englishUS)
+        XCTAssertEqual(Language(rawValue: "en_GB"), .englishGB)
+        XCTAssertEqual(Language(rawValue: "en-US"), .englishUS)
+        XCTAssertEqual(Language(rawValue: "fr"), .french)
+        XCTAssertEqual(Language(rawValue: "pl"), .polish)
+    }
+
+    func testLanguageRawValueInitializerRejectsAmbiguousValues() {
+        XCTAssertNil(Language(rawValue: "en"))
+        XCTAssertNil(Language(rawValue: "en_CA"))
+        XCTAssertNil(Language(rawValue: "de_DE"))
+        XCTAssertNil(Language(rawValue: ""))
+    }
+
     func testLanguageSelected() async {
         let store = TestStore(initialState: SettingsFeature.State(selectedLanguage: .englishUS)) {
             SettingsFeature()

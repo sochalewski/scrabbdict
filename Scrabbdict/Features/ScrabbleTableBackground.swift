@@ -179,13 +179,13 @@ private struct ScrabbleBackgroundLetterTile: View {
                     )
 
                 // Letter
-                Text(letter)
+                Text(verbatim: letter)
                     .font(.system(size: proxy.size.width * 0.53, weight: .bold))
                     .foregroundStyle(Color.TableBackground.tileInk)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 // Points
-                Text("\(points)")
+                Text(verbatim: "\(points)")
                     .font(.system(size: proxy.size.width * 0.16, weight: .bold))
                     .foregroundStyle(Color.TableBackground.tileInk)
                     .padding(proxy.size.width * 0.10)

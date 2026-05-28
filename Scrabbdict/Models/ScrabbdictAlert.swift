@@ -7,8 +7,23 @@
 import Foundation
 
 struct ScrabbdictAlert: Hashable, Sendable, Identifiable {
-    let title: String
-    let message: String
+    enum Kind: Hashable, Sendable {
+        case dictionaryUnavailable
+    }
+
+    let kind: Kind
+
+    var title: LocalizedStringResource {
+        switch kind {
+        case .dictionaryUnavailable: .alertWarningTitle
+        }
+    }
+
+    var message: LocalizedStringResource {
+        switch kind {
+        case .dictionaryUnavailable: .errorDictionaryUnavailable
+        }
+    }
 
     var id: Self {
         self

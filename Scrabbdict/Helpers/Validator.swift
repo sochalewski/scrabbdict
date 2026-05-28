@@ -9,14 +9,18 @@ import Foundation
 
 enum ValidatorError: Error, Hashable, Sendable {
     case dictionaryUnavailable
+
+    var description: LocalizedStringResource {
+        switch self {
+        case .dictionaryUnavailable:
+            .errorDictionaryUnavailable
+        }
+    }
 }
 
 extension ValidatorError: LocalizedError {
     var errorDescription: String? {
-        switch self {
-        case .dictionaryUnavailable:
-            "Dictionary is unavailable. Please try again."
-        }
+        String(localized: description)
     }
 }
 

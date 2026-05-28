@@ -454,7 +454,7 @@ final class ScrabbdictFeatureTests: XCTestCase {
         }
         await store.receive(.internal(.searchResponse(.failed(.dictionaryUnavailable)))) {
             $0.search = nil
-            $0.alert = ScrabbdictAlert(title: "Warning", message: ValidatorError.dictionaryUnavailable.localizedDescription)
+            $0.alert = ScrabbdictAlert(kind: .dictionaryUnavailable)
         }
         XCTAssertEqual(recordedErrors.value, [.dictionaryUnavailable])
     }

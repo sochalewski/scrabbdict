@@ -4,7 +4,23 @@
 //  Licensed under the Apache License, Version 2.0.
 //
 
-struct EmptySearchResult: Hashable, Sendable {
-    let title: String
-    let message: String
+import Foundation
+
+enum EmptySearchResult: Hashable, Sendable {
+    case pattern
+    case rack
+
+    var title: LocalizedStringResource {
+        switch self {
+        case .pattern: .emptyResultPatternTitle
+        case .rack: .emptyResultRackTitle
+        }
+    }
+
+    var message: LocalizedStringResource {
+        switch self {
+        case .pattern: .emptyResultPatternMessage
+        case .rack: .emptyResultRackMessage
+        }
+    }
 }

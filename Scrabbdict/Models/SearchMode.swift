@@ -11,19 +11,27 @@ enum SearchMode: Int, CaseIterable, Hashable, Sendable {
     case check = 1
     case rack = 2
 
-    var title: String {
+    var title: LocalizedStringResource {
         switch self {
-        case .auto: "Auto"
-        case .check: "Check"
-        case .rack: "Rack"
+        case .auto: .searchModeAutoTitle
+        case .check: .searchModeCheckTitle
+        case .rack: .searchModeRackTitle
         }
     }
 
-    var description: String {
+    var description: LocalizedStringResource {
         switch self {
-        case .auto: "Checks exact words, or treats ? as a one-letter wildcard."
-        case .check: "Only checks whether the exact entered word is valid."
-        case .rack: "Finds words from entered letters, or treats ? as a one-letter wildcard."
+        case .auto: .searchModeAutoDescription
+        case .check: .searchModeCheckDescription
+        case .rack: .searchModeRackDescription
+        }
+    }
+
+    var name: String {
+        switch self {
+        case .auto: "auto"
+        case .check: "check"
+        case .rack: "rack"
         }
     }
 }

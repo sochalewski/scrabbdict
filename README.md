@@ -169,7 +169,7 @@ Generate only selected languages:
 
 ```sh
 Scripts/dawg pl_PL
-Scripts/dawg en_US_twl fr_ODS
+Scripts/dawg en_US_nwl fr_ODS
 ```
 
 Use custom input or output directories:
@@ -194,12 +194,24 @@ Scrabbdict/Files/DAWG/pl_PL.dawg
 
 The app currently references these language identifiers:
 
-- `en_GB_sowpods` - English SOWPODS / Collins-style word list.
-- `en_US_twl` - English TWL / NASPA-style word list.
+- `en_GB_csw` - Collins Scrabble Words (CSW, formerly SOWPODS).
+- `en_US_nwl` - NASPA Word List (NWL, formerly OTCWL).
 - `fr_ODS` - French ODS-style word list.
 - `pl_PL` - Polish word list from [sjp.pl](https://sjp.pl/sl/growy/), licensed under GPL 2 and CC BY 4.0.
 
 Names, descriptions, and language-specific behavior are defined in `Scrabbdict/Models/Language.swift`.
+
+## Localization
+
+User-visible translations are maintained in:
+
+```text
+Scrabbdict/Localizable.xcstrings
+```
+
+Keep locale-specific wording in the string catalog, but keep dictionary metadata that must stay identical across translations in code. In particular, dictionary word counts are defined as numeric values in `Scrabbdict/Models/Language.swift` and are injected into localized strings after locale-aware number formatting. Do not duplicate formatted word counts manually in each translation.
+
+When updating dictionary names or descriptions, update all supported locales together (`en`, `fr`, and `pl`) and keep protected dictionary names, abbreviations, trademarks, and source names unchanged unless the underlying dictionary source changes. The string catalog comments mark terms that should not be translated.
 
 ## Third-Party Notices
 

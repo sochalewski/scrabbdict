@@ -21,7 +21,7 @@ struct SettingsView: View {
             .scrollBounceBehavior(.basedOnSize)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(Color.settingsBackground.ignoresSafeArea())
-            .navigationTitle("Settings")
+            .navigationTitle(.settingsTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -29,7 +29,7 @@ struct SettingsView: View {
                         Button(role: .cancel) { send(.cancelButtonTapped) }
                             .foregroundStyle(Color.settingsAccent)
                     } else {
-                        Button("Cancel") { send(.cancelButtonTapped) }
+                        Button(.settingsCancel) { send(.cancelButtonTapped) }
                             .foregroundStyle(Color.settingsAccent)
                     }
                 }
@@ -38,7 +38,7 @@ struct SettingsView: View {
                         Button(role: .confirm) { send(.saveButtonTapped) }
                             .foregroundStyle(Color.settingsAccent)
                     } else {
-                        Button("Save") { send(.saveButtonTapped) }
+                        Button(.settingsSave) { send(.saveButtonTapped) }
                             .foregroundStyle(Color.settingsAccent)
                             .fontWeight(.semibold)
                     }
@@ -55,7 +55,7 @@ struct SettingsView: View {
 private extension SettingsView {
     var content: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Dictionary")
+            Text(.settingsDictionary)
                 .font(.system(size: 18, weight: .bold))
                 .foregroundStyle(Color.settingsText)
 
@@ -106,12 +106,18 @@ private extension SettingsView {
 
             ZStack(alignment: .topLeading) {
                 ForEach(Language.allCases, id: \.self) { language in
-                    Text(language.description)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(Color.settingsText.opacity(0.82))
-                        .fixedSize(horizontal: false, vertical: true)
-                        .opacity(store.selectedLanguage == language ? 1 : 0)
-                        .accessibilityHidden(store.selectedLanguage != language)
+                    (
+                        Text(language.description)
+                            + Text(verbatim: "\n\n")
+                            + Text(.languageWordCount)
+                            + Text(verbatim: " ")
+                            + Text(language.wordCount, format: .number)
+                    )
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(Color.settingsText.opacity(0.82))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .opacity(store.selectedLanguage == language ? 1 : 0)
+                    .accessibilityHidden(store.selectedLanguage != language)
                 }
             }
             .padding(.top, 16)

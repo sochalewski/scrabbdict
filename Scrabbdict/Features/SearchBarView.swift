@@ -66,25 +66,27 @@ struct SearchBarView: View {
     }
 
     private var textField: some View {
-        TextField("", text: $text)
-            .font(.system(size: 21, weight: .medium))
-            .foregroundStyle(Color.primaryInk)
-            .tint(Color.brandAccent)
-            .multilineTextAlignment(.center)
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled(true)
-            .submitLabel(.search)
-            .focused($isFocused)
-            .onSubmit(onSearch)
-            .padding(.trailing, text.isEmpty || !isFocused ? 0 : 30)
-            .frame(height: 38)
-            .accessibilityLabel("Word or rack")
-            .onChange(of: text) { _, newValue in
-                text = newValue.sanitizedWordQuery
-            }
-            .overlay(alignment: .trailing) {
-                textFieldTrailingControl
-            }
+        TextField(text: $text) {
+            Text(verbatim: "")
+        }
+        .font(.system(size: 21, weight: .medium))
+        .foregroundStyle(Color.primaryInk)
+        .tint(Color.brandAccent)
+        .multilineTextAlignment(.center)
+        .textInputAutocapitalization(.never)
+        .autocorrectionDisabled(true)
+        .submitLabel(.search)
+        .focused($isFocused)
+        .onSubmit(onSearch)
+        .padding(.trailing, text.isEmpty || !isFocused ? 0 : 30)
+        .frame(height: 38)
+        .accessibilityLabel(.searchFieldAccessibilityLabel)
+        .onChange(of: text) { _, newValue in
+            text = newValue.sanitizedWordQuery
+        }
+        .overlay(alignment: .trailing) {
+            textFieldTrailingControl
+        }
     }
 
     @ViewBuilder
@@ -106,7 +108,7 @@ struct SearchBarView: View {
                 .frame(width: 30, height: 30)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Clear text")
+        .accessibilityLabel(.searchFieldClear)
     }
 
     private var focusTapTarget: some View {
@@ -129,7 +131,7 @@ struct SearchBarView: View {
                 .rotationEffect(.degrees(isSearchModePickerExpanded ? 180 : 0))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Search mode")
+        .accessibilityLabel(.searchModeAccessibilityLabel)
         .accessibilityValue(searchMode.title)
     }
 
@@ -146,7 +148,7 @@ struct SearchBarView: View {
                 .shadow(color: Color.appShadow.opacity(text.isEmpty ? 0 : 1), radius: 8, x: 0, y: 3)
         }
         .disabled(text.isEmpty)
-        .accessibilityLabel("Search")
+        .accessibilityLabel(.searchButtonAccessibilityLabel)
     }
 
     private func searchModeOption(_ mode: SearchMode) -> some View {

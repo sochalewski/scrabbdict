@@ -16,7 +16,7 @@ struct ScrabbdictView: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("")
+                .navigationTitle(.init(verbatim: ""))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     titleToolbar
@@ -45,15 +45,15 @@ private extension ScrabbdictView {
     var titleToolbar: some ToolbarContent {
         ToolbarItem(placement: .principal) {
             HStack(spacing: 0) {
-                Text("Scrabb")
+                Text(verbatim: "Scrabb")
                     .foregroundStyle(Color.primary)
-                Text("dict")
+                Text(verbatim: "dict")
                     .foregroundStyle(Color.brandAccent)
             }
             .font(.system(size: 24, weight: .bold))
             .lineLimit(1)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Scrabbdict")
+            .accessibilityLabel(.init(verbatim: "Scrabbdict"))
         }
     }
 
@@ -88,7 +88,7 @@ private extension ScrabbdictView {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(Text("OK"))
+                dismissButton: .default(Text(.alertOk))
             )
         }
         .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { settingsStore in
@@ -112,7 +112,7 @@ private extension ScrabbdictView {
                 .frame(width: 24, height: 24)
                 .foregroundStyle(Color.brandAccent)
         }
-        .accessibilityLabel("Settings")
+        .accessibilityLabel(.settingsTitle)
     }
 
     @ViewBuilder

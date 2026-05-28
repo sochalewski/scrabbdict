@@ -27,7 +27,7 @@ private func usage() -> String {
     Examples:
       DAWGWizard
       DAWGWizard pl_PL
-      DAWGWizard --output-dir /tmp/dawg en_US_twl fr_ODS
+      DAWGWizard --output-dir /tmp/dawg en_US_nwl fr_ODS
     """
 }
 

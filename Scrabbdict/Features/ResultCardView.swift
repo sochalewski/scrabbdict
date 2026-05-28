@@ -4,15 +4,16 @@
 //  Licensed under the Apache License, Version 2.0.
 //
 
+import Foundation
 import SwiftUI
 
 struct ResultCardView: View {
     let result: ValidatorResult
 
-    private var resultTitle: String {
+    private var resultTitle: LocalizedStringResource {
         switch result {
-        case .valid: "VALID"
-        case .invalid: "INVALID"
+        case .valid: .resultValid
+        case .invalid: .resultInvalid
         }
     }
 
@@ -32,7 +33,7 @@ struct ResultCardView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("THIS WORD IS")
+            Text(.resultCaption)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Color.resultCaption)
 
@@ -46,11 +47,11 @@ struct ResultCardView: View {
                     .overlay(Color.divider)
                     .padding(.vertical, 12)
 
-                Text("\(points)")
+                Text(verbatim: "\(points)")
                     .font(.futuraBold(size: 30))
                     .foregroundStyle(Color.resultBlue)
 
-                Text("POINTS")
+                Text(verbatim: localizedPointNoun(for: points))
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(Color.resultCaption)
             }
@@ -64,6 +65,12 @@ struct ResultCardView: View {
                 .stroke(Color.surfaceStroke, lineWidth: 1)
         )
         .shadow(color: Color.appShadow, radius: 17, x: 0, y: 14)
+    }
+
+    private func localizedPointNoun(for points: Int) -> String {
+        String(localized: .resultPoints(points))
+            .replacingOccurrences(of: #"\[[^\]]*\]"#, with: "", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
 
