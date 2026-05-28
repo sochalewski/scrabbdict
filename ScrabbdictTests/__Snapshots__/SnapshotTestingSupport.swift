@@ -37,33 +37,44 @@ func assertScreenSnapshots(
         (.iPhone17Pro, ""),
         (.iPad13, "pad.")
     ],
+    locales: [Locale] = [
+        Locale(identifier: "en_US"),
+        Locale(identifier: "pl_PL"),
+        Locale(identifier: "fr_FR")
+    ],
     drawHierarchyInKeyWindow: Bool = false,
     file: StaticString = #file,
     testName: String = #function,
     line: UInt = #line,
-    _ makeView: (ViewImageConfig, ColorScheme) -> some View
+    _ makeView: (ViewImageConfig, ColorScheme, Locale) -> some View
 ) {
-    for (deviceConfig, namePrefix) in deviceConfigs {
-        for (colorScheme, name) in [(ColorScheme.light, "light"), (.dark, "dark")] {
-            assertSnapshot(
-                of: makeView(deviceConfig, colorScheme)
-                    .frame(
-                        width: deviceConfig.size?.width,
-                        height: deviceConfig.size?.height
+    for locale in locales {
+        let localeSnapshotName = locale.identifier
+            .replacingOccurrences(of: "_", with: "-")
+            .replacingOccurrences(of: "@", with: "-")
+
+        for (deviceConfig, namePrefix) in deviceConfigs {
+            for (colorScheme, name) in [(ColorScheme.light, "light"), (.dark, "dark")] {
+                assertSnapshot(
+                    of: makeView(deviceConfig, colorScheme, locale)
+                        .frame(
+                            width: deviceConfig.size?.width,
+                            height: deviceConfig.size?.height
+                        ),
+                    as: .image(
+                        drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+                        precision: 0.995,
+                        layout: .device(config: deviceConfig),
+                        traits: deviceConfig.traits.modifyingTraits {
+                            $0.userInterfaceStyle = colorScheme == .light ? .light : .dark
+                        }
                     ),
-                as: .image(
-                    drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
-                    precision: 0.995,
-                    layout: .device(config: deviceConfig),
-                    traits: deviceConfig.traits.modifyingTraits {
-                        $0.userInterfaceStyle = colorScheme == .light ? .light : .dark
-                    }
-                ),
-                named: "\(namePrefix)\(name)",
-                file: file,
-                testName: testName,
-                line: line
-            )
+                    named: "\(localeSnapshotName).\(namePrefix)\(name)",
+                    file: file,
+                    testName: testName,
+                    line: line
+                )
+            }
         }
     }
 }
@@ -72,11 +83,12 @@ func assertScreenSnapshots(
 func fixedScreen(
     _ content: some View,
     deviceConfig: ViewImageConfig = .iPhone17Pro,
-    colorScheme: ColorScheme
+    colorScheme: ColorScheme,
+    locale: Locale
 ) -> some View {
     content
         .environment(\.colorScheme, colorScheme)
-        .environment(\.locale, Locale(identifier: "en_US"))
+        .environment(\.locale, locale)
         .frame(
             width: deviceConfig.size?.width,
             height: deviceConfig.size?.height

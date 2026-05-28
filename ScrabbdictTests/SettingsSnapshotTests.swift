@@ -40,7 +40,7 @@ private func assertSettingsScreenSnapshots(
         file: file,
         testName: testName,
         line: line
-    ) { deviceConfig, colorScheme in
+    ) { deviceConfig, colorScheme, locale in
         fixedScreen(
             SettingsView(
                 store: Store(
@@ -49,7 +49,8 @@ private func assertSettingsScreenSnapshots(
                 )
             ),
             deviceConfig: deviceConfig,
-            colorScheme: colorScheme
+            colorScheme: colorScheme,
+            locale: locale
         )
     }
 }

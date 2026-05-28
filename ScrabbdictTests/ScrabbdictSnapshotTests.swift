@@ -132,7 +132,7 @@ private func assertAppScreenSnapshots(
         file: file,
         testName: testName,
         line: line
-    ) { deviceConfig, colorScheme in
+    ) { deviceConfig, colorScheme, locale in
         fixedScreen(
             ScrabbdictView(
                 store: Store(
@@ -141,7 +141,8 @@ private func assertAppScreenSnapshots(
                 )
             ),
             deviceConfig: deviceConfig,
-            colorScheme: colorScheme
+            colorScheme: colorScheme,
+            locale: locale
         )
     }
 }
