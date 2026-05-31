@@ -43,6 +43,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AE71C3512FCD010B002632DB /* Exceptions for "ScrabbdictTests" folder in "ScrabbdictTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				__Snapshots__,
+			);
+			target = AE78C2771FFD267600874685 /* ScrabbdictTests */;
+		};
 		AECC64CA2FB9CCA30032633A /* Exceptions for "DAWGWizard" folder in "DAWGWizard" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -54,6 +61,7 @@
 		AECC64D12FB9D6A10032633A /* Exceptions for "DAWGWizard" folder in "ScrabbdictTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Files,
 				main.swift,
 			);
 			target = AE78C2771FFD267600874685 /* ScrabbdictTests */;
@@ -72,11 +80,20 @@
 				AECC64D12FB9D6A10032633A /* Exceptions for "DAWGWizard" folder in "ScrabbdictTests" target */,
 				AECC64CA2FB9CCA30032633A /* Exceptions for "DAWGWizard" folder in "DAWGWizard" target */,
 			);
+			explicitFolders = (
+				Files,
+			);
 			path = DAWGWizard;
 			sourceTree = "<group>";
 		};
 		AECC64CF2FB9CCA60032633A /* ScrabbdictTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AE71C3512FCD010B002632DB /* Exceptions for "ScrabbdictTests" folder in "ScrabbdictTests" target */,
+			);
+			explicitFolders = (
+				__Snapshots__,
+			);
 			path = ScrabbdictTests;
 			sourceTree = "<group>";
 		};
