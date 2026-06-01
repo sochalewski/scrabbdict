@@ -163,25 +163,25 @@
       }
     },
     "language.english_gb.description" : {
-      "comment" : "Do not translate these terms: Collins Scrabble Words, CSW, SOWPODS, Scrabble™.",
+      "comment" : "Do not translate Scrabble™.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Collins Scrabble Words (CSW, formerly SOWPODS)\nEnglish word list used for tournament Scrabble™ in most countries except the USA and Canada"
+            "value" : "English word list used for tournament Scrabble™ in most countries except the USA and Canada"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Collins Scrabble Words (CSW, anciennement SOWPODS)\nListe de mots anglaise utilisée pour le Scrabble™ de compétition dans la plupart des pays, sauf aux États-Unis et au Canada"
+            "value" : "Liste de mots anglaise utilisée pour le Scrabble™ de compétition dans la plupart des pays, sauf aux États-Unis et au Canada"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Collins Scrabble Words (CSW, dawniej SOWPODS)\nAngielska lista słów używana w turniejowym Scrabble™ w większości krajów poza USA i Kanadą"
+            "value" : "Angielska lista słów używana w turniejowym Scrabble™ w większości krajów poza USA i Kanadą"
           }
         }
       }
@@ -211,25 +211,25 @@
       }
     },
     "language.english_us.description" : {
-      "comment" : "Do not translate these terms: NASPA Word List, NWL, OTCWL, Scrabble™.",
+      "comment" : "Do not translate Scrabble™.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NASPA Word List (NWL, formerly OTCWL)\nEnglish word list used for tournament Scrabble™ in the USA and Canada"
+            "value" : "English word list used for tournament Scrabble™ in the USA and Canada"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NASPA Word List (NWL, anciennement OTCWL)\nListe de mots anglaise utilisée pour le Scrabble™ de compétition aux États-Unis et au Canada"
+            "value" : "Liste de mots anglaise utilisée pour le Scrabble™ de compétition aux États-Unis et au Canada"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NASPA Word List (NWL, dawniej OTCWL)\nAngielska lista słów używana w turniejowym Scrabble™ w USA i Kanadzie"
+            "value" : "Angielska lista słów używana w turniejowym Scrabble™ w USA i Kanadzie"
           }
         }
       }
@@ -259,25 +259,25 @@
       }
     },
     "language.french.description" : {
-      "comment" : "Do not translate these terms: Scrabble™, L'Officiel de jeu Scrabble, ODS9.",
+      "comment" : "Do not translate Scrabble™.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The official word list for Francophone Scrabble™ based on L'Officiel de jeu Scrabble ODS9"
+            "value" : "French word list used for tournament Scrabble™ in France"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Liste officielle des mots pour le Scrabble™ francophone, basée sur L'Officiel du jeu Scrabble ODS9"
+            "value" : "Liste de mots française utilisée pour le Scrabble™ de compétition en France"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oficjalna lista słów dla frankofońskiego Scrabble™, oparta na L'Officiel du jeu Scrabble ODS9"
+            "value" : "Francuska lista słów używana w turniejowym Scrabble™ we Francji"
           }
         }
       }
@@ -306,25 +306,25 @@
       }
     },
     "language.polish.description" : {
-      "comment" : "Do not translate these terms: OSPS, Update 52, Scrabble™.",
+      "comment" : "Do not translate Scrabble™.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Polish Scrabble™ word list based on OSPS Update 52"
+            "value" : "Polish word list used for tournament Scrabble™ in Poland"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Liste de mots polonaise pour le Scrabble™, basée sur OSPS Update 52"
+            "value" : "Liste de mots polonaise utilisée pour le Scrabble™ de compétition en Pologne"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Polska lista słów Scrabble™ oparta na OSPS Update 52"
+            "value" : "Polska lista słów używana w turniejowym Scrabble™ w Polsce"
           }
         }
       }

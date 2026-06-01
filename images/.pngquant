@@ -1,0 +1,10 @@
+PNG quantization settings used for ButterKit/App Store screenshot assets:
+
+pngquant --quality=80-95 --speed 1 --skip-if-larger --force --ext .png <file.png>
+
+Notes:
+- Keeps the original file name by using --ext .png with --force.
+- Does not resize images; pngquant changes color quantization only.
+- Uses a conservative lossy quality range to avoid visibly dirty assets.
+- Uses --skip-if-larger so files are only replaced when the quantized output is smaller.
+- Uses --speed 1 for slower, higher-quality optimization.
