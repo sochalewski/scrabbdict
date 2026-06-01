@@ -7,16 +7,12 @@
 import Foundation
 
 final class DAWG: Sendable {
-    private static let magic: UInt32 = 0x47574453
-    private static let version: UInt32 = 2
-    private static let headerSize = 24
-    private static let nodeSize = 8
-    private static let edgeSize = 6
-
-    private static let wildcardKey = UInt16(UnicodeScalar("?").value)
+    private static let wildcardKey = UInt16.max
 
     let count: Int
 
+    private let alphabet: [UInt16]
+    private let keyByScalar: [UInt16: UInt16]
     private let nodeFirstEdges: [UInt32]
     private let nodeEdgeCounts: [UInt16]
     private let wordNodes: BitSet
@@ -40,20 +36,29 @@ final class DAWG: Sendable {
     }
 
     init(data: Data) throws {
-        guard data.count >= Self.headerSize else { throw DAWGError.invalidHeader }
+        guard data.count >= DAWGFormat.headerSize else { throw DAWGError.invalidHeader }
 
         let magic = data.readLittleEndianUInt32(at: 0)
         let version = data.readLittleEndianUInt32(at: 4)
         let wordCount = data.readLittleEndianUInt32(at: 8)
         let nodeCount = data.readLittleEndianUInt32(at: 12)
         let edgeCount = data.readLittleEndianUInt32(at: 16)
+        let alphabetCount = data.readLittleEndianUInt32(at: 20)
 
-        guard magic == Self.magic, version == Self.version else { throw DAWGError.invalidHeader }
+        guard magic == DAWGFormat.magic, version == DAWGFormat.version else { throw DAWGError.invalidHeader }
 
-        let nodesOffset = Self.headerSize
-        let edgesOffset = nodesOffset + Int(nodeCount) * Self.nodeSize
-        let expectedSize = edgesOffset + Int(edgeCount) * Self.edgeSize
+        let alphabetOffset = DAWGFormat.headerSize
+        let nodesOffset = alphabetOffset + Int(alphabetCount) * MemoryLayout<UInt16>.size
+        let edgesOffset = nodesOffset + Int(nodeCount) * DAWGFormat.nodeSize
+        let expectedSize = edgesOffset + Int(edgeCount) * DAWGFormat.edgeSize
         guard data.count == expectedSize else { throw DAWGError.invalidSize }
+
+        let alphabet = (0..<Int(alphabetCount)).map { index in
+            data.readLittleEndianUInt16(at: alphabetOffset + index * MemoryLayout<UInt16>.size)
+        }
+        let keyByScalar = Dictionary(uniqueKeysWithValues: alphabet.enumerated().map { index, scalar in
+            (scalar, UInt16(index))
+        })
 
         var nodeFirstEdges = [UInt32]()
         nodeFirstEdges.reserveCapacity(Int(nodeCount))
@@ -64,10 +69,11 @@ final class DAWG: Sendable {
         var wordNodes = BitSet(capacity: Int(nodeCount))
 
         for index in 0..<Int(nodeCount) {
-            let offset = nodesOffset + index * Self.nodeSize
+            let offset = nodesOffset + index * DAWGFormat.nodeSize
             nodeFirstEdges.append(data.readLittleEndianUInt32(at: offset))
-            nodeEdgeCounts.append(data.readLittleEndianUInt16(at: offset + 4))
-            if data.readLittleEndianUInt16(at: offset + 6) != 0 {
+            let packedEdgeCount = data.readLittleEndianUInt16(at: offset + 4)
+            nodeEdgeCounts.append(packedEdgeCount & ~DAWGFormat.wordFlag)
+            if packedEdgeCount & DAWGFormat.wordFlag != 0 {
                 wordNodes.insert(index)
             }
         }
@@ -76,31 +82,22 @@ final class DAWG: Sendable {
         edges.reserveCapacity(Int(edgeCount))
 
         for index in 0..<Int(edgeCount) {
-            let offset = edgesOffset + index * Self.edgeSize
+            let offset = edgesOffset + index * DAWGFormat.edgeSize
             edges.append(
                 DAWGEdge(
-                    key: data.readLittleEndianUInt16(at: offset),
-                    target: data.readLittleEndianUInt32(at: offset + 2)
+                    key: UInt16(data[offset]),
+                    target: data.readLittleEndianUInt24(at: offset + 1)
                 )
             )
         }
 
         self.count = Int(wordCount)
+        self.alphabet = alphabet
+        self.keyByScalar = keyByScalar
         self.nodeFirstEdges = nodeFirstEdges
         self.nodeEdgeCounts = nodeEdgeCounts
         self.wordNodes = wordNodes
         self.edges = edges
-    }
-
-    private static func string(from keys: [UInt16]) -> String {
-        var scalars = String.UnicodeScalarView()
-        scalars.reserveCapacity(keys.count)
-
-        for key in keys {
-            scalars.append(UnicodeScalar(key)!)
-        }
-
-        return String(scalars)
     }
 
     func contains(_ word: String) -> Bool {
@@ -114,7 +111,7 @@ final class DAWG: Sendable {
     func words(from letters: String, minLength: Int = 2) -> [String] {
         guard !letters.isEmpty else { return [] }
 
-        var availableLetters = LetterCounter(letters)
+        var availableLetters = LetterCounter(letters, keyForScalar: key)
         guard !availableLetters.isEmpty else { return [] }
 
         var currentWord = [UInt16]()
@@ -132,8 +129,14 @@ final class DAWG: Sendable {
         patternKeys.reserveCapacity(pattern.unicodeScalars.count)
 
         for scalar in pattern.unicodeScalars {
-            guard let key = UInt16(exactly: scalar.value) else { return [] }
-            patternKeys.append(key)
+            guard let scalarKey = UInt16(exactly: scalar.value) else { return [] }
+            if scalarKey == UInt16(UnicodeScalar("?").value) {
+                patternKeys.append(Self.wildcardKey)
+            } else if let key = key(for: scalarKey) {
+                patternKeys.append(key)
+            } else {
+                return []
+            }
         }
 
         var currentWord = [UInt16]()
@@ -144,12 +147,32 @@ final class DAWG: Sendable {
         return result
     }
 
+    private func scalar(for key: UInt16) -> UInt16 {
+        alphabet[Int(key)]
+    }
+
+    private func key(for scalar: UInt16) -> UInt16? {
+        keyByScalar[scalar]
+    }
+
+    private func string(from keys: [UInt16]) -> String {
+        var scalars = String.UnicodeScalarView()
+        scalars.reserveCapacity(keys.count)
+
+        for key in keys {
+            scalars.append(UnicodeScalar(scalar(for: key))!)
+        }
+
+        return String(scalars)
+    }
+
     private func nodeIndex(for word: String) -> UInt32? {
         var nodeIndex: UInt32 = 0
 
         for scalar in word.unicodeScalars {
             guard
-                let key = UInt16(exactly: scalar.value),
+                let scalarKey = UInt16(exactly: scalar.value),
+                let key = key(for: scalarKey),
                 let nextNodeIndex = targetNodeIndex(for: key, from: nodeIndex)
             else {
                 return nil
@@ -170,7 +193,7 @@ final class DAWG: Sendable {
         let nodeIndex = Int(nodeIndex)
 
         if wordNodes.contains(nodeIndex), currentWord.count >= minLength {
-            result.append(Self.string(from: currentWord))
+            result.append(string(from: currentWord))
         }
 
         let firstEdge = Int(nodeFirstEdges[nodeIndex])
@@ -197,7 +220,7 @@ final class DAWG: Sendable {
     ) {
         guard patternIndex < pattern.count else {
             if wordNodes.contains(Int(nodeIndex)) {
-                result.append(Self.string(from: currentWord))
+                result.append(string(from: currentWord))
             }
             return
         }
@@ -272,12 +295,15 @@ private struct LetterCounter: Sendable {
         keys.isEmpty
     }
 
-    init(_ letters: String) {
+    init(_ letters: String, keyForScalar: (UInt16) -> UInt16?) {
         keys.reserveCapacity(letters.unicodeScalars.count)
         counts.reserveCapacity(letters.unicodeScalars.count)
 
         for scalar in letters.unicodeScalars {
-            guard let key = UInt16(exactly: scalar.value) else { continue }
+            guard
+                let scalarKey = UInt16(exactly: scalar.value),
+                let key = keyForScalar(scalarKey)
+            else { continue }
 
             if let index = keys.firstIndex(of: key) {
                 counts[index] += 1
@@ -305,6 +331,10 @@ private struct LetterCounter: Sendable {
 private extension Data {
     func readLittleEndianUInt16(at offset: Int) -> UInt16 {
         UInt16(self[offset]) | UInt16(self[offset + 1]) << 8
+    }
+
+    func readLittleEndianUInt24(at offset: Int) -> UInt32 {
+        UInt32(self[offset]) | UInt32(self[offset + 1]) << 8 | UInt32(self[offset + 2]) << 16
     }
 
     func readLittleEndianUInt32(at offset: Int) -> UInt32 {

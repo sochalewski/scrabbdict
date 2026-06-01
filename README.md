@@ -144,10 +144,18 @@ The generator in `DAWGWizard/` works broadly like this:
 4. Minimize completed branches by reusing previously seen equivalent nodes.
 5. Write a compact little-endian binary file with:
    - a header containing magic/version/counts,
+   - a small alphabet table,
    - a node table,
    - an edge table.
 
-The app loads these generated `.dawg` files with memory-mapped `Data` when possible. Validation walks graph edges for an exact word. Tile search performs a depth-first traversal while consuming available letters. Pattern search treats `?` as a single-character wildcard.
+The app loads generated `.dawg` files with memory-mapped `Data` when possible. Validation walks graph edges for an exact word. Tile search performs a depth-first traversal while consuming available letters. Pattern search treats `?` as a single-character wildcard.
+
+At a high level, the DAWG v3 binary layout is:
+
+- header: magic, version, word count, node count, edge count, and alphabet count,
+- alphabet table: the distinct `UInt16` Unicode scalar values used by edge labels,
+- node table: each node stores `firstEdge` as `UInt32` and a packed `UInt16` edge count, with the high bit reserved as the word-terminating flag,
+- edge table: each edge stores a `UInt8` alphabet index and a 24-bit little-endian target node index.
 
 The binary format is defined in `DAWGWizard/DAWGBuilder.swift` and read by `Scrabbdict/Helpers/DAWG.swift`.
 
