@@ -54,6 +54,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DAWGBuilder.swift,
+				DAWGFormat.swift,
 				main.swift,
 			);
 			target = AE62F7202024EA8C00A57DAE /* DAWGWizard */;
@@ -66,6 +67,15 @@
 			);
 			target = AE78C2771FFD267600874685 /* ScrabbdictTests */;
 		};
+		AECC64D22FCD10000032633A /* Exceptions for "DAWGWizard" folder in "Scrabbdict" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				DAWGBuilder.swift,
+				Files,
+				main.swift,
+			);
+			target = AEF8AC811EBA02AA005996D5 /* Scrabbdict */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -77,6 +87,7 @@
 		AECC64C82FB9CCA20032633A /* DAWGWizard */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				AECC64D22FCD10000032633A /* Exceptions for "DAWGWizard" folder in "Scrabbdict" target */,
 				AECC64D12FB9D6A10032633A /* Exceptions for "DAWGWizard" folder in "ScrabbdictTests" target */,
 				AECC64CA2FB9CCA30032633A /* Exceptions for "DAWGWizard" folder in "DAWGWizard" target */,
 			);
@@ -200,6 +211,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				AECC64A12FB9CC920032633A /* Scrabbdict */,
+				AECC64C82FB9CCA20032633A /* DAWGWizard */,
 			);
 			name = Scrabbdict;
 			productName = Scrabbdict;
