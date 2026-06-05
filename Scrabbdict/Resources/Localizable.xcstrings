@@ -59,7 +59,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aucun mot ne correspond à ce modèle."
+            "value" : "Aucun mot ne correspond à ce motif."
           }
         },
         "pl" : {
@@ -398,6 +398,52 @@
         }
       }
     },
+    "result.accessibility.invalid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Word is invalid"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mot n'est pas valide"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Słowo jest niepoprawne"
+          }
+        }
+      }
+    },
+    "result.accessibility.valid" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Word is valid"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mot est valide"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Słowo jest poprawne"
+          }
+        }
+      }
+    },
     "result.caption" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -567,19 +613,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Word or rack"
+            "value" : "Word, letters, or pattern"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mot ou chevalet"
+            "value" : "Mot, lettres ou motif"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Słowo lub stojak"
+            "value" : "Słowo, litery lub wzorzec"
           }
         }
       }
@@ -636,19 +682,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Checks exact words, or treats ? as a one-letter wildcard."
+            "value" : "Chooses the search from your entry: checks a word or uses ? as a one-letter blank tile in a pattern."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vérifie les mots exacts ou traite ? comme un joker d'une lettre."
+            "value" : "Adapte la recherche à la saisie : vérifie un mot ou utilise ? comme Joker d'une lettre dans un motif."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sprawdza dokładne słowa albo traktuje ? jako jednoliterowy blank."
+            "value" : "Dobiera wyszukiwanie do wpisu: sprawdza słowo albo używa ? jako jednoliterowego blanku we wzorcu."
           }
         }
       }
@@ -682,19 +728,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Only checks whether the exact entered word is valid."
+            "value" : "Checks whether the entered word is valid."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vérifie uniquement si le mot saisi est valide."
+            "value" : "Vérifie si le mot saisi est valide."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sprawdza tylko, czy wpisane słowo jest poprawne."
+            "value" : "Sprawdza, czy wprowadzone słowo jest poprawne."
           }
         }
       }
@@ -728,19 +774,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Finds words from entered letters, or treats ? as a one-letter wildcard."
+            "value" : "Builds words from entered letters or searches a pattern with ? as a one-letter blank tile."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trouve les mots à partir des lettres saisies ou traite ? comme un joker d'une lettre."
+            "value" : "Forme des mots avec les lettres saisies ou recherche un motif avec ? comme Joker d'une lettre."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Znajduje słowa z wpisanych liter albo traktuje ? jako jednoliterowy blank."
+            "value" : "Układa słowa z wpisanych liter albo szuka wzorca z ? jako jednoliterowym blankiem."
           }
         }
       }
@@ -751,19 +797,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rack"
+            "value" : "Build"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chevalet"
+            "value" : "Former"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Stojak"
+            "value" : "Ułóż"
           }
         }
       }
@@ -856,6 +902,77 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ustawienia"
+          }
+        }
+      }
+    },
+    "word.accessibility.points" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld point"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld points"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld point"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld points"
+                }
+              }
+            }
+          }
+        },
+        "pl" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld punkty"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld punktów"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld punkt"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld punktu"
+                }
+              }
+            }
           }
         }
       }

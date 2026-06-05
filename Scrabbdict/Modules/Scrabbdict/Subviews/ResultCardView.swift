@@ -31,6 +31,15 @@ struct ResultCardView: View {
         }
     }
 
+    private var accessibilityLabel: Text {
+        switch result {
+        case let .valid(points):
+            Text(.resultAccessibilityValid) + Text(verbatim: ", ") + Text(.wordAccessibilityPoints(points))
+        case .invalid:
+            Text(.resultAccessibilityInvalid)
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Text(.resultCaption)
@@ -65,6 +74,8 @@ struct ResultCardView: View {
                 .stroke(Color.surfaceStroke, lineWidth: 1)
         )
         .shadow(color: Color.appShadow, radius: 17, x: 0, y: 14)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
     }
 
     private func localizedPointNoun(for points: Int) -> String {
