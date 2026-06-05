@@ -51,18 +51,10 @@ struct SearchBarView: View {
     }
 
     private var searchModePicker: some View {
-        VStack(spacing: 6) {
-            ForEach(SearchMode.allCases, id: \.self) { mode in
-                searchModeOption(mode)
-            }
-        }
-        .padding(6)
-        .background(Color.settingsBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color.surfaceStroke, lineWidth: 1)
+        SearchModePickerView(
+            searchMode: searchMode,
+            onSearchModeSelected: onSearchModeSelected
         )
-        .shadow(color: Color.appShadow.opacity(0.7), radius: 10, x: 0, y: 4)
     }
 
     private var textField: some View {
@@ -149,46 +141,6 @@ struct SearchBarView: View {
         }
         .disabled(text.isEmpty)
         .accessibilityLabel(.searchButtonAccessibilityLabel)
-    }
-
-    private func searchModeOption(_ mode: SearchMode) -> some View {
-        Button {
-            onSearchModeSelected(mode)
-        } label: {
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(mode.title)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.primaryInk)
-
-                    Text(mode.description)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color.secondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer(minLength: 8)
-
-                searchModeSelectionIcon(mode)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 9)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                searchMode == mode ? Color.brandAccent.opacity(0.08) : Color.clear,
-                in: RoundedRectangle(cornerRadius: 8, style: .continuous)
-            )
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(mode.title)
-        .accessibilityHint(mode.description)
-    }
-
-    private func searchModeSelectionIcon(_ mode: SearchMode) -> some View {
-        Image(systemName: searchMode == mode ? "checkmark.circle.fill" : "circle")
-            .font(.system(size: 17, weight: .semibold))
-            .foregroundStyle(searchMode == mode ? Color.brandAccent : Color.secondaryText.opacity(0.45))
-            .accessibilityHidden(true)
     }
 }
 

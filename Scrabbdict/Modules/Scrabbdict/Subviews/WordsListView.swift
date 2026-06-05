@@ -27,6 +27,8 @@ struct WordsListView: View {
                     .background(Color.brandAccent.opacity(0.12), in: Capsule())
             }
             .listRowBackground(Color.clear)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(verbatim: word.string) + Text(verbatim: ", ") + Text(.wordAccessibilityPoints(word.points)))
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
