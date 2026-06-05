@@ -1,27 +1,12 @@
-### Swift ###
+# Xcode
 
-## Build generated
-build/
-DerivedData/
-
-## Various settings
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
+## User settings
 xcuserdata/
-
-## Other
-*.moved-aside
-*.xccheckout
-*.xcscmblueprint
 
 ## Obj-C/Swift specific
 *.hmap
+
+## App packaging
 *.ipa
 *.dSYM.zip
 *.dSYM
@@ -33,11 +18,62 @@ playground.xcworkspace
 # Swift Package Manager
 .build/
 
-# CocoaPods
-Pods/
+# macOS
 
+## General
+.DS_Store
+.localized
+__MACOSX/
+.AppleDouble
+.LSOverride
+Icon[]
+
+## Resource forks
+._*
+
+## Files and directories that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.com.apple.timemachine.supported
+.PKInstallSandboxManager
+.PKInstallSandboxManager-SystemSoftware
+.hotfiles.btree
+.vol
+.file
+.disk_label*
+lost+found
+.HFS+ Private Directory Data[]
+
+## Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+## Quota system
+.quota.group
+.quota.user
+.quota.ops.group
+.quota.ops.user
+
+## TimeMachine
+Backups.backupdb
+.MobileBackups
+.MobileBackups.trash
+MobileBackups.trash
+tmbootpicker.efi
+
+# Custom
+
+## Google
 Scrabbdict/GoogleService-Info.plist
 
-### Dictionaries ###
-Scrabbdict/Files/DAWG/*.dawg
-DAWGWizard/Files/*.zip
+## Dictionaries
+Scrabbdict/Resources/Dictionaries/*.dawg
+DAWGBuilder/RAW/*.zip

@@ -37,7 +37,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		AE62F7212024EA8C00A57DAE /* DAWGWizard */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DAWGWizard; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE62F7212024EA8C00A57DAE /* DAWGBuilder */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DAWGBuilder; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE78C2781FFD267600874685 /* ScrabbdictTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScrabbdictTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AEF8AC821EBA02AA005996D5 /* Scrabbdict.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Scrabbdict.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -46,33 +46,33 @@
 		AE71C3512FCD010B002632DB /* Exceptions for "ScrabbdictTests" folder in "ScrabbdictTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				__Snapshots__,
+				Snapshots/__Snapshots__,
 			);
 			target = AE78C2771FFD267600874685 /* ScrabbdictTests */;
 		};
-		AECC64CA2FB9CCA30032633A /* Exceptions for "DAWGWizard" folder in "DAWGWizard" target */ = {
+		AECC64CA2FB9CCA30032633A /* Exceptions for "DAWGBuilder" folder in "DAWGBuilder" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DAWGBuilder.swift,
 				DAWGFormat.swift,
 				main.swift,
 			);
-			target = AE62F7202024EA8C00A57DAE /* DAWGWizard */;
+			target = AE62F7202024EA8C00A57DAE /* DAWGBuilder */;
 		};
-		AECC64D12FB9D6A10032633A /* Exceptions for "DAWGWizard" folder in "ScrabbdictTests" target */ = {
+		AECC64D12FB9D6A10032633A /* Exceptions for "DAWGBuilder" folder in "ScrabbdictTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Files,
 				main.swift,
+				RAW,
 			);
 			target = AE78C2771FFD267600874685 /* ScrabbdictTests */;
 		};
-		AECC64D22FCD10000032633A /* Exceptions for "DAWGWizard" folder in "Scrabbdict" target */ = {
+		AECC64D22FCD10000032633A /* Exceptions for "DAWGBuilder" folder in "Scrabbdict" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DAWGBuilder.swift,
-				Files,
 				main.swift,
+				RAW,
 			);
 			target = AEF8AC811EBA02AA005996D5 /* Scrabbdict */;
 		};
@@ -84,17 +84,17 @@
 			path = Scrabbdict;
 			sourceTree = "<group>";
 		};
-		AECC64C82FB9CCA20032633A /* DAWGWizard */ = {
+		AECC64C82FB9CCA20032633A /* DAWGBuilder */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				AECC64D22FCD10000032633A /* Exceptions for "DAWGWizard" folder in "Scrabbdict" target */,
-				AECC64D12FB9D6A10032633A /* Exceptions for "DAWGWizard" folder in "ScrabbdictTests" target */,
-				AECC64CA2FB9CCA30032633A /* Exceptions for "DAWGWizard" folder in "DAWGWizard" target */,
+				AECC64D22FCD10000032633A /* Exceptions for "DAWGBuilder" folder in "Scrabbdict" target */,
+				AECC64CA2FB9CCA30032633A /* Exceptions for "DAWGBuilder" folder in "DAWGBuilder" target */,
+				AECC64D12FB9D6A10032633A /* Exceptions for "DAWGBuilder" folder in "ScrabbdictTests" target */,
 			);
 			explicitFolders = (
-				Files,
+				RAW,
 			);
-			path = DAWGWizard;
+			path = DAWGBuilder;
 			sourceTree = "<group>";
 		};
 		AECC64CF2FB9CCA60032633A /* ScrabbdictTests */ = {
@@ -103,7 +103,7 @@
 				AE71C3512FCD010B002632DB /* Exceptions for "ScrabbdictTests" folder in "ScrabbdictTests" target */,
 			);
 			explicitFolders = (
-				__Snapshots__,
+				Snapshots/__Snapshots__,
 			);
 			path = ScrabbdictTests;
 			sourceTree = "<group>";
@@ -137,7 +137,7 @@
 			children = (
 				AECC64A12FB9CC920032633A /* Scrabbdict */,
 				AECC64CF2FB9CCA60032633A /* ScrabbdictTests */,
-				AECC64C82FB9CCA20032633A /* DAWGWizard */,
+				AECC64C82FB9CCA20032633A /* DAWGBuilder */,
 				AEF8AC831EBA02AA005996D5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -147,7 +147,7 @@
 			children = (
 				AEF8AC821EBA02AA005996D5 /* Scrabbdict.app */,
 				AE78C2781FFD267600874685 /* ScrabbdictTests.xctest */,
-				AE62F7212024EA8C00A57DAE /* DAWGWizard */,
+				AE62F7212024EA8C00A57DAE /* DAWGBuilder */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -155,9 +155,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AE62F7202024EA8C00A57DAE /* DAWGWizard */ = {
+		AE62F7202024EA8C00A57DAE /* DAWGBuilder */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AE62F72E2024EA8C00A57DAE /* Build configuration list for PBXNativeTarget "DAWGWizard" */;
+			buildConfigurationList = AE62F72E2024EA8C00A57DAE /* Build configuration list for PBXNativeTarget "DAWGBuilder" */;
 			buildPhases = (
 				AE71AD812FCCDC77002632DB /* Copy ZIP Files */,
 				AE5F00022FC7A00000000002 /* SwiftFormat Lint */,
@@ -167,9 +167,9 @@
 			);
 			dependencies = (
 			);
-			name = DAWGWizard;
-			productName = DAWGWizard;
-			productReference = AE62F7212024EA8C00A57DAE /* DAWGWizard */;
+			name = DAWGBuilder;
+			productName = DAWGBuilder;
+			productReference = AE62F7212024EA8C00A57DAE /* DAWGBuilder */;
 			productType = "com.apple.product-type.tool";
 		};
 		AE78C2771FFD267600874685 /* ScrabbdictTests */ = {
@@ -186,7 +186,7 @@
 				AE78C27E1FFD267600874685 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				AECC64C82FB9CCA20032633A /* DAWGWizard */,
+				AECC64C82FB9CCA20032633A /* DAWGBuilder */,
 				AECC64CF2FB9CCA60032633A /* ScrabbdictTests */,
 			);
 			name = ScrabbdictTests;
@@ -211,7 +211,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				AECC64A12FB9CC920032633A /* Scrabbdict */,
-				AECC64C82FB9CCA20032633A /* DAWGWizard */,
+				AECC64C82FB9CCA20032633A /* DAWGBuilder */,
 			);
 			name = Scrabbdict;
 			productName = Scrabbdict;
@@ -272,8 +272,8 @@
 			projectRoot = "";
 			targets = (
 				AEF8AC811EBA02AA005996D5 /* Scrabbdict */,
+				AE62F7202024EA8C00A57DAE /* DAWGBuilder */,
 				AE78C2771FFD267600874685 /* ScrabbdictTests */,
-				AE62F7202024EA8C00A57DAE /* DAWGWizard */,
 			);
 		};
 /* End PBXProject section */
@@ -351,7 +351,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "DICTIONARIES_SRC=\"${SRCROOT}/.dictionaries/Scrabbdict/Files/DAWG\"\nSAMPLES_SRC=\"${SRCROOT}/.samples/DAWG\"\nDST=\"${SRCROOT}/Scrabbdict/Files/DAWG\"\n\nSRC=\"$DICTIONARIES_SRC\"\n[ -d \"$SRC\" ] || SRC=\"$SAMPLES_SRC\"\n\nmkdir -p \"$DST\" && rsync -a --delete \"$SRC/\" \"$DST/\" || {\n    echo \"warning: Could not copy DAWG files from $SRC\"\n    exit 0\n}\n";
+			shellScript = "DICTIONARIES_SRC=\"${SRCROOT}/.dictionaries/DAWG\"\nSAMPLES_SRC=\"${SRCROOT}/.samples/DAWG\"\nDST=\"${SRCROOT}/Scrabbdict/Resources/Dictionaries\"\n\nSRC=\"$DICTIONARIES_SRC\"\n[ -d \"$SRC\" ] || SRC=\"$SAMPLES_SRC\"\n\nmkdir -p \"$DST\" && rsync -a --delete \"$SRC/\" \"$DST/\" || {\n    echo \"warning: Could not copy DAWG files from $SRC\"\n    exit 0\n}\n";
 		};
 		AE71AD812FCCDC77002632DB /* Copy ZIP Files */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -370,7 +370,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "DICTIONARIES_SRC=\"${SRCROOT}/.dictionaries/DAWGWizard/Files\"\nSAMPLES_SRC=\"${SRCROOT}/.samples/Files\"\nDST=\"${SRCROOT}/DAWGWizard/Files\"\n\nSRC=\"$DICTIONARIES_SRC\"\n[ -d \"$SRC\" ] || SRC=\"$SAMPLES_SRC\"\n\nmkdir -p \"$DST\" && rsync -a --delete \"$SRC/\" \"$DST/\" || {\n    echo \"warning: Could not copy ZIP files from $SRC\"\n    exit 0\n}\n";
+			shellScript = "DICTIONARIES_SRC=\"${SRCROOT}/.dictionaries/RAW\"\nSAMPLES_SRC=\"${SRCROOT}/.samples/RAW\"\nDST=\"${SRCROOT}/DAWGBuilder/RAW\"\n\nSRC=\"$DICTIONARIES_SRC\"\n[ -d \"$SRC\" ] || SRC=\"$SAMPLES_SRC\"\n\nmkdir -p \"$DST\" && rsync -a --delete \"$SRC/\" \"$DST/\" || {\n    echo \"warning: Could not copy ZIP files from $SRC\"\n    exit 0\n}\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -663,7 +663,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AE62F72E2024EA8C00A57DAE /* Build configuration list for PBXNativeTarget "DAWGWizard" */ = {
+		AE62F72E2024EA8C00A57DAE /* Build configuration list for PBXNativeTarget "DAWGBuilder" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AE62F72F2024EA8C00A57DAE /* Debug */,

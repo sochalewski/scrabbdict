@@ -1,15 +1,15 @@
 # Scrabbdict
 
 <p align="center">
-  <img src="images/Scrabbdict.butterkit/Assets/AE47019C-73E8-4C0B-A949-31C0CC8131EA.png" alt="Screenshot #1" width="180" />
-  <img src="images/Scrabbdict.butterkit/Assets/1BBF5C40-CB0D-4FC3-A298-382A64CC634D.png" alt="Screenshot #2" width="180" />
-  <img src="images/Scrabbdict.butterkit/Assets/4C10B9BF-BCD8-4C27-B92D-12A7CC7540A9.png" alt="Screenshot #3" width="180" />
-  <img src="images/Scrabbdict.butterkit/Assets/60639882-7F0A-4F0D-9345-D11AF2CE5EF4.png" alt="Screenshot #4" width="180" />
+  <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/AE47019C-73E8-4C0B-A949-31C0CC8131EA.png" alt="Screenshot #1" width="180" />
+  <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/1BBF5C40-CB0D-4FC3-A298-382A64CC634D.png" alt="Screenshot #2" width="180" />
+  <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/4C10B9BF-BCD8-4C27-B92D-12A7CC7540A9.png" alt="Screenshot #3" width="180" />
+  <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/60639882-7F0A-4F0D-9345-D11AF2CE5EF4.png" alt="Screenshot #4" width="180" />
 </p>
 
 Scrabbdict is an iOS dictionary helper for word games. It can validate a word, find words that can be built from a set of tiles, and search dictionaries with a simple `?` wildcard pattern.
 
-[![Download Scrabbdict on the App Store](images/app_store.svg)](https://apps.apple.com/pl/app/scrabbdict/id687530221)
+[![Download Scrabbdict on the App Store](Marketing/AppStore/app_store.svg)](https://apps.apple.com/pl/app/scrabbdict/id687530221)
 
 The app is written in Swift and SwiftUI. State management uses [The Composable Architecture](https://github.com/pointfreeco/swift-composable-architecture), and analytics/crash reporting use Firebase.
 
@@ -36,16 +36,20 @@ To build or test Scrabbdict with complete dictionary behavior, provide your own 
 ## Repository Layout
 
 - `Scrabbdict/` - the iOS app target.
-- `Scrabbdict/Features/` - SwiftUI views and TCA reducers.
-- `Scrabbdict/Helpers/` - dictionary loading, validation, analytics, Crashlytics, and local storage clients.
+- `Scrabbdict/Modules/` - app modules with SwiftUI views, TCA reducers, and module-local subviews.
+- `Scrabbdict/Modules/App/` - app entry point and application delegate.
+- `Scrabbdict/Modules/Scrabbdict/` - main dictionary search module.
+- `Scrabbdict/Modules/Settings/` - settings module.
+- `Scrabbdict/Services/` - dictionary loading, validation, analytics, Crashlytics, and local storage clients.
 - `Scrabbdict/Models/` - app domain models such as `Language`, `Word`, and `SearchMode`.
-- `Scrabbdict/Files/DAWG/` - generated binary dictionary files used by the app.
-- `Scrabbdict/Settings.bundle/` - iOS Settings app metadata, legal notice, and third-party notices.
-- `DAWGWizard/` - command-line generator that converts zipped `.txt` word lists into compact `.dawg` files.
-- `DAWGWizard/Files/` - source word list archives.
-- `ScrabbdictTests/` - unit and feature tests.
-- `images/Scrabbdict.butterkit/` - App Store screenshot project and exported PNG assets.
-- `Scripts/dawg` - helper script that builds and runs `DAWGWizard`.
+- `Scrabbdict/Resources/` - bundled app resources, including asset catalogs, localization, Settings metadata, and dictionaries.
+- `Scrabbdict/Resources/Dictionaries/` - generated binary dictionary files used by the app, copied from `.dictionaries/DAWG` or `.samples/DAWG`.
+- `DAWGBuilder/` - command-line generator that converts zipped `.txt` word lists into compact `.dawg` files.
+- `DAWGBuilder/RAW/` - local ignored source word list archives copied from `.dictionaries/RAW` or `.samples/RAW`.
+- `.samples/` - checked-in sample `.dawg` and source `.zip` dictionary files used when the private dictionary submodule is unavailable.
+- `ScrabbdictTests/` - unit, feature, and snapshot tests grouped by area.
+- `Marketing/AppStore/Scrabbdict.butterkit/` - App Store screenshot project and exported PNG assets.
+- `Scripts/dawg` - helper script that builds and runs `DAWGBuilder`.
 - `Scripts/swiftformat-lint.sh` - Xcode build phase script that checks Swift formatting.
 - `Makefile` and `.mise.toml` - local development tooling setup.
 
@@ -81,7 +85,7 @@ make format-lint
 App Store screenshots are maintained with [ButterKit](https://butterkit.app). The editable ButterKit project and exported PNG assets live under:
 
 ```text
-images/Scrabbdict.butterkit/
+Marketing/AppStore/Scrabbdict.butterkit
 ```
 
 The exported screenshots are part of the repository assets and should be regenerated from the ButterKit project when App Store presentation copy, device frames, or screenshot content changes.
@@ -127,7 +131,7 @@ ScrabbdictTests/Scrabbdict.xctestplan
 Snapshot references are stored under:
 
 ```text
-ScrabbdictTests/__Snapshots__/
+ScrabbdictTests/Snapshots/__Snapshots__/
 ```
 
 The repository samples are not full dictionaries. Tests that depend on complete word-list coverage may fail locally until you provide full dictionaries and regenerate the corresponding `.dawg` files.
@@ -136,7 +140,7 @@ The repository samples are not full dictionaries. Tests that depend on complete 
 
 Scrabbdict does not search raw text files at runtime. Instead, each word list is compiled into a DAWG: a Directed Acyclic Word Graph. A DAWG is similar to a trie, but equivalent suffix subgraphs are merged, so common endings are stored once instead of repeated for many words.
 
-The generator in `DAWGWizard/` works broadly like this:
+The generator in `DAWGBuilder/` works broadly like this:
 
 1. Read a UTF-8 `.txt` word list from a `.zip` archive, one word per line.
 2. Sort the words.
@@ -157,7 +161,7 @@ At a high level, the DAWG v3 binary layout is:
 - node table: each node stores `firstEdge` as `UInt32` and a packed `UInt16` edge count, with the high bit reserved as the word-terminating flag,
 - edge table: each edge stores a `UInt8` alphabet index and a 24-bit little-endian target node index.
 
-The binary format is defined in `DAWGWizard/DAWGBuilder.swift` and read by `Scrabbdict/Helpers/DAWG.swift`.
+The binary format is defined in `DAWGBuilder/DAWGBuilder.swift` and read by `Scrabbdict/Services/DAWG.swift`.
 
 ## Regenerating Dictionaries
 
@@ -167,10 +171,10 @@ Use the helper script from the repository root:
 Scripts/dawg
 ```
 
-That compiles `DAWGWizard` with `xcrun swiftc` and writes generated dictionaries to:
+That compiles `DAWGBuilder` with `xcrun swiftc` and writes generated dictionaries to:
 
 ```text
-Scrabbdict/Files/DAWG/
+Scrabbdict/Resources/Dictionaries/
 ```
 
 Generate only selected languages:
@@ -186,16 +190,16 @@ Use custom input or output directories:
 Scripts/dawg --input-dir /path/to/word-lists --output-dir /tmp/dawg
 ```
 
-Input files are matched by language/file stem. For example, `pl_OSPS` expects:
+Input files are matched by language/file stem. By default, `Scripts/dawg` reads from `DAWGBuilder/RAW`. For example, `pl_OSPS` expects:
 
 ```text
-DAWGWizard/Files/pl_OSPS.zip
+DAWGBuilder/RAW/pl_OSPS.zip
 ```
 
 and produces:
 
 ```text
-Scrabbdict/Files/DAWG/pl_OSPS.dawg
+Scrabbdict/Resources/Dictionaries/pl_OSPS.dawg
 ```
 
 ## Supported Dictionaries
@@ -214,7 +218,7 @@ Names, descriptions, and language-specific behavior are defined in `Scrabbdict/M
 User-visible translations are maintained in:
 
 ```text
-Scrabbdict/Localizable.xcstrings
+Scrabbdict/Resources/Localizable.xcstrings
 ```
 
 Keep locale-specific wording in the string catalog, but keep dictionary metadata that must stay identical across translations in code. In particular, dictionary word counts are defined as numeric values in `Scrabbdict/Models/Language.swift` and are injected into localized strings after locale-aware number formatting. Do not duplicate formatted word counts manually in each translation.
@@ -226,7 +230,7 @@ When updating dictionary names or descriptions, update all supported locales tog
 User-visible third-party notices are maintained in:
 
 ```text
-Scrabbdict/Settings.bundle/Root.plist
+Scrabbdict/Resources/Settings.bundle/Root.plist
 ```
 
 When Swift Package Manager dependencies used by the app at runtime change, update that file to match `Package.resolved`. Test-only dependencies, such as snapshot testing tools, do not need to appear in the user-visible Settings bundle unless they become part of the shipped app.
