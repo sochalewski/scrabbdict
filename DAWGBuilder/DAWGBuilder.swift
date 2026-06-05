@@ -1,5 +1,5 @@
 //
-//  DAWGWizard
+//  DAWGBuilder
 //  Copyright © 2026 Piotr Sochalewski.
 //  Licensed under the Apache License, Version 2.0.
 //

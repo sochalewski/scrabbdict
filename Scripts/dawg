@@ -5,9 +5,9 @@ usage() {
   cat <<'EOF'
 Usage: Scripts/dawg [options] [language...]
 
-Compiles and runs the DAWGWizard command-line tool.
+Compiles and runs the DAWGBuilder command-line tool.
 
-Options are forwarded to DAWGWizard:
+Options are forwarded to DAWGBuilder:
   --input-dir PATH   Directory with *.zip or *.txt word lists.
   --output-dir PATH  Directory for generated *.dawg files.
   --help             Show this help.
@@ -26,11 +26,11 @@ fi
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
-configuration="${DAWGWIZARD_CONFIGURATION:-Release}"
-build_dir="${DAWGWIZARD_BUILD_DIR:-${TMPDIR:-/tmp}/scrabbdict-dawgwizard}"
+configuration="${DAWGBUILDER_CONFIGURATION:-Release}"
+build_dir="${DAWGBUILDER_BUILD_DIR:-${TMPDIR:-/tmp}/scrabbdict-dawgbuilder}"
 module_cache_dir="$build_dir/module-cache"
-executable="$build_dir/DAWGWizard"
-source_files=("$repo_root"/DAWGWizard/*.swift)
+executable="$build_dir/DAWGBuilder"
+source_files=("$repo_root"/DAWGBuilder/*.swift)
 
 case "$configuration" in
   Debug)
@@ -40,7 +40,7 @@ case "$configuration" in
     optimization="-O"
     ;;
   *)
-    echo "Unsupported DAWGWIZARD_CONFIGURATION: $configuration" >&2
+    echo "Unsupported DAWGBUILDER_CONFIGURATION: $configuration" >&2
     exit 64
     ;;
 esac

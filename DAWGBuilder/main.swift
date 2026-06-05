@@ -1,5 +1,5 @@
 //
-//  DAWGWizard
+//  DAWGBuilder
 //  Copyright © 2026 Piotr Sochalewski.
 //  Licensed under the Apache License, Version 2.0.
 //
@@ -7,13 +7,15 @@
 import Foundation
 
 private let sourceFileURL = URL(fileURLWithPath: #filePath)
-private let repositoryURL = sourceFileURL.deletingLastPathComponent().deletingLastPathComponent()
-private let defaultInputDirectory = repositoryURL.appendingPathComponent("DAWGWizard/Files")
-private let defaultOutputDirectory = repositoryURL.appendingPathComponent("Scrabbdict/Files/DAWG")
+private let repositoryURL = sourceFileURL
+    .deletingLastPathComponent()
+    .deletingLastPathComponent()
+private let defaultInputDirectory = repositoryURL.appendingPathComponent("DAWGBuilder/RAW")
+private let defaultOutputDirectory = repositoryURL.appendingPathComponent("Scrabbdict/Resources/Dictionaries")
 
 private func usage() -> String {
     """
-    Usage: DAWGWizard [options] [language...]
+    Usage: DAWGBuilder [options] [language...]
 
     Generates .dawg files from text word lists.
 
@@ -25,9 +27,9 @@ private func usage() -> String {
       --help             Show this help.
 
     Examples:
-      DAWGWizard
-      DAWGWizard pl_OSPS
-      DAWGWizard --output-dir /tmp/dawg en_US_nwl fr_ODS
+      DAWGBuilder
+      DAWGBuilder pl_OSPS
+      DAWGBuilder --output-dir /tmp/dawg en_US_nwl fr_ODS
     """
 }
 

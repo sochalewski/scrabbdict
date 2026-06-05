@@ -58,11 +58,11 @@ jobs:
             -project Scrabbdict.xcodeproj \
             -scheme Scrabbdict
 
-      - name: Build DAWGWizard
+      - name: Build DAWGBuilder
         run: |
           xcodebuild build \
             -project Scrabbdict.xcodeproj \
-            -scheme DAWGWizard \
+            -scheme DAWGBuilder \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO
 
