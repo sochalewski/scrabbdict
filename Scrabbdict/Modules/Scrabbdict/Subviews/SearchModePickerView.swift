@@ -8,21 +8,32 @@ import SwiftUI
 
 struct SearchModePickerView: View {
     let searchMode: SearchMode
+    let maxHeight: CGFloat
     let onSearchModeSelected: (SearchMode) -> Void
 
     var body: some View {
+        ScrollView(.vertical) {
+            options
+                .padding(6)
+        }
+        .frame(maxHeight: maxHeight)
+        .fixedSize(horizontal: false, vertical: true)
+        .scrollBounceBehavior(.basedOnSize)
+        .background(Color.settingsBackground, in: .rect(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: 12))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.surfaceStroke, lineWidth: 1)
+        )
+        .shadow(color: Color.appShadow.opacity(0.7), radius: 10, x: 0, y: 4)
+    }
+
+    private var options: some View {
         VStack(spacing: 6) {
             ForEach(SearchMode.allCases, id: \.self) { mode in
                 searchModeOption(mode)
             }
         }
-        .padding(6)
-        .background(Color.settingsBackground, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color.surfaceStroke, lineWidth: 1)
-        )
-        .shadow(color: Color.appShadow.opacity(0.7), radius: 10, x: 0, y: 4)
     }
 
     private func searchModeOption(_ mode: SearchMode) -> some View {
@@ -32,7 +43,7 @@ struct SearchModePickerView: View {
             HStack(spacing: 10) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(mode.title)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Color.primaryInk)
 
                     SearchModeDescriptionText(mode: mode)
@@ -45,39 +56,33 @@ struct SearchModePickerView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 9)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect)
             .background(
                 searchMode == mode ? Color.brandAccent.opacity(0.08) : Color.clear,
-                in: RoundedRectangle(cornerRadius: 8, style: .continuous)
+                in: .rect(cornerRadius: 8)
             )
         }
         .buttonStyle(.plain)
         .accessibilityLabel(mode.title)
-        .accessibilityHint(mode.description)
+        .accessibilityHint(mode.accessibilityDescription)
+        .accessibilityAddTraits(searchMode == mode ? [.isSelected] : [])
     }
 
     private func searchModeSelectionIcon(_ mode: SearchMode) -> some View {
         Image(systemName: searchMode == mode ? "checkmark.circle.fill" : "circle")
-            .font(.system(size: 17, weight: .semibold))
+            .font(.headline.weight(.semibold))
             .foregroundStyle(searchMode == mode ? Color.brandAccent : Color.secondaryText.opacity(0.45))
             .accessibilityHidden(true)
     }
 }
 
 private struct SearchModeDescriptionText: View {
-    @Environment(\.locale) private var locale
+    @Environment(\.locale) var locale
 
     let mode: SearchMode
 
     private var localizedBundle: Bundle {
-        guard
-            let languageCode = locale.language.languageCode?.identifier,
-            let path = Bundle.main.path(forResource: languageCode, ofType: "lproj"),
-            let bundle = Bundle(path: path)
-        else {
-            return .main
-        }
-
-        return bundle
+        Bundle.localizationBundle(for: locale)
     }
 
     private var descriptionLocalizationValue: String.LocalizationValue {
@@ -106,7 +111,7 @@ private struct SearchModeDescriptionText: View {
                 }
             }
         }
-        .font(.system(size: 12, weight: .medium))
+        .font(.caption.weight(.medium))
         .foregroundStyle(Color.secondaryText)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: text))
@@ -206,13 +211,17 @@ private struct CollapsibleSpaceLayoutValueKey: LayoutValueKey {
 }
 
 private struct WildcardTile: View {
+    @ScaledMetric(relativeTo: .caption2) var fontSize: CGFloat = 10
+    @ScaledMetric(relativeTo: .caption2) var tileSize: CGFloat = 16
+    @ScaledMetric(relativeTo: .caption2) var cornerRadius: CGFloat = 3
+
     var body: some View {
         Text(verbatim: "?")
-            .font(.system(size: 10, weight: .bold))
+            .font(.system(size: fontSize, weight: .bold))
             .foregroundStyle(Color.TableBackground.tileInk)
-            .frame(width: 16, height: 16)
+            .frame(width: tileSize, height: tileSize)
             .background {
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(
                         LinearGradient(
                             colors: [
@@ -225,7 +234,7 @@ private struct WildcardTile: View {
                     )
             }
             .overlay {
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(Color.TableBackground.tileStroke, lineWidth: 0.8)
             }
             .shadow(color: Color.TableBackground.tileShadow, radius: 1, x: 0.4, y: 0.8)

@@ -11,6 +11,8 @@ import SwiftUI
 struct SettingsView: View {
     let store: StoreOf<SettingsFeature>
 
+    @ScaledMetric(relativeTo: .callout) var languageRowHeight: CGFloat = 44
+
     var body: some View {
         NavigationStack {
             ScrollView(.vertical) {
@@ -56,7 +58,7 @@ private extension SettingsView {
     var content: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(.settingsDictionary)
-                .font(.system(size: 18, weight: .bold))
+                .font(.headline.weight(.bold))
                 .foregroundStyle(Color.settingsText)
 
             VStack(spacing: 0) {
@@ -68,17 +70,17 @@ private extension SettingsView {
 
                         HStack {
                             Text(language.name)
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.callout.weight(.semibold))
                                 .foregroundStyle(Color.settingsText)
                             Spacer()
                             if isSelected {
                                 Image(systemName: "checkmark")
-                                    .font(.system(size: 15, weight: .semibold))
+                                    .font(.footnote.weight(.semibold))
                                     .foregroundStyle(Color.settingsAccent)
                             }
                         }
                         .padding(.horizontal, 16)
-                        .frame(height: 44)
+                        .frame(minHeight: languageRowHeight)
                         .background {
                             Color.settingsRowBackground
 
@@ -96,11 +98,15 @@ private extension SettingsView {
                         }
                     }
                     .buttonStyle(.plain)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(language.name)
+                    .accessibilityHint(language.description)
+                    .accessibilityAddTraits(store.selectedLanguage == language ? [.isSelected] : [])
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .clipShape(.rect(cornerRadius: 14))
             .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: 14)
                     .stroke(Color.surfaceStroke, lineWidth: 1)
             )
 
@@ -113,11 +119,11 @@ private extension SettingsView {
                             + Text(verbatim: " ")
                             + Text(language.wordCount, format: .number)
                     )
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.callout.weight(.medium))
                     .foregroundStyle(Color.settingsText.opacity(0.82))
                     .fixedSize(horizontal: false, vertical: true)
                     .opacity(store.selectedLanguage == language ? 1 : 0)
-                    .accessibilityHidden(store.selectedLanguage != language)
+                    .accessibilityHidden(true)
                 }
             }
             .padding(.top, 16)

@@ -682,19 +682,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chooses the search from your entry: checks a word or uses ? as a one-letter blank tile in a pattern."
+            "value" : "Chooses the search mode based on your entry: checks a word or treats ? as a one-letter blank tile in a pattern."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adapte la recherche à la saisie : vérifie un mot ou utilise ? comme Joker d'une lettre dans un motif."
+            "value" : "Adapte le mode de recherche à la saisie : vérifie un mot ou utilise ? comme Joker d'une lettre dans un motif."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dobiera wyszukiwanie do wpisu: sprawdza słowo albo używa ? jako jednoliterowego blanku we wzorcu."
+            "value" : "Dobiera tryb wyszukiwania do wpisu: sprawdza słowo albo traktuje ? jako jednoliterowy blank we wzorcu."
           }
         }
       }
@@ -768,6 +768,29 @@
         }
       }
     },
+    "search_mode.question_mark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "the question mark"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "le point d'interrogation"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "znak zapytania"
+          }
+        }
+      }
+    },
     "search_mode.rack.description" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -786,7 +809,7 @@
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Układa słowa z wpisanych liter albo szuka wzorca z ? jako jednoliterowym blankiem."
+            "value" : "Układa słowa z wpisanych liter albo szuka wzorca, traktując ? jako jednoliterowy blank."
           }
         }
       }

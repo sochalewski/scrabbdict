@@ -9,22 +9,24 @@ import SwiftUI
 struct WordsListView: View {
     let words: [Word]
 
+    @ScaledMetric(relativeTo: .footnote) var pointsHorizontalPadding: CGFloat = 9
+    @ScaledMetric(relativeTo: .footnote) var pointsVerticalPadding: CGFloat = 3
+
     var body: some View {
         List(words, id: \.string) { word in
             HStack(spacing: 0) {
                 Text(verbatim: word.string)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundStyle(Color.primaryInk)
-                    .lineLimit(1)
 
                 Spacer(minLength: 16)
 
                 Text(verbatim: "\(word.points)")
-                    .font(.system(size: 14, weight: .bold, design: .monospaced))
+                    .font(.footnote.weight(.bold).monospaced())
                     .foregroundStyle(Color.brandAccent)
-                    .padding(.horizontal, 9)
-                    .frame(minWidth: 34, minHeight: 22)
-                    .background(Color.brandAccent.opacity(0.12), in: Capsule())
+                    .padding(.horizontal, pointsHorizontalPadding)
+                    .padding(.vertical, pointsVerticalPadding)
+                    .background(Color.brandAccent.opacity(0.12), in: .capsule)
             }
             .listRowBackground(Color.clear)
             .accessibilityElement(children: .ignore)
@@ -32,7 +34,7 @@ struct WordsListView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .frame(maxWidth: 337)
+        .frame(maxWidth: .infinity)
     }
 }
 

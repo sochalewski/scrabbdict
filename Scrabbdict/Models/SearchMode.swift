@@ -27,6 +27,11 @@ enum SearchMode: Int, CaseIterable, Hashable, Sendable {
         }
     }
 
+    var accessibilityDescription: String {
+        String(localized: description)
+            .replacingOccurrences(of: "?", with: String(localized: .searchModeQuestionMark))
+    }
+
     var name: String {
         switch self {
         case .auto: "auto"

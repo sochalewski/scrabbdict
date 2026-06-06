@@ -7,7 +7,7 @@
 import SnapshotTesting
 import SwiftUI
 
-extension ViewImageConfig {
+private extension ViewImageConfig {
     static let iPhone17Pro = ViewImageConfig(
         safeArea: .init(top: 62, left: 0, bottom: 34, right: 0),
         size: .init(width: 402, height: 874),
@@ -32,7 +32,30 @@ extension ViewImageConfig {
 }
 
 @MainActor
-func assertScreenSnapshots(
+func assert(
+    _ content: some View,
+    file: StaticString = #file,
+    testName: String = #function,
+    line: UInt = #line
+) {
+    assertScreenSnapshots(
+        drawHierarchyInKeyWindow: true,
+        file: file,
+        testName: testName,
+        line: line
+    ) { deviceConfig, colorScheme, locale, dynamicTypeSize in
+        fixedScreen(
+            content,
+            deviceConfig: deviceConfig,
+            colorScheme: colorScheme,
+            locale: locale,
+            dynamicTypeSize: dynamicTypeSize
+        )
+    }
+}
+
+@MainActor
+private func assertScreenSnapshots(
     deviceConfigs: [(ViewImageConfig, String)] = [
         (.iPhone17Pro, ""),
         (.iPad13, "pad.")
@@ -42,11 +65,15 @@ func assertScreenSnapshots(
         Locale(identifier: "pl_PL"),
         Locale(identifier: "fr_FR")
     ],
+    dynamicTypeSizes: [DynamicTypeSize] = [
+        .large,
+        .xxxLarge
+    ],
     drawHierarchyInKeyWindow: Bool = false,
     file: StaticString = #file,
     testName: String = #function,
     line: UInt = #line,
-    _ makeView: (ViewImageConfig, ColorScheme, Locale) -> some View
+    _ makeView: (ViewImageConfig, ColorScheme, Locale, DynamicTypeSize) -> some View
 ) {
     for locale in locales {
         let localeSnapshotName = locale.identifier
@@ -55,40 +82,45 @@ func assertScreenSnapshots(
 
         for (deviceConfig, namePrefix) in deviceConfigs {
             for (colorScheme, name) in [(ColorScheme.light, "light"), (.dark, "dark")] {
-                assertSnapshot(
-                    of: makeView(deviceConfig, colorScheme, locale)
-                        .frame(
-                            width: deviceConfig.size?.width,
-                            height: deviceConfig.size?.height
+                for dynamicTypeSize in dynamicTypeSizes {
+                    let dynamicTypeName = switch dynamicTypeSize {
+                    case .large: ""
+                    default: [".", String(describing: dynamicTypeSize)].joined()
+                    }
+
+                    assertSnapshot(
+                        of: makeView(deviceConfig, colorScheme, locale, dynamicTypeSize),
+                        as: .image(
+                            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+                            precision: 0.9995,
+                            layout: .device(config: deviceConfig),
+                            traits: deviceConfig.traits.modifyingTraits {
+                                $0.userInterfaceStyle = colorScheme == .light ? .light : .dark
+                            }
                         ),
-                    as: .image(
-                        drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
-                        precision: 0.999,
-                        layout: .device(config: deviceConfig),
-                        traits: deviceConfig.traits.modifyingTraits {
-                            $0.userInterfaceStyle = colorScheme == .light ? .light : .dark
-                        }
-                    ),
-                    named: "\(localeSnapshotName).\(namePrefix)\(name)",
-                    file: file,
-                    testName: testName,
-                    line: line
-                )
+                        named: "\(localeSnapshotName).\(namePrefix)\(name)\(dynamicTypeName)",
+                        file: file,
+                        testName: testName,
+                        line: line
+                    )
+                }
             }
         }
     }
 }
 
 @MainActor
-func fixedScreen(
+private func fixedScreen(
     _ content: some View,
-    deviceConfig: ViewImageConfig = .iPhone17Pro,
+    deviceConfig: ViewImageConfig,
     colorScheme: ColorScheme,
-    locale: Locale
+    locale: Locale,
+    dynamicTypeSize: DynamicTypeSize
 ) -> some View {
     content
         .environment(\.colorScheme, colorScheme)
         .environment(\.locale, locale)
+        .environment(\.dynamicTypeSize, dynamicTypeSize)
         .frame(
             width: deviceConfig.size?.width,
             height: deviceConfig.size?.height

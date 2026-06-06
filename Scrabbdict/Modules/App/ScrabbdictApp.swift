@@ -18,6 +18,37 @@ struct ScrabbdictApp: App {
                     ScrabbdictFeature()
                 }
             )
+            #if DEBUG && targetEnvironment(simulator)
+            .dynamicTypeSizeOverlay()
+            #endif
         }
     }
 }
+
+#if DEBUG && targetEnvironment(simulator)
+    private extension View {
+        func dynamicTypeSizeOverlay() -> some View {
+            modifier(DynamicTypeSizeOverlayModifier())
+        }
+    }
+
+    private struct DynamicTypeSizeOverlayModifier: ViewModifier {
+        @Environment(\.dynamicTypeSize) var dynamicTypeSize
+
+        func body(content: Content) -> some View {
+            content
+                .overlay(alignment: .topLeading) {
+                    Text(verbatim: .init(describing: dynamicTypeSize))
+                        .font(.system(size: 12).monospaced())
+                        .foregroundStyle(Color.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.72), in: .capsule)
+                        .padding(12)
+                        .opacity(dynamicTypeSize == .large ? 0 : 1)
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+        }
+    }
+#endif
