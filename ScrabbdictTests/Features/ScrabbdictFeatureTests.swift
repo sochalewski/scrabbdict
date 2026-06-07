@@ -238,6 +238,8 @@ final class ScrabbdictFeatureTests: XCTestCase {
         let store = TestStore(initialState: ScrabbdictFeature.State(isSearchFocused: true, query: "pizza")) {
             ScrabbdictFeature()
         } withDependencies: {
+            $0.appReviewClient.requestReviewIfAppropriate = {}
+            $0.continuousClock = ImmediateClock()
             $0.validatorClient.check = { word async throws(ValidatorError) in
                 XCTAssertEqual(word, "pizza")
                 return .valid(points: 25)
@@ -257,6 +259,35 @@ final class ScrabbdictFeatureTests: XCTestCase {
             $0.search = nil
             $0.result = .valid(points: 25)
         }
+    }
+
+    func testWordCheckRequestsReviewIfAppropriateAfterTwoSeconds() async {
+        let clock = TestClock()
+        let requestReviewCallsCount = LockIsolated(0)
+        let store = TestStore(initialState: ScrabbdictFeature.State(query: "pizza")) {
+            ScrabbdictFeature()
+        } withDependencies: {
+            $0.appReviewClient.requestReviewIfAppropriate = {
+                requestReviewCallsCount.withValue { $0 += 1 }
+            }
+            $0.continuousClock = clock
+            $0.validatorClient.check = { _ async throws(ValidatorError) in
+                .valid(points: 25)
+            }
+        }
+
+        await store.send(.view(.searchButtonTapped)) {
+            $0.search = .result(showsRackWordsButton: true)
+            $0.showsRackWordsButton = true
+        }
+        await store.receive(.internal(.searchResponse(.checked(.valid(points: 25))))) {
+            $0.search = nil
+            $0.result = .valid(points: 25)
+        }
+
+        XCTAssertEqual(requestReviewCallsCount.value, 0)
+        await clock.advance(by: .seconds(2))
+        XCTAssertEqual(requestReviewCallsCount.value, 1)
     }
 
     func testRackWordsButtonHidesResultAndMatchesRackWords() async {
@@ -314,6 +345,8 @@ final class ScrabbdictFeatureTests: XCTestCase {
         ) {
             ScrabbdictFeature()
         } withDependencies: {
+            $0.appReviewClient.requestReviewIfAppropriate = {}
+            $0.continuousClock = ImmediateClock()
             $0.validatorClient.check = { word async throws(ValidatorError) in
                 XCTAssertEqual(word, "piz??")
                 return .invalid

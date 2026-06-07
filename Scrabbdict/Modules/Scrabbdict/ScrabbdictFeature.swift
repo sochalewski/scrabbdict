@@ -64,6 +64,8 @@ struct ScrabbdictFeature {
 
     @Dependency(\.crashlyticsClient) var crashlytics
     @Dependency(\.analyticsClient) var analytics
+    @Dependency(\.appReviewClient) var appReview
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.searchModeStorage) var searchModeStorage
     @Dependency(\.validatorClient) var validator
 
@@ -263,7 +265,10 @@ private extension ScrabbdictFeature {
         case let .searchResponse(.checked(result)):
             state.result = result
             state.search = nil
-            return .none
+            return .run { _ in
+                try await clock.sleep(for: .seconds(2))
+                await appReview.requestReviewIfAppropriate()
+            }
         case let .searchResponse(.failed(error)):
             state.search = nil
             state.alert = .init(kind: .dictionaryUnavailable)
