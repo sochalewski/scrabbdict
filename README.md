@@ -33,6 +33,8 @@ This repository does not include full dictionaries because of licensing restrict
 
 To build or test Scrabbdict with complete dictionary behavior, provide your own word lists and regenerate the DAWG files. You can also use the checked-in samples for development, but they are intentionally incomplete. Local tests are allowed to fail when run without full dictionaries.
 
+The `.dictionaries` directory is a private submodule used by the maintainer. Public contributors should expect it to be unavailable and can use `.samples` or their own local word list archives instead.
+
 ## Repository Layout
 
 - `Scrabbdict/` - the iOS app target.
@@ -105,6 +107,8 @@ The app imports Firebase Analytics and Crashlytics. To build your own copy, you 
 
 For public forks, do not commit production Firebase credentials or service configuration unless you intentionally want that Firebase project to be used by other builds. A common approach is to keep a local `GoogleService-Info.plist` and commit a sanitized example file instead.
 
+Firebase Analytics and Crashlytics are used by the app runtime. Forks should use their own Firebase project and make an explicit decision about whether telemetry should remain enabled in their builds.
+
 ## Building the App
 
 1. Clone the repository.
@@ -133,6 +137,8 @@ Snapshot references are stored under:
 ```text
 ScrabbdictTests/Snapshots/__Snapshots__/
 ```
+
+Snapshot PNGs are tracked with Git LFS. When a UI change intentionally affects rendered output, update the relevant snapshot references and include those changes with the code that caused them.
 
 The repository samples are not full dictionaries. Tests that depend on complete word-list coverage may fail locally until you provide full dictionaries and regenerate the corresponding `.dawg` files.
 
