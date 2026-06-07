@@ -15,14 +15,18 @@ struct LanguageStorageClient: Sendable {
 extension LanguageStorageClient: DependencyKey {
     static let liveValue = Self(
         current: {
+            @Dependency(\.defaultAppStorage) var appStorage
+
             guard
-                let rawValue = UserDefaults.standard.string(forKey: storageKey),
+                let rawValue = appStorage.string(forKey: storageKey),
                 let language = Language(rawValue: rawValue)
             else { return .englishUS }
             return language
         },
         setCurrent: { language in
-            UserDefaults.standard.set(language.rawValue, forKey: storageKey)
+            @Dependency(\.defaultAppStorage) var appStorage
+
+            appStorage.set(language.rawValue, forKey: storageKey)
         }
     )
 
