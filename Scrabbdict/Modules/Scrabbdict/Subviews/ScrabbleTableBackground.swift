@@ -9,6 +9,31 @@ import SwiftUI
 struct ScrabbleTableBackground: View {
     var body: some View {
         GeometryReader { proxy in
+            let boardWidth = min(proxy.size.width * 0.60, 340)
+            let boardHeight = boardWidth * 7 / 6
+            let boardRotation = Angle.degrees(-11)
+            let rotationRadians = CGFloat(-11 * Double.pi / 180)
+            let cosRotation = cos(rotationRadians)
+            let sinRotation = sin(rotationRadians)
+            let halfBoardWidth = boardWidth / 2
+            let halfBoardHeight = boardHeight / 2
+            let topLeftOffset = CGPoint(
+                x: cosRotation * -halfBoardWidth - sinRotation * -halfBoardHeight,
+                y: sinRotation * -halfBoardWidth + cosRotation * -halfBoardHeight
+            )
+            let topRightOffset = CGPoint(
+                x: cosRotation * halfBoardWidth - sinRotation * -halfBoardHeight,
+                y: sinRotation * halfBoardWidth + cosRotation * -halfBoardHeight
+            )
+            let bottomLeftOffset = CGPoint(
+                x: cosRotation * -halfBoardWidth - sinRotation * halfBoardHeight,
+                y: sinRotation * -halfBoardWidth + cosRotation * halfBoardHeight
+            )
+            let bottomRightOffset = CGPoint(
+                x: cosRotation * halfBoardWidth - sinRotation * halfBoardHeight,
+                y: sinRotation * halfBoardWidth + cosRotation * halfBoardHeight
+            )
+
             ZStack {
                 tableBase
 
@@ -20,30 +45,36 @@ struct ScrabbleTableBackground: View {
                     bonuses: [
                         ScrabbleBackgroundBonus(column: 2, row: 1, color: Color.TableBackground.bonusBlue),
                         ScrabbleBackgroundBonus(column: 1, row: 4, color: Color.TableBackground.bonusRed)
-                    ]
+                    ],
+                    gridFade: .topLeading
                 )
-                .frame(width: proxy.size.width * 0.58, height: proxy.size.width * 0.77)
-                .rotationEffect(.degrees(-11))
-                .position(x: proxy.size.width * 0.28, y: proxy.size.height * 0.17)
+                .frame(width: boardWidth, height: boardHeight)
+                .rotationEffect(boardRotation)
+                .position(
+                    x: -bottomLeftOffset.x,
+                    y: -topLeftOffset.y
+                )
 
                 ScrabbleCornerBoard(
                     tiles: [
-                        ScrabbleBackgroundTile(letter: "B", points: 3, column: 2, row: 3),
+                        ScrabbleBackgroundTile(letter: "B", points: 3, column: 5, row: 1),
                         ScrabbleBackgroundTile(letter: "L", points: 1, column: 4, row: 4)
                     ],
                     bonuses: [
-                        ScrabbleBackgroundBonus(column: 1, row: 4, color: Color.TableBackground.bonusBlue),
                         ScrabbleBackgroundBonus(column: 4, row: 3, color: Color.TableBackground.bonusRed),
-                        ScrabbleBackgroundBonus(column: 5, row: 4, color: Color.TableBackground.bonusBlue)
-                    ]
+                        ScrabbleBackgroundBonus(column: 5, row: 2, color: Color.TableBackground.bonusBlue)
+                    ],
+                    gridFade: .bottomTrailing
                 )
-                .frame(width: proxy.size.width * 0.60, height: proxy.size.width * 0.80)
-                .rotationEffect(.degrees(-11))
-                .position(x: proxy.size.width * 0.82, y: proxy.size.height * 0.89)
+                .frame(width: boardWidth, height: boardHeight)
+                .rotationEffect(boardRotation)
+                .position(
+                    x: proxy.size.width - topRightOffset.x,
+                    y: proxy.size.height - bottomRightOffset.y
+                )
 
                 centerVeil
             }
-            .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .ignoresSafeArea()
         .accessibilityHidden(true)
@@ -90,42 +121,50 @@ struct ScrabbleTableBackground: View {
 private struct ScrabbleCornerBoard: View {
     let tiles: [ScrabbleBackgroundTile]
     let bonuses: [ScrabbleBackgroundBonus]
+    let gridFade: ScrabbleGridFade
 
     var body: some View {
         GeometryReader { proxy in
             let cell = proxy.size.width / 6
+            let boardWidth = cell * 6
+            let boardHeight = cell * 7
 
             ZStack(alignment: .topLeading) {
-                // Grid cells
-                ForEach(0..<6, id: \.self) { column in
-                    ForEach(0..<7, id: \.self) { row in
-                        RoundedRectangle(cornerRadius: 4.5, style: .continuous)
-                            .stroke(
-                                Color.TableBackground.boardGrid,
-                                lineWidth: 0.8
-                            )
-                            .background(Color.clear)
-                            .frame(width: cell, height: cell)
-                            .position(x: CGFloat(column) * cell + cell / 2, y: CGFloat(row) * cell + cell / 2)
+                ZStack(alignment: .topLeading) {
+                    ForEach(0...7, id: \.self) { row in
+                        Path { path in
+                            let y = CGFloat(row) * cell
+                            path.move(to: CGPoint(x: 0, y: y))
+                            path.addLine(to: CGPoint(x: boardWidth, y: y))
+                        }
+                        .stroke(Color.TableBackground.boardGrid, lineWidth: 0.8)
+                    }
+
+                    ForEach(0...6, id: \.self) { column in
+                        Path { path in
+                            let x = CGFloat(column) * cell
+                            path.move(to: CGPoint(x: x, y: 0))
+                            path.addLine(to: CGPoint(x: x, y: boardHeight))
+                        }
+                        .stroke(Color.TableBackground.boardGrid, lineWidth: 0.8)
                     }
                 }
+                .mask(gridFade.mask)
 
-                // Premium bonus squares (blue and red tiles with soft watercolor/stamp glow effect as in the image)
                 ForEach(bonuses) { bonus in
                     ZStack {
                         PremiumSquare()
                             .fill(bonus.color)
-                            .blur(radius: 2.8) // Soft glow to blend into the board
+                            .blur(radius: 2.8)
 
                         PremiumSquare()
                             .stroke(Color.TableBackground.bonusStroke, lineWidth: 1.0)
-                            .blur(radius: 0.6) // Slightly soften the white border
+                            .blur(radius: 0.6)
                     }
                     .frame(width: cell * 1.04, height: cell * 1.04)
                     .position(x: CGFloat(bonus.column) * cell + cell / 2, y: CGFloat(bonus.row) * cell + cell / 2)
                 }
 
-                // Letter tiles (completely sharp, crisp, and three-dimensional)
                 ForEach(tiles) { tile in
                     ScrabbleBackgroundLetterTile(letter: tile.letter, points: tile.points)
                         .frame(width: cell * 0.97, height: cell * 0.97)
@@ -133,6 +172,37 @@ private struct ScrabbleCornerBoard: View {
                 }
             }
         }
+    }
+}
+
+private enum ScrabbleGridFade {
+    case topLeading
+    case bottomTrailing
+
+    private var startPoint: UnitPoint {
+        switch self {
+        case .topLeading:
+            .topLeading
+        case .bottomTrailing:
+            .bottomTrailing
+        }
+    }
+
+    private var endPoint: UnitPoint {
+        switch self {
+        case .topLeading:
+            .bottomTrailing
+        case .bottomTrailing:
+            .topLeading
+        }
+    }
+
+    var mask: some View {
+        LinearGradient(
+            colors: [.black, .clear],
+            startPoint: startPoint,
+            endPoint: endPoint
+        )
     }
 }
 
@@ -145,7 +215,7 @@ private struct ScrabbleBackgroundLetterTile: View {
             let cornerRadius = proxy.size.width * 0.14
             ZStack(alignment: .bottomTrailing) {
                 // Tile base with ivory gradient
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(
                         LinearGradient(
                             colors: [
@@ -158,14 +228,14 @@ private struct ScrabbleBackgroundLetterTile: View {
                     )
 
                 // Outer subtle border
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(
                         Color.TableBackground.tileStroke,
                         lineWidth: 0.8
                     )
 
                 // Inner 3D bevel highlight
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .strokeBorder(
                         LinearGradient(
                             colors: [

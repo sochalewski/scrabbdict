@@ -35,22 +35,15 @@ private func assertSettingsScreenSnapshots(
     testName: String = #function,
     line: UInt = #line
 ) {
-    assertScreenSnapshots(
-        drawHierarchyInKeyWindow: true,
+    assert(
+        SettingsView(
+            store: Store(
+                initialState: SettingsFeature.State(selectedLanguage: selectedLanguage),
+                reducer: {}
+            )
+        ),
         file: file,
         testName: testName,
         line: line
-    ) { deviceConfig, colorScheme, locale in
-        fixedScreen(
-            SettingsView(
-                store: Store(
-                    initialState: SettingsFeature.State(selectedLanguage: selectedLanguage),
-                    reducer: {}
-                )
-            ),
-            deviceConfig: deviceConfig,
-            colorScheme: colorScheme,
-            locale: locale
-        )
-    }
+    )
 }

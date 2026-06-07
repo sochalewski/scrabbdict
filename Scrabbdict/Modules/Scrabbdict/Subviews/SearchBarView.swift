@@ -16,35 +16,43 @@ struct SearchBarView: View {
     let onSearchModePickerTapped: () -> Void
     let onSearchModeSelected: (SearchMode) -> Void
     let onSearch: () -> Void
+    let searchModePickerAvailableHeight: CGFloat
+
+    @ScaledMetric(relativeTo: .title2) var searchFieldHeight: CGFloat = 52
+    @ScaledMetric(relativeTo: .title2) var pickerTopPadding: CGFloat = 60
+    @ScaledMetric(relativeTo: .title2) var clearButtonSize: CGFloat = 32
+    @ScaledMetric(relativeTo: .title2) var actionButtonSize: CGFloat = 42
+
+    private var searchModePickerMaxHeight: CGFloat {
+        max(120, searchModePickerAvailableHeight - pickerTopPadding - 16)
+    }
 
     var body: some View {
         searchField
             .overlay(alignment: .top) {
                 if isSearchModePickerExpanded {
                     searchModePicker
-                        .padding(.top, 52)
+                        .padding(.top, pickerTopPadding)
                         .transition(.opacity.combined(with: .offset(y: -8)))
                 }
             }
-            .frame(maxWidth: 320)
+            .frame(maxWidth: .infinity)
             .animation(.easeOut(duration: 0.12), value: isFocused)
             .animation(.easeInOut(duration: 0.18), value: isSearchModePickerExpanded)
     }
 
     private var searchField: some View {
-        HStack(spacing: 7) {
+        HStack(spacing: (searchFieldHeight - actionButtonSize) / 2) {
             textField
-
             searchModeButton
-
             searchButton
         }
-        .padding(.leading, 4)
-        .padding(.trailing, 6)
-        .frame(height: 44)
-        .background(Color.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .padding(.horizontal, (searchFieldHeight - actionButtonSize) / 2)
+        .frame(height: searchFieldHeight)
+        .background(Color.surface)
+        .clipShape(Capsule(style: .circular))
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            Capsule(style: .circular)
                 .stroke(Color.surfaceStroke, lineWidth: 1)
         )
         .shadow(color: Color.appShadow, radius: 18, x: 0, y: 8)
@@ -53,15 +61,25 @@ struct SearchBarView: View {
     private var searchModePicker: some View {
         SearchModePickerView(
             searchMode: searchMode,
+            maxHeight: searchModePickerMaxHeight,
             onSearchModeSelected: onSearchModeSelected
         )
+        .frame(maxWidth: .infinity)
     }
 
     private var textField: some View {
+        HStack(spacing: 0) {
+            searchTextField
+            textFieldTrailingControl
+        }
+    }
+
+    private var searchTextField: some View {
         TextField(text: $text) {
             Text(verbatim: "")
         }
-        .font(.system(size: 21, weight: .medium))
+        .font(.title2.weight(.medium))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(Color.primaryInk)
         .tint(Color.brandAccent)
         .multilineTextAlignment(.center)
@@ -70,56 +88,43 @@ struct SearchBarView: View {
         .submitLabel(.search)
         .focused($isFocused)
         .onSubmit(onSearch)
-        .padding(.trailing, text.isEmpty || !isFocused ? 0 : 30)
-        .frame(height: 38)
+        .contentShape(.rect)
         .accessibilityLabel(.searchFieldAccessibilityLabel)
+        .onTapGesture {
+            isFocused = true
+        }
         .onChange(of: text) { _, newValue in
             text = newValue.sanitizedWordQuery
-        }
-        .overlay(alignment: .trailing) {
-            textFieldTrailingControl
         }
     }
 
     @ViewBuilder
     private var textFieldTrailingControl: some View {
-        if !text.isEmpty {
-            if isFocused {
-                clearButton
-            } else {
-                focusTapTarget
-            }
+        if isFocused, !text.isEmpty {
+            clearButton
         }
     }
 
     private var clearButton: some View {
         Button(action: onClear) {
             Image(systemName: "xmark.circle.fill")
-                .font(.system(size: 17, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Color.secondaryText)
-                .frame(width: 30, height: 30)
+                .frame(width: clearButtonSize)
+                .frame(maxHeight: .infinity)
+                .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(.searchFieldClear)
     }
 
-    private var focusTapTarget: some View {
-        Color.clear
-            .frame(width: 30, height: 38)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                isFocused = true
-            }
-            .accessibilityHidden(true)
-    }
-
     private var searchModeButton: some View {
         Button(action: onSearchModePickerTapped) {
             Image(systemName: "chevron.down")
-                .font(.system(size: 14, weight: .bold))
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(Color.brandAccent)
-                .frame(width: 34, height: 34)
-                .background(Color.brandAccent.opacity(0.12), in: Circle())
+                .frame(width: actionButtonSize, height: actionButtonSize)
+                .background(Color.brandAccent.opacity(0.12), in: .circle)
                 .rotationEffect(.degrees(isSearchModePickerExpanded ? 180 : 0))
         }
         .buttonStyle(.plain)
@@ -130,16 +135,14 @@ struct SearchBarView: View {
     private var searchButton: some View {
         Button(action: onSearch) {
             Image(systemName: "magnifyingglass")
-                .resizable()
-                .scaledToFit()
-                .font(.system(size: 18, weight: .semibold))
-                .frame(width: 18, height: 18)
-                .foregroundStyle(Color.white.opacity(text.isEmpty ? 0.65 : 1))
-                .frame(width: 34, height: 34)
-                .background(Color.brandAccent.opacity(text.isEmpty ? 0.35 : 1), in: Circle())
-                .shadow(color: Color.appShadow.opacity(text.isEmpty ? 0 : 1), radius: 8, x: 0, y: 3)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(Color.white)
+                .frame(width: actionButtonSize, height: actionButtonSize)
+                .background(Color.brandAccent, in: .circle)
         }
+        .buttonStyle(.plain)
         .disabled(text.isEmpty)
+        .shadow(color: Color.appShadow, radius: 8, x: 0, y: 3)
         .accessibilityLabel(.searchButtonAccessibilityLabel)
     }
 }
@@ -160,7 +163,8 @@ struct SearchBarView: View {
                 onClear: { text = "" },
                 onSearchModePickerTapped: { isSearchModePickerExpanded.toggle() },
                 onSearchModeSelected: { searchMode = $0 },
-                onSearch: {}
+                onSearch: {},
+                searchModePickerAvailableHeight: 320
             )
             .padding()
             .onAppear { isFocused = true }

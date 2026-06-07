@@ -8,6 +8,8 @@ import Foundation
 import SwiftUI
 
 struct ResultCardView: View {
+    @Environment(\.locale) var locale
+
     let result: ValidatorResult
 
     private var resultTitle: LocalizedStringResource {
@@ -43,34 +45,36 @@ struct ResultCardView: View {
     var body: some View {
         VStack(spacing: 0) {
             Text(.resultCaption)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Color.resultCaption)
 
             Text(resultTitle)
-                .font(.futuraBold(size: 30))
+                .font(.title.weight(.black))
                 .foregroundStyle(resultColor)
 
             if case let .valid(points) = result {
                 Divider()
-                    .frame(width: 168, height: 1)
+                    .frame(height: 1)
                     .overlay(Color.divider)
+                    .padding(.horizontal, 16)
                     .padding(.vertical, 12)
 
                 Text(verbatim: "\(points)")
-                    .font(.futuraBold(size: 30))
+                    .font(.title.weight(.black))
                     .foregroundStyle(Color.resultBlue)
 
                 Text(verbatim: localizedPointNoun(for: points))
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.resultCaption)
             }
         }
-        .lineLimit(1)
+        .multilineTextAlignment(.center)
         .padding(.vertical, resultVerticalPadding)
+        .padding(.horizontal, 16)
         .frame(width: 268)
-        .background(Color.elevatedSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(Color.elevatedSurface, in: .rect(cornerRadius: 18))
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: 18)
                 .stroke(Color.surfaceStroke, lineWidth: 1)
         )
         .shadow(color: Color.appShadow, radius: 17, x: 0, y: 14)
@@ -79,9 +83,14 @@ struct ResultCardView: View {
     }
 
     private func localizedPointNoun(for points: Int) -> String {
-        String(localized: .resultPoints(points))
+        localizedResultPoints(for: points, locale: locale)
             .replacingOccurrences(of: #"\[[^\]]*\]"#, with: "", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func localizedResultPoints(for points: Int, locale: Locale) -> String {
+        Bundle.localizationBundle(for: locale)
+            .localizedString(forKey: "result.points", locale: locale, arguments: points)
     }
 }
 

@@ -13,14 +13,31 @@ struct ScrabbdictView: View {
     @FocusState var isSearchFocused: Bool
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
+    private var contentMaxWidth: CGFloat {
+        horizontalSizeClass == .regular ? 560 : .infinity
+    }
+
     var body: some View {
         NavigationStack {
             content
+                .onAppear { send(.loaded) }
                 .navigationTitle(.init(verbatim: ""))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     titleToolbar
                     settingsToolbar
+                }
+                .bind($store.isSearchFocused, to: $isSearchFocused)
+                .alert(item: $store.alert) { alert in
+                    Alert(
+                        title: Text(alert.title),
+                        message: Text(alert.message),
+                        dismissButton: .default(Text(.alertOk))
+                    )
+                }
+                .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { settingsStore in
+                    SettingsView(store: settingsStore)
+                        .presentationDetents(horizontalSizeClass == .regular ? [.large] : [.medium, .large])
                 }
         }
         .tint(Color.brandAccent)
@@ -50,7 +67,7 @@ private extension ScrabbdictView {
                 Text(verbatim: "dict")
                     .foregroundStyle(Color.brandAccent)
             }
-            .font(.system(size: 24, weight: .bold))
+            .font(.title2.weight(.bold))
             .lineLimit(1)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(.init(verbatim: "Scrabbdict"))
@@ -58,47 +75,36 @@ private extension ScrabbdictView {
     }
 
     var content: some View {
-        VStack(spacing: 32) {
-            SearchBarView(
-                text: $store.query,
-                searchMode: $store.searchMode,
-                isSearchModePickerExpanded: $store.isSearchModePickerExpanded,
-                isFocused: $isSearchFocused,
-                onClear: { send(.clearButtonTapped) },
-                onSearchModePickerTapped: { send(.searchModePickerTapped) },
-                onSearchModeSelected: { send(.searchModeSelected($0)) },
-                onSearch: { send(.searchButtonTapped) }
-            )
-            .zIndex(1)
+        GeometryReader { proxy in
+            ZStack {
+                ScrabbleTableBackground()
 
-            resultArea
-                .animation(.easeOut(duration: 0.12), value: store.search)
-                .zIndex(0)
+                VStack(spacing: 32) {
+                    SearchBarView(
+                        text: $store.query,
+                        searchMode: $store.searchMode,
+                        isSearchModePickerExpanded: $store.isSearchModePickerExpanded,
+                        isFocused: $isSearchFocused,
+                        onClear: { send(.clearButtonTapped) },
+                        onSearchModePickerTapped: { send(.searchModePickerTapped) },
+                        onSearchModeSelected: { send(.searchModeSelected($0)) },
+                        onSearch: { send(.searchButtonTapped) },
+                        searchModePickerAvailableHeight: proxy.size.height
+                    )
+                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                    .zIndex(1)
+
+                    resultArea
+                        .animation(.easeOut(duration: 0.12), value: store.search)
+                        .zIndex(0)
+                }
+                .padding(.horizontal, 26)
+                .frame(maxWidth: contentMaxWidth, maxHeight: .infinity, alignment: .top)
+            }
         }
-        .padding(.horizontal, 16)
-        .frame(maxWidth: 420, maxHeight: .infinity, alignment: .top)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(background)
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .contentShape(Rectangle())
         .onTapGesture { send(.backgroundTapped) }
-        .bind($store.isSearchFocused, to: $isSearchFocused)
-        .onAppear { send(.loaded) }
-        .alert(item: $store.alert) { alert in
-            Alert(
-                title: Text(alert.title),
-                message: Text(alert.message),
-                dismissButton: .default(Text(.alertOk))
-            )
-        }
-        .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { settingsStore in
-            SettingsView(store: settingsStore)
-                .presentationDetents(horizontalSizeClass == .regular ? [.large] : [.medium, .large])
-        }
-    }
-
-    var background: some View {
-        ScrabbleTableBackground()
     }
 
     var settingsButton: some View {
@@ -121,14 +127,8 @@ private extension ScrabbdictView {
             SearchSkeletonView(variant: searchSkeletonVariant)
                 .transition(.opacity)
         } else if let result = store.result {
-            VStack(spacing: 24) {
-                ResultCardView(result: result)
-
-                if store.showsRackWordsButton {
-                    rackWordsButton
-                }
-            }
-            .transition(.opacity)
+            resultCardArea(result: result)
+                .transition(.opacity)
         } else if !store.words.isEmpty {
             WordsListView(words: store.words)
                 .transition(.opacity)
@@ -138,6 +138,22 @@ private extension ScrabbdictView {
         } else {
             Spacer(minLength: 0)
         }
+    }
+
+    func resultCardArea(result: ValidatorResult) -> some View {
+        ScrollView(.vertical) {
+            VStack(spacing: 24) {
+                ResultCardView(result: result)
+
+                if store.showsRackWordsButton {
+                    rackWordsButton
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 24)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     var rackWordsButton: some View {

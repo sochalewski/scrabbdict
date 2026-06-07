@@ -12,14 +12,15 @@ struct RackWordsButton: View {
     var body: some View {
         Button(action: action) {
             Label(.rackWordsButtonTitle, systemImage: "magnifyingglass")
-                .font(.system(size: 16, weight: .semibold))
+                .font(.callout.weight(.semibold))
                 .foregroundStyle(.white)
+                .padding(14)
                 .frame(maxWidth: 268)
-                .frame(height: 46)
-                .background(Color.brandAccent, in: RoundedRectangle(cornerRadius: 23, style: .continuous))
-                .shadow(color: Color.appShadow, radius: 10, x: 0, y: 5)
+                .background(Color.brandAccent)
+                .clipShape(.capsule)
         }
         .buttonStyle(.plain)
+        .shadow(color: Color.appShadow, radius: 10, x: 0, y: 5)
     }
 }
 

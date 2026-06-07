@@ -127,22 +127,15 @@ private func assertAppScreenSnapshots(
     testName: String = #function,
     line: UInt = #line
 ) {
-    assertScreenSnapshots(
-        drawHierarchyInKeyWindow: true,
+    assert(
+        ScrabbdictView(
+            store: Store(
+                initialState: state,
+                reducer: {}
+            )
+        ),
         file: file,
         testName: testName,
         line: line
-    ) { deviceConfig, colorScheme, locale in
-        fixedScreen(
-            ScrabbdictView(
-                store: Store(
-                    initialState: state,
-                    reducer: {}
-                )
-            ),
-            deviceConfig: deviceConfig,
-            colorScheme: colorScheme,
-            locale: locale
-        )
-    }
+    )
 }
