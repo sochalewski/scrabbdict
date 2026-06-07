@@ -91,7 +91,7 @@ private extension ScrabbdictView {
                         onSearch: { send(.searchButtonTapped) },
                         searchModePickerAvailableHeight: proxy.size.height
                     )
-                    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                    .dynamicTypeSize(...DynamicTypeSize.accessibility2)
                     .zIndex(1)
 
                     resultArea

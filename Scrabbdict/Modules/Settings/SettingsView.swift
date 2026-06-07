@@ -123,7 +123,7 @@ private extension SettingsView {
                     .foregroundStyle(Color.settingsText.opacity(0.82))
                     .fixedSize(horizontal: false, vertical: true)
                     .opacity(store.selectedLanguage == language ? 1 : 0)
-                    .accessibilityHidden(true)
+                    .accessibilityHidden(store.selectedLanguage != language)
                 }
             }
             .padding(.top, 16)

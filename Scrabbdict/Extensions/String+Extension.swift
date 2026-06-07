@@ -18,5 +18,17 @@ extension String {
         return String(filtered.prefix(String.maximumWordLength))
     }
 
-    static let maximumWordLength = 15
+    var wordQueryAccessibilityValue: String {
+        guard !isEmpty else { return self }
+
+        let isPattern = contains("?")
+        let accessibility = uppercased()
+            .map(String.init)
+            .joined(separator: ", ")
+            .replacingOccurrences(of: "?", with: String(localized: .searchModeQuestionMark))
+
+        return isPattern ? accessibility : "\(self) (\(accessibility))"
+    }
+
+    private static let maximumWordLength = 15
 }

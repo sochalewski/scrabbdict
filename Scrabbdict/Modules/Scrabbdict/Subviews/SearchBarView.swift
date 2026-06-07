@@ -34,6 +34,7 @@ struct SearchBarView: View {
                     searchModePicker
                         .padding(.top, pickerTopPadding)
                         .transition(.opacity.combined(with: .offset(y: -8)))
+                        .accessibilityAddTraits(.isModal)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -90,6 +91,7 @@ struct SearchBarView: View {
         .onSubmit(onSearch)
         .contentShape(.rect)
         .accessibilityLabel(.searchFieldAccessibilityLabel)
+        .accessibilityValue(text.wordQueryAccessibilityValue)
         .onTapGesture {
             isFocused = true
         }
