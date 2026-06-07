@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AE63C2682F8C45EB00E1DB8E /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AE63C2672F8C45EB00E1DB8E /* FirebaseAnalytics */; };
+		AE63C2682F8C45EB00E1DB8E /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = AE63C2672F8C45EB00E1DB8E /* FirebaseAnalyticsCore */; };
 		AE63C26A2F8C45EB00E1DB8E /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AE63C2692F8C45EB00E1DB8E /* FirebaseCrashlytics */; };
 		AEA2A9A52FC49C1300BF8A82 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = AEA2A9A42FC49C1300BF8A82 /* SnapshotTesting */; };
 		AECC64632FB9A3A80032633A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = AECC64622FB9A3A80032633A /* ComposableArchitecture */; };
@@ -125,7 +125,7 @@
 			files = (
 				AECC64632FB9A3A80032633A /* ComposableArchitecture in Frameworks */,
 				AE63C26A2F8C45EB00E1DB8E /* FirebaseCrashlytics in Frameworks */,
-				AE63C2682F8C45EB00E1DB8E /* FirebaseAnalytics in Frameworks */,
+				AE63C2682F8C45EB00E1DB8E /* FirebaseAnalyticsCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -731,10 +731,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AE63C2672F8C45EB00E1DB8E /* FirebaseAnalytics */ = {
+		AE63C2672F8C45EB00E1DB8E /* FirebaseAnalyticsCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AE63C2662F8C45EB00E1DB8E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
+			productName = FirebaseAnalyticsCore;
 		};
 		AE63C2692F8C45EB00E1DB8E /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;

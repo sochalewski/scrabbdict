@@ -26,7 +26,7 @@ All trademarks, service marks, trade names, word list names, and other protected
 		</dict>
 		<dict>
 			<key>FooterText</key>
-			<string>Firebase products used directly: FirebaseAnalytics, FirebaseCrashlytics.
+			<string>Firebase products used directly: FirebaseAnalyticsCore, FirebaseCrashlytics.
 
 Resolved Swift packages:
 - firebase-ios-sdk 12.14.0 (Apache License 2.0)
