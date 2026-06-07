@@ -5,6 +5,7 @@
 //
 
 import ComposableArchitecture
+import StoreKit
 import SwiftUI
 
 @main
@@ -13,15 +14,27 @@ struct ScrabbdictApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ScrabbdictView(
-                store: Store(initialState: ScrabbdictFeature.State()) {
-                    ScrabbdictFeature()
-                }
-            )
+            ScrabbdictRootView()
             #if DEBUG && targetEnvironment(simulator)
-            .dynamicTypeSizeOverlay()
+                .dynamicTypeSizeOverlay()
             #endif
         }
+    }
+}
+
+private struct ScrabbdictRootView: View {
+    @Environment(\.requestReview) var requestReview
+
+    var body: some View {
+        ScrabbdictView(
+            store: Store(initialState: ScrabbdictFeature.State()) {
+                ScrabbdictFeature()
+            } withDependencies: {
+                $0.appReviewClient.requestReview = {
+                    requestReview()
+                }
+            }
+        )
     }
 }
 

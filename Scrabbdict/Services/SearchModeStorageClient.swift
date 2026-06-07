@@ -15,11 +15,15 @@ struct SearchModeStorageClient: Sendable {
 extension SearchModeStorageClient: DependencyKey {
     static let liveValue = Self(
         current: {
-            let rawValue = UserDefaults.standard.integer(forKey: storageKey)
+            @Dependency(\.defaultAppStorage) var appStorage
+
+            let rawValue = appStorage.integer(forKey: storageKey)
             return SearchMode(rawValue: rawValue) ?? .auto
         },
         setCurrent: { searchMode in
-            UserDefaults.standard.set(searchMode.rawValue, forKey: storageKey)
+            @Dependency(\.defaultAppStorage) var appStorage
+
+            appStorage.set(searchMode.rawValue, forKey: storageKey)
         }
     )
 
