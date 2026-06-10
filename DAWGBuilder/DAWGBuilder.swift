@@ -19,35 +19,34 @@ struct DAWGBuilder {
     }
 
     func data() throws -> Data {
-        let compactDAWG = try compact()
-        let alphabet = try alphabet(for: compactDAWG)
+        let compactEdges = try compact()
+        let alphabet = try alphabet(for: compactEdges)
         let alphabetByteCount = alphabet.count * MemoryLayout<UInt16>.size
         var data = Data()
-        data.reserveCapacity(DAWGFormat.headerSize + alphabetByteCount + compactDAWG.nodes.count * DAWGFormat.nodeSize + compactDAWG.edges.count * DAWGFormat.edgeSize)
+        data.reserveCapacity(DAWGFormat.headerSize + alphabetByteCount + compactEdges.count * DAWGFormat.edgeSize)
 
         data.appendLittleEndianUInt32(DAWGFormat.magic)
         data.appendLittleEndianUInt32(DAWGFormat.version)
         data.appendLittleEndianUInt32(UInt32(wordCount))
-        data.appendLittleEndianUInt32(UInt32(compactDAWG.nodes.count))
-        data.appendLittleEndianUInt32(UInt32(compactDAWG.edges.count))
+        data.appendLittleEndianUInt32(UInt32(compactEdges.count))
         data.appendLittleEndianUInt32(UInt32(alphabet.count))
 
         alphabet.keys.forEach { data.appendLittleEndianUInt16($0) }
 
-        for node in compactDAWG.nodes {
-            guard node.edgeCount <= DAWGFormat.packedEdgeCountMask else {
-                throw DAWGBuilderError.tooManyOutgoingEdgesForPackedCount
+        for edge in compactEdges {
+            guard edge.target <= DAWGFormat.edgeTargetMask else {
+                throw DAWGBuilderError.tooManyEdgesForPackedTarget
             }
-            data.appendLittleEndianUInt32(node.firstEdge)
-            data.appendLittleEndianUInt16(node.packedEdgeCount)
-        }
 
-        for edge in compactDAWG.edges {
-            guard edge.target <= UInt32.max24 else {
-                throw DAWGBuilderError.tooManyNodesForUInt24
+            var packed = edge.target
+            if edge.isWord {
+                packed |= DAWGFormat.edgeWordFlag
             }
-            data.appendUInt8(alphabet.indexByKey[edge.key]!)
-            data.appendLittleEndianUInt24(edge.target)
+            if edge.isLast {
+                packed |= DAWGFormat.edgeLastFlag
+            }
+            packed |= UInt32(alphabet.indexByKey[edge.key]!) << DAWGFormat.edgeKeyShift
+            data.appendLittleEndianUInt32(packed)
         }
 
         return data
@@ -101,54 +100,57 @@ struct DAWGBuilder {
         return index
     }
 
-    private func compact() throws -> CompactDAWG {
-        var remap = [Int: UInt32]()
+    /// Flattens the minimized graph into a single edge array.
+    ///
+    /// Nodes with outgoing edges are visited in depth-first preorder starting
+    /// from the root, so the root's edges begin at index `0`. Each visited node
+    /// is assigned the index of its first edge; nodes without outgoing edges
+    /// are encoded as the null target `0`.
+    private func compact() throws -> [CompactEdge] {
+        var firstEdgeByNode = [Int: UInt32]()
         var orderedNodes = [Int]()
+        var nextFirstEdge: UInt32 = 0
         var stack = [0]
 
         while let buildIndex = stack.popLast() {
-            if remap[buildIndex] != nil {
-                continue
-            }
+            let edges = nodes[buildIndex].edges
+            guard !edges.isEmpty, firstEdgeByNode[buildIndex] == nil else { continue }
 
-            remap[buildIndex] = UInt32(orderedNodes.count)
+            firstEdgeByNode[buildIndex] = nextFirstEdge
+            nextFirstEdge += UInt32(edges.count)
             orderedNodes.append(buildIndex)
 
-            nodes[buildIndex].edges.reversed().forEach {
+            edges.reversed().forEach {
                 stack.append($0.target)
             }
         }
 
-        var compactNodes = [CompactNode]()
-        compactNodes.reserveCapacity(orderedNodes.count)
-
         var compactEdges = [CompactEdge]()
+        compactEdges.reserveCapacity(Int(nextFirstEdge))
 
         for buildIndex in orderedNodes {
-            let firstEdge = UInt32(compactEdges.count)
-            guard nodes[buildIndex].edges.count <= Int(UInt16.max) else {
-                throw DAWGBuilderError.tooManyOutgoingEdgesForUInt16
-            }
+            // Sorted edge keys let the reader stop scanning a node early.
+            let edges = nodes[buildIndex].edges.sorted { $0.key < $1.key }
 
-            for edge in nodes[buildIndex].edges {
+            for (offset, edge) in edges.enumerated() {
                 guard let key = UInt16(exactly: edge.key) else {
                     throw DAWGBuilderError.unsupportedScalar(edge.key)
                 }
-                compactEdges.append(CompactEdge(key: key, target: remap[edge.target]!))
-            }
 
-            compactNodes.append(CompactNode(
-                firstEdge: firstEdge,
-                edgeCount: UInt16(nodes[buildIndex].edges.count),
-                isWord: nodes[buildIndex].isWord
-            ))
+                compactEdges.append(CompactEdge(
+                    key: key,
+                    target: firstEdgeByNode[edge.target] ?? 0,
+                    isWord: nodes[edge.target].isWord,
+                    isLast: offset == edges.count - 1
+                ))
+            }
         }
 
-        return CompactDAWG(nodes: compactNodes, edges: compactEdges)
+        return compactEdges
     }
 
-    private func alphabet(for compactDAWG: CompactDAWG) throws -> Alphabet {
-        let keys = compactDAWG.edges.map(\.key).uniqued().sorted()
+    private func alphabet(for compactEdges: [CompactEdge]) throws -> Alphabet {
+        let keys = compactEdges.map(\.key).uniqued().sorted()
         guard keys.count <= Int(UInt8.max) + 1 else {
             throw DAWGBuilderError.tooManyAlphabetScalarsForUInt8(keys.count)
         }
@@ -159,23 +161,17 @@ struct DAWGBuilder {
 
 enum DAWGBuilderError: Error, CustomStringConvertible {
     case unsupportedScalar(UInt32)
-    case tooManyOutgoingEdgesForUInt16
-    case tooManyNodesForUInt24
+    case tooManyEdgesForPackedTarget
     case tooManyAlphabetScalarsForUInt8(Int)
-    case tooManyOutgoingEdgesForPackedCount
 
     var description: String {
         switch self {
         case let .unsupportedScalar(scalar):
             "DAWG supports Unicode scalars up to \(UInt16.max); unsupported scalar: \(scalar)."
-        case .tooManyOutgoingEdgesForUInt16:
-            "DAWG supports at most \(UInt16.max) outgoing edges per node."
-        case .tooManyNodesForUInt24:
-            "DAWG supports at most \(UInt32.max24 + 1) nodes."
+        case .tooManyEdgesForPackedTarget:
+            "DAWG supports at most \(DAWGFormat.edgeTargetMask + 1) edges."
         case let .tooManyAlphabetScalarsForUInt8(count):
             "DAWG supports at most \(Int(UInt8.max) + 1) distinct scalars; found \(count)."
-        case .tooManyOutgoingEdgesForPackedCount:
-            "DAWG supports at most \(DAWGFormat.packedEdgeCountMask) outgoing edges per node."
         }
     }
 }
@@ -201,24 +197,11 @@ private struct UncheckedEdge {
     let child: Int
 }
 
-private struct CompactDAWG {
-    let nodes: [CompactNode]
-    let edges: [CompactEdge]
-}
-
-private struct CompactNode {
-    let firstEdge: UInt32
-    let edgeCount: UInt16
-    let isWord: Bool
-
-    var packedEdgeCount: UInt16 {
-        edgeCount | (isWord ? DAWGFormat.wordFlag : 0)
-    }
-}
-
 private struct CompactEdge {
     let key: UInt16
     let target: UInt32
+    let isWord: Bool
+    let isLast: Bool
 }
 
 private struct Alphabet {
@@ -238,18 +221,8 @@ private struct Alphabet {
 }
 
 private extension Data {
-    mutating func appendUInt8(_ value: UInt8) {
-        append(value)
-    }
-
     mutating func appendLittleEndianUInt16(_ value: UInt16) {
         Swift.withUnsafeBytes(of: value.littleEndian) { append(contentsOf: $0) }
-    }
-
-    mutating func appendLittleEndianUInt24(_ value: UInt32) {
-        appendUInt8(UInt8(truncatingIfNeeded: value))
-        appendUInt8(UInt8(truncatingIfNeeded: value >> 8))
-        appendUInt8(UInt8(truncatingIfNeeded: value >> 16))
     }
 
     mutating func appendLittleEndianUInt32(_ value: UInt32) {
@@ -262,8 +235,4 @@ private extension Sequence where Element: Hashable {
         var seen = Set<Element>()
         return filter { seen.insert($0).inserted }
     }
-}
-
-private extension UInt32 {
-    static let max24: Self = 0x00ff_ffff
 }
