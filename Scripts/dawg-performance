@@ -1,0 +1,563 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: Scripts/dawg-performance
+       Scripts/dawg-performance <base-ref> <compare-ref>
+
+Builds and runs DAWGPerformanceTests without resolving SwiftPM dependencies.
+The standalone test runner compiles only the DAWG reader, DAWG format constants,
+and DAWGPerformanceTests with Release optimization.
+
+With no refs, tests the current checkout and current dictionaries.
+With two refs, compares exactly those two repository commits and their matching
+dictionary submodule commits.
+
+Environment:
+  DAWG_DICTIONARY_REPO      Path to the initialized dictionaries repository.
+                            Defaults to .dictionaries.
+  DAWG_PERF_KEEP_TMP        Set to 1 to keep generated sources, binaries, and logs.
+  DAWG_PERF_MEMORY_SAMPLES  Number of fresh-process retained-memory samples.
+                            Defaults to 5. Set to 0 to skip.
+
+Examples:
+  Scripts/dawg-performance
+  Scripts/dawg-performance 9d54d17 5b58342
+EOF
+}
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  usage
+  exit 0
+fi
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
+mode="current"
+base_ref=""
+compare_ref=""
+
+case "$#" in
+  0)
+    ;;
+  2)
+    mode="comparison"
+    base_ref="$1"
+    compare_ref="$2"
+    ;;
+  *)
+    usage >&2
+    exit 64
+    ;;
+esac
+
+dictionary_repo="${DAWG_DICTIONARY_REPO:-$repo_root/.dictionaries}"
+keep_tmp="${DAWG_PERF_KEEP_TMP:-0}"
+memory_samples="${DAWG_PERF_MEMORY_SAMPLES:-5}"
+tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/scrabbdict-dawg-performance.XXXXXX")"
+xcode_developer_dir="$(xcode-select -p)"
+xctest_framework_dir="$xcode_developer_dir/Platforms/MacOSX.platform/Developer/Library/Frameworks"
+xctest_private_framework_dir="$xcode_developer_dir/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks"
+xctest_swift_module_dir="$xcode_developer_dir/Platforms/MacOSX.platform/Developer/usr/lib"
+xctest_swiftc_flags=(
+  -I "$xctest_swift_module_dir" -L "$xctest_swift_module_dir"
+  -F "$xctest_framework_dir"
+  -Xlinker -rpath -Xlinker "$xctest_framework_dir"
+  -Xlinker -rpath -Xlinker "$xctest_private_framework_dir"
+  -Xlinker -rpath -Xlinker "$xctest_swift_module_dir"
+)
+
+# XCTest and awk both localize decimal separators. Keep benchmark logs and
+# numeric parsing stable on systems that use decimal commas.
+export LC_ALL=C
+export LANG=C
+
+if [[ ! "$memory_samples" =~ ^[0-9]+$ ]]; then
+  echo "DAWG_PERF_MEMORY_SAMPLES must be a non-negative integer." >&2
+  exit 64
+fi
+
+cleanup() {
+  if [[ "$keep_tmp" == "1" ]]; then
+    echo "Keeping temporary files in $tmp_root" >&2
+  else
+    rm -rf "$tmp_root"
+  fi
+}
+trap cleanup EXIT
+
+require_commit() {
+  local ref="$1"
+  git -C "$repo_root" rev-parse --verify "$ref^{commit}" >/dev/null
+}
+
+require_dictionary_commit() {
+  local ref="$1"
+  git -C "$dictionary_repo" cat-file -e "$ref^{commit}"
+}
+
+compile_release() {
+  local module_cache_dir="$1"
+  local executable="$2"
+  shift 2
+  mkdir -p "$module_cache_dir"
+  xcrun swiftc -O -whole-module-optimization -module-cache-path "$module_cache_dir" "$@" -o "$executable"
+}
+
+write_language_model() {
+  local output_file="$1"
+
+  cat > "$output_file" <<'SWIFT'
+enum Language: String, CaseIterable, Sendable {
+    case englishGB = "en_GB_csw"
+    case englishUS = "en_US_nwl"
+    case french = "fr_ODS"
+    case polish = "pl_OSPS"
+}
+SWIFT
+}
+
+write_runner() {
+  local output_file="$1"
+
+  cat > "$output_file" <<'SWIFT'
+import Darwin
+import XCTest
+
+let suite = XCTestSuite(name: "DAWGPerformanceTests")
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadDAWGEnglishGBPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadDAWGEnglishUSPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadDAWGFrenchPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadDAWGPolishPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromDAWGEnglishGBPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromDAWGEnglishUSPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromDAWGFrenchPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromDAWGPolishPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternDAWGEnglishGBPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternDAWGEnglishUSPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternDAWGFrenchPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternDAWGPolishPerformance)))
+suite.run()
+
+exit(suite.testRun?.hasSucceeded == true ? 0 : 1)
+SWIFT
+}
+
+write_memory_probe() {
+  local output_file="$1"
+
+  cat > "$output_file" <<'SWIFT'
+import Darwin
+import Foundation
+
+private enum MemoryProbeError: Error, CustomStringConvertible {
+    case missingLanguageArgument
+    case unknownLanguage(String)
+    case footprintUnavailable(kern_return_t)
+
+    var description: String {
+        switch self {
+        case .missingLanguageArgument:
+            "Usage: DAWGMemoryProbe <language-raw-value>"
+        case let .unknownLanguage(language):
+            "Unknown language: \(language)"
+        case let .footprintUnavailable(result):
+            "task_info(TASK_VM_INFO) failed with code \(result)"
+        }
+    }
+}
+
+private func physicalFootprint() throws -> UInt64 {
+    var info = task_vm_info_data_t()
+    var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<natural_t>.size)
+    let result = withUnsafeMutablePointer(to: &info) { pointer in
+        pointer.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { rebound in
+            task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), rebound, &count)
+        }
+    }
+
+    guard result == KERN_SUCCESS else {
+        throw MemoryProbeError.footprintUnavailable(result)
+    }
+
+    return info.phys_footprint
+}
+
+@main
+private enum DAWGMemoryProbe {
+    static func main() {
+        do {
+            guard let languageName = CommandLine.arguments.dropFirst().first else {
+                throw MemoryProbeError.missingLanguageArgument
+            }
+            guard let language = Language.allCases.first(where: { $0.rawValue == languageName }) else {
+                throw MemoryProbeError.unknownLanguage(languageName)
+            }
+
+            let workingDirectory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+            let url = workingDirectory.appendingPathComponent(language.rawValue).appendingPathExtension("dawg")
+
+            let before = try physicalFootprint()
+            let dawg = try DAWG(url: url)
+            let count = dawg.count
+
+            try withExtendedLifetime(dawg) {
+                let after = try physicalFootprint()
+                let delta = Int64(after) - Int64(before)
+                print("\(language.rawValue)\t\(before)\t\(after)\t\(delta)\t\(count)")
+            }
+        } catch {
+            fputs("\(error)\n", stderr)
+            exit(1)
+        }
+    }
+}
+SWIFT
+}
+
+prepare_generated_sources() {
+  local label="$1"
+  local source_dir="$tmp_root/$label/Sources"
+  local build_dir="$tmp_root/$label/Build"
+  mkdir -p "$source_dir" "$build_dir"
+  write_language_model "$source_dir/Language.swift"
+  write_runner "$source_dir/main.swift"
+  write_memory_probe "$source_dir/MemoryProbe.swift"
+}
+
+prepare_ref_sources() {
+  local ref="$1"
+  local label="$2"
+  local source_dir="$tmp_root/$label/Sources"
+  local build_dir="$tmp_root/$label/Build"
+  local dictionary_ref
+
+  prepare_generated_sources "$label"
+
+  git -C "$repo_root" show "$ref:DAWGBuilder/DAWGFormat.swift" > "$source_dir/DAWGFormat.swift"
+  git -C "$repo_root" show "$ref:Scrabbdict/Services/DAWG.swift" > "$source_dir/DAWG.swift"
+  git -C "$repo_root" show "$ref:ScrabbdictTests/DAWG/DAWGPerformanceTests.swift" \
+    | sed '/@testable import Scrabbdict/d' \
+    > "$source_dir/DAWGPerformanceTests.swift"
+
+  dictionary_ref="$(git -C "$repo_root" rev-parse "$ref:.dictionaries")"
+  require_dictionary_commit "$dictionary_ref"
+  git -C "$dictionary_repo" archive "$dictionary_ref" DAWG | tar -x -C "$build_dir"
+  cp "$build_dir"/DAWG/*.dawg "$build_dir"/
+}
+
+prepare_current_sources() {
+  local label="$1"
+  local source_dir="$tmp_root/$label/Sources"
+  local build_dir="$tmp_root/$label/Build"
+  local dictionary_source="$dictionary_repo/DAWG"
+
+  prepare_generated_sources "$label"
+
+  cp "$repo_root/DAWGBuilder/DAWGFormat.swift" "$source_dir/DAWGFormat.swift"
+  cp "$repo_root/Scrabbdict/Services/DAWG.swift" "$source_dir/DAWG.swift"
+  sed '/@testable import Scrabbdict/d' "$repo_root/ScrabbdictTests/DAWG/DAWGPerformanceTests.swift" \
+    > "$source_dir/DAWGPerformanceTests.swift"
+
+  if [[ ! -d "$dictionary_source" ]]; then
+    dictionary_source="$repo_root/Scrabbdict/Resources/Dictionaries"
+  fi
+
+  if [[ ! -d "$dictionary_source" ]]; then
+    echo "Dictionary files not found in $dictionary_repo/DAWG or Scrabbdict/Resources/Dictionaries." >&2
+    exit 66
+  fi
+
+  cp "$dictionary_source"/*.dawg "$build_dir"/
+}
+
+run_memory_probe() {
+  local label="$1"
+  local source_dir="$tmp_root/$label/Sources"
+  local build_dir="$tmp_root/$label/Build"
+  local module_cache_dir="$tmp_root/$label/memory-module-cache"
+  local executable="$build_dir/DAWGMemoryProbe"
+  local raw_file="$tmp_root/$label/memory-raw.tsv"
+  local tsv_file="$tmp_root/$label/memory.tsv"
+  local languages=("en_GB_csw" "en_US_nwl" "fr_ODS" "pl_OSPS")
+
+  echo "Building retained-memory probe for $label..." >&2
+  compile_release "$module_cache_dir" "$executable" \
+    "$source_dir/Language.swift" \
+    "$source_dir/DAWGFormat.swift" \
+    "$source_dir/DAWG.swift" \
+    "$source_dir/MemoryProbe.swift"
+
+  : > "$raw_file"
+  : > "$tsv_file"
+
+  echo "Measuring retained DAWG footprint for $label ($memory_samples samples per language)..." >&2
+  for language in "${languages[@]}"; do
+    for ((sample = 1; sample <= memory_samples; sample += 1)); do
+      (cd "$build_dir" && "$executable" "$language") >> "$raw_file"
+    done
+
+    local deltas=()
+    while IFS= read -r delta; do
+      deltas+=("$delta")
+    done < <(awk -F '\t' -v language="$language" '$1 == language { print $4 }' "$raw_file" | sort -n)
+
+    local count="${#deltas[@]}"
+    if [[ "$count" -eq 0 ]]; then
+      echo "No memory samples collected for $label $language" >&2
+      exit 1
+    fi
+
+    local median
+    if ((count % 2 == 1)); then
+      median="${deltas[$((count / 2))]}"
+    else
+      median="$(awk -v left="${deltas[$((count / 2 - 1))]}" -v right="${deltas[$((count / 2))]}" 'BEGIN { printf "%.0f", (left + right) / 2 }')"
+    fi
+
+    printf "%s\t%s\t%s\n" "$language" "$median" "$count" >> "$tsv_file"
+  done
+}
+
+run_tests() {
+  local label="$1"
+  local source_dir="$tmp_root/$label/Sources"
+  local build_dir="$tmp_root/$label/Build"
+  local module_cache_dir="$tmp_root/$label/module-cache"
+  local executable="$build_dir/DAWGPerformanceTests"
+  local log_file="$tmp_root/$label/xctest.log"
+  local tsv_file="$tmp_root/$label/metrics.tsv"
+
+  echo "Building $label with Release optimization (-O -whole-module-optimization)..." >&2
+  compile_release "$module_cache_dir" "$executable" \
+    "${xctest_swiftc_flags[@]}" \
+    "$source_dir/Language.swift" \
+    "$source_dir/DAWGFormat.swift" \
+    "$source_dir/DAWG.swift" \
+    "$source_dir/DAWGPerformanceTests.swift" \
+    "$source_dir/main.swift"
+
+  echo "Running DAWGPerformanceTests for $label..." >&2
+  if ! (cd "$build_dir" && "$executable") > "$log_file" 2>&1; then
+    cat "$log_file" >&2
+    exit 1
+  fi
+
+  awk '
+    / measured \[/ {
+      test = $0
+      sub(/^.*DAWGPerformanceTests /, "", test)
+      sub(/\].*$/, "", test)
+
+      metric = $0
+      sub(/^.*measured \[/, "", metric)
+      sub(/\] average:.*$/, "", metric)
+
+      average = $0
+      sub(/^.* average: /, "", average)
+      sub(/,.*/, "", average)
+
+      values = $0
+      if (values ~ / values: \[/) {
+        sub(/^.* values: \[/, "", values)
+        sub(/\], performanceMetricID:.*$/, "", values)
+        count = split(values, value, /, */)
+        total = 0
+        for (i = 1; i <= count; i += 1) {
+          total += value[i]
+        }
+        if (count > 0) {
+          average = total / count
+        }
+      }
+
+      print test "\t" metric "\t" average
+    }
+  ' "$log_file" > "$tsv_file"
+}
+
+print_clock_comparison() {
+  local base_label="$1"
+  local compare_label="$2"
+  local base_tsv="$tmp_root/$base_label/metrics.tsv"
+  local compare_tsv="$tmp_root/$compare_label/metrics.tsv"
+
+  echo
+  echo "Clock Monotonic Time (ms, lower is better)"
+  awk -F '\t' -v base_label="$base_label" -v compare_label="$compare_label" '
+    BEGIN {
+      printf "%-48s %12s %12s %12s %10s\n", "Test", base_label, compare_label, "Delta", "Change"
+      printf "%-48s %12s %12s %12s %10s\n", "----", "----", "----", "-----", "------"
+    }
+    FNR == NR {
+      if ($2 == "Clock Monotonic Time, s") {
+        base[$1] = $3
+      }
+      next
+    }
+    $2 == "Clock Monotonic Time, s" && ($1 in base) {
+      base_ms = base[$1] * 1000
+      compare_ms = $3 * 1000
+      delta_ms = compare_ms - base_ms
+      if (base[$1] == 0) {
+        printf "%-48s %12.3f %12.3f %+12.3f %10s\n", $1, base_ms, compare_ms, delta_ms, "n/a"
+      } else {
+        change = (($3 / base[$1]) - 1) * 100
+        if ($3 > 0) {
+          ratios += log($3 / base[$1])
+          count += 1
+        }
+        printf "%-48s %12.3f %12.3f %+12.3f %+9.2f%%\n", $1, base_ms, compare_ms, delta_ms, change
+      }
+    }
+    END {
+      if (count > 0) {
+        geomean_change = (exp(ratios / count) - 1) * 100
+        printf "%-48s %12s %12s %12s %+9.2f%%\n", "Geomean", "", "", "", geomean_change
+      } else {
+        printf "%-48s %12s %12s %12s %10s\n", "Geomean", "", "", "", "n/a"
+      }
+    }
+  ' "$base_tsv" "$compare_tsv"
+}
+
+print_clock_metrics() {
+  local label="$1"
+  local tsv_file="$tmp_root/$label/metrics.tsv"
+
+  echo
+  echo "Clock Monotonic Time (ms, lower is better)"
+  awk -F '\t' -v label="$label" '
+    BEGIN {
+      printf "%-48s %12s\n", "Test", label
+      printf "%-48s %12s\n", "----", "----"
+    }
+    $2 == "Clock Monotonic Time, s" {
+      printf "%-48s %12.3f\n", $1, $3 * 1000
+    }
+  ' "$tsv_file"
+}
+
+print_retained_memory_comparison() {
+  local base_label="$1"
+  local compare_label="$2"
+  local base_tsv="$tmp_root/$base_label/memory.tsv"
+  local compare_tsv="$tmp_root/$compare_label/memory.tsv"
+
+  echo
+  echo "Loaded DAWG Physical Footprint Delta (MiB median, lower is better)"
+  awk -F '\t' -v base_label="$base_label" -v compare_label="$compare_label" '
+    BEGIN {
+      printf "%-16s %12s %12s %12s %10s %8s\n", "Dictionary", base_label, compare_label, "Delta", "Change", "Samples"
+      printf "%-16s %12s %12s %12s %10s %8s\n", "----------", "----", "----", "-----", "------", "-------"
+    }
+    FNR == NR {
+      base[$1] = $2
+      baseSamples[$1] = $3
+      next
+    }
+    $1 in base {
+      baseMiB = base[$1] / 1024 / 1024
+      compareMiB = $2 / 1024 / 1024
+      deltaMiB = compareMiB - baseMiB
+      samples = baseSamples[$1] "/" $3
+      if (base[$1] == 0) {
+        printf "%-16s %12.3f %12.3f %+12.3f %10s %8s\n", $1, baseMiB, compareMiB, deltaMiB, "n/a", samples
+      } else {
+        change = (($2 / base[$1]) - 1) * 100
+        printf "%-16s %12.3f %12.3f %+12.3f %+9.2f%% %8s\n", $1, baseMiB, compareMiB, deltaMiB, change, samples
+      }
+    }
+  ' "$base_tsv" "$compare_tsv"
+}
+
+print_retained_memory_metrics() {
+  local label="$1"
+  local tsv_file="$tmp_root/$label/memory.tsv"
+
+  echo
+  echo "Loaded DAWG Physical Footprint Delta (MiB median, lower is better)"
+  awk -F '\t' -v label="$label" '
+    BEGIN {
+      printf "%-16s %12s %8s\n", "Dictionary", label, "Samples"
+      printf "%-16s %12s %8s\n", "----------", "----", "-------"
+    }
+    {
+      printf "%-16s %12.3f %8s\n", $1, $2 / 1024 / 1024, $3
+    }
+  ' "$tsv_file"
+}
+
+if [[ ! -d "$xctest_framework_dir" ]]; then
+  echo "XCTest framework directory not found: $xctest_framework_dir" >&2
+  exit 69
+fi
+
+if [[ ! -d "$xctest_private_framework_dir" ]]; then
+  echo "XCTest private framework directory not found: $xctest_private_framework_dir" >&2
+  exit 69
+fi
+
+if [[ ! -d "$xctest_swift_module_dir" ]]; then
+  echo "XCTest Swift module directory not found: $xctest_swift_module_dir" >&2
+  exit 69
+fi
+
+if [[ "$mode" == "comparison" ]]; then
+  if ! git -C "$dictionary_repo" rev-parse --git-dir >/dev/null 2>&1; then
+    echo "Dictionary repository is not initialized: $dictionary_repo" >&2
+    echo "Initialize .dictionaries first; this script does not fetch from the network." >&2
+    exit 66
+  fi
+
+  require_commit "$base_ref"
+  require_commit "$compare_ref"
+
+  echo "DAWGPerformanceTests comparison" >&2
+  echo "Base:    $base_ref" >&2
+  echo "Compare: $compare_ref" >&2
+
+  prepare_ref_sources "$base_ref" "base"
+  prepare_ref_sources "$compare_ref" "compare"
+  run_tests "base"
+  run_tests "compare"
+  if [[ "$memory_samples" -gt 0 ]]; then
+    run_memory_probe "base"
+    run_memory_probe "compare"
+  fi
+
+  echo
+  echo "DAWGPerformanceTests comparison"
+  echo "Base:    $base_ref"
+  echo "Compare: $compare_ref"
+  echo "Build:   swiftc -O -whole-module-optimization"
+
+  print_clock_comparison "base" "compare"
+  if [[ "$memory_samples" -gt 0 ]]; then
+    print_retained_memory_comparison "base" "compare"
+  else
+    echo
+    echo "Retained-memory probe skipped because DAWG_PERF_MEMORY_SAMPLES=0."
+  fi
+else
+  echo "DAWGPerformanceTests current checkout" >&2
+
+  prepare_current_sources "current"
+  run_tests "current"
+  if [[ "$memory_samples" -gt 0 ]]; then
+    run_memory_probe "current"
+  fi
+
+  echo
+  echo "DAWGPerformanceTests current checkout"
+  echo "Build: swiftc -O -whole-module-optimization"
+
+  print_clock_metrics "current"
+  if [[ "$memory_samples" -gt 0 ]]; then
+    print_retained_memory_metrics "current"
+  else
+    echo
+    echo "Retained-memory probe skipped because DAWG_PERF_MEMORY_SAMPLES=0."
+  fi
+fi

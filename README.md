@@ -155,19 +155,19 @@ The generator in `DAWGBuilder/` works broadly like this:
 5. Write a compact little-endian binary file with:
    - a header containing magic/version/counts,
    - a small alphabet table,
-   - a node table,
    - an edge table.
 
 The app loads generated `.dawg` files with memory-mapped `Data` when possible. Validation walks graph edges for an exact word. Tile search performs a depth-first traversal while consuming available letters. Pattern search treats `?` as a single-character wildcard.
 
-At a high level, the DAWG v3 binary layout is:
+At a high level, the DAWG v4 binary layout is:
 
-- header: magic, version, word count, node count, edge count, and alphabet count,
+- header: magic, version, word count, edge count, and alphabet count,
 - alphabet table: the distinct `UInt16` Unicode scalar values used by edge labels,
-- node table: each node stores `firstEdge` as `UInt32` and a packed `UInt16` edge count, with the high bit reserved as the word-terminating flag,
-- edge table: each edge stores a `UInt8` alphabet index and a 24-bit little-endian target node index.
+- edge table: each edge is a packed little-endian `UInt32` storing a 22-bit target (the first-edge index of the child node, `0` meaning no children), a word-terminating flag, a last-edge-of-node flag, and an 8-bit alphabet index.
 
-The binary format is defined in `DAWGBuilder/DAWGBuilder.swift` and read by `Scrabbdict/Services/DAWG.swift`.
+There is no separate node table: a node is identified by the index of its first outgoing edge, and the root's edges start at index `0`.
+
+The binary format is defined in `DAWGBuilder/DAWGFormat.swift`, written by `DAWGBuilder/DAWGBuilder.swift`, and read by `Scrabbdict/Services/DAWG.swift`.
 
 ## Regenerating Dictionaries
 
@@ -206,6 +206,18 @@ and produces:
 
 ```text
 Scrabbdict/Resources/Dictionaries/pl_OSPS.dawg
+```
+
+To measure DAWG loading, search performance, and retained memory without resolving the full app package graph, run:
+
+```sh
+Scripts/dawg-performance
+```
+
+You can also compare two repository commits and their matching dictionary submodule commits:
+
+```sh
+Scripts/dawg-performance <base-ref> <compare-ref>
 ```
 
 ## Supported Dictionaries
