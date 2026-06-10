@@ -61,11 +61,11 @@ Resolved Swift packages:
 - swift-clocks 1.1.0
 - swift-concurrency-extras 1.4.0
 - swift-custom-dump 1.6.0
-- swift-dependencies 1.13.0
+- swift-dependencies 1.13.1
 - swift-identified-collections 1.1.1
 - swift-navigation 2.8.0
 - swift-perception 2.0.10
-- swift-sharing 2.8.1
+- swift-sharing 2.8.2
 - swift-snapshot-testing 1.19.2
 - xctest-dynamic-overlay 1.10.0
 
