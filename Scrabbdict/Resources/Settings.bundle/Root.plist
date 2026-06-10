@@ -37,11 +37,11 @@ Resolved Swift packages:
 - googleutilities 8.1.0
 - gtm-session-fetcher 5.3.0
 - interop-ios-for-google-sdks 101.0.0
-- promises 2.4.0
+- promises 2.4.1
 - abseil-cpp-binary 1.2024072200.0
 - grpc-binary 1.69.1
 - leveldb 1.22.5
-- nanopb 2.30910.0
+- nanopb 2.30910.1
 
 Primary source: https://github.com/firebase/firebase-ios-sdk
 Third-party package licenses are provided by their upstream repositories.</string>
@@ -55,18 +55,19 @@ Third-party package licenses are provided by their upstream repositories.</strin
 			<string>Product used directly: ComposableArchitecture.
 
 Resolved Swift packages:
-- swift-composable-architecture 1.25.5 (MIT License)
+- swift-composable-architecture 1.26.0 (MIT License)
 - combine-schedulers 1.2.0
 - swift-case-paths 1.7.3
-- swift-clocks 1.0.6
+- swift-clocks 1.1.0
 - swift-concurrency-extras 1.4.0
 - swift-custom-dump 1.6.0
 - swift-dependencies 1.13.0
 - swift-identified-collections 1.1.1
 - swift-navigation 2.8.0
 - swift-perception 2.0.10
-- swift-sharing 2.8.0
-- xctest-dynamic-overlay 1.9.0
+- swift-sharing 2.8.1
+- swift-snapshot-testing 1.19.2
+- xctest-dynamic-overlay 1.10.0
 
 Copyright (c) Point-Free, Inc.
 Primary source: https://github.com/pointfreeco/swift-composable-architecture
@@ -79,8 +80,8 @@ Third-party package licenses are provided by their upstream repositories.</strin
 		<dict>
 			<key>FooterText</key>
 			<string>Resolved Swift packages:
-- swift-collections 1.5.1 (Apache License 2.0)
-- swift-syntax 603.0.1 (Apache License 2.0)
+- swift-collections 1.6.0 (Apache License 2.0)
+- swift-syntax 603.0.2 (Apache License 2.0)
 
 Sources:
 https://github.com/apple/swift-collections
