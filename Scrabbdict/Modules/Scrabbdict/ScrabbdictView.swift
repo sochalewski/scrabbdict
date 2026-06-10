@@ -40,7 +40,7 @@ struct ScrabbdictView: View {
                         .presentationDetents(horizontalSizeClass == .regular ? [.large] : [.medium, .large])
                 }
         }
-        .tint(Color.brandAccent)
+        .tint(.brandAccent)
     }
 }
 
@@ -63,9 +63,9 @@ private extension ScrabbdictView {
         ToolbarItem(placement: .principal) {
             HStack(spacing: 0) {
                 Text(verbatim: "Scrabb")
-                    .foregroundStyle(Color.primary)
+                    .foregroundStyle(.primary)
                 Text(verbatim: "dict")
-                    .foregroundStyle(Color.brandAccent)
+                    .foregroundStyle(.brandAccent)
             }
             .font(.title2.weight(.bold))
             .lineLimit(1)
@@ -79,7 +79,7 @@ private extension ScrabbdictView {
             ZStack {
                 ScrabbleTableBackground()
 
-                VStack(spacing: 32) {
+                VStack(spacing: 0) {
                     SearchBarView(
                         text: $store.query,
                         searchMode: $store.searchMode,
@@ -91,15 +91,21 @@ private extension ScrabbdictView {
                         onSearch: { send(.searchButtonTapped) },
                         searchModePickerAvailableHeight: proxy.size.height
                     )
-                    .dynamicTypeSize(...DynamicTypeSize.accessibility2)
+                    .dynamicTypeSize(...(horizontalSizeClass == .regular ? .accessibility3 : .accessibility2))
+                    .padding(.horizontal, contentHorizontalPadding)
+                    .frame(maxWidth: contentMaxWidth)
                     .zIndex(1)
 
                     resultArea
                         .animation(.easeOut(duration: 0.12), value: store.search)
+                        .transition(.opacity)
+                        .resultContentLayout(
+                            maxWidth: contentMaxWidth,
+                            horizontalPadding: contentHorizontalPadding
+                        )
                         .zIndex(0)
                 }
-                .padding(.horizontal, 26)
-                .frame(maxWidth: contentMaxWidth, maxHeight: .infinity, alignment: .top)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -111,12 +117,12 @@ private extension ScrabbdictView {
         Button {
             send(.settingsButtonTapped)
         } label: {
-            Image("Settings")
+            Image(.settings)
                 .renderingMode(.template)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 24, height: 24)
-                .foregroundStyle(Color.brandAccent)
+                .foregroundStyle(.brandAccent)
         }
         .accessibilityLabel(.settingsTitle)
     }
@@ -124,44 +130,90 @@ private extension ScrabbdictView {
     @ViewBuilder
     var resultArea: some View {
         if let searchSkeletonVariant = store.search {
-            SearchSkeletonView(variant: searchSkeletonVariant)
-                .transition(.opacity)
+            searchSkeleton(for: searchSkeletonVariant)
+                .scrollDisabled(true)
         } else if let result = store.result {
-            resultCardArea(result: result)
-                .transition(.opacity)
+            scrollArea {
+                ResultCardStackView(
+                    result: result,
+                    showsRackWordsButton: store.showsRackWordsButton,
+                    rackWordsAction: { send(.rackWordsButtonTapped) }
+                )
+            }
+        } else if let result = store.emptyResult {
+            scrollArea {
+                EmptySearchResultView(result: result)
+            }
         } else if !store.words.isEmpty {
-            WordsListView(words: store.words)
-                .transition(.opacity)
-        } else if let emptyResult = store.emptyResult {
-            EmptySearchResultView(result: emptyResult)
-                .transition(.opacity)
+            listArea {
+                WordsListView(words: store.words)
+            }
         } else {
             Spacer(minLength: 0)
         }
     }
 
-    func resultCardArea(result: ValidatorResult) -> some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 24) {
-                ResultCardView(result: result)
+    var scrollMask: some View {
+        VStack(spacing: 0) {
+            LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .black, location: 1)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: resultTopSpacing)
 
-                if store.showsRackWordsButton {
-                    rackWordsButton
-                }
+            Rectangle()
+                .fill(.black)
+        }
+        .ignoresSafeArea(edges: .all)
+    }
+
+    @ViewBuilder
+    func searchSkeleton(for variant: SearchSkeletonView.Variant) -> some View {
+        switch variant {
+        case .result:
+            scrollArea {
+                SearchSkeletonView(variant: variant)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.bottom, 24)
+        case .words:
+            listArea {
+                SearchSkeletonView(variant: variant)
+            }
+        }
+    }
+
+    func listArea(@ViewBuilder content: () -> some View) -> some View {
+        content()
+            .contentMargins(.top, resultTopSpacing, for: .scrollContent)
+            .maskedScrollArea(scrollMask)
+    }
+
+    func scrollArea(@ViewBuilder content: () -> some View) -> some View {
+        ScrollView(.vertical) {
+            content()
+                .padding(.top, resultTopSpacing)
+                .padding(.horizontal, contentHorizontalPadding)
+                .frame(maxWidth: contentMaxWidth)
+                .frame(maxWidth: .infinity)
         }
         .scrollBounceBehavior(.basedOnSize)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    }
-
-    var rackWordsButton: some View {
-        RackWordsButton {
-            send(.rackWordsButtonTapped)
-        }
+        .maskedScrollArea(scrollMask)
     }
 }
+
+private extension View {
+    func maskedScrollArea(_ mask: some View) -> some View {
+        scrollClipDisabled()
+            .mask(mask)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+}
+
+private let contentHorizontalPadding: CGFloat = 26
+private let resultTopSpacing: CGFloat = 32
 
 #Preview {
     ScrabbdictView(

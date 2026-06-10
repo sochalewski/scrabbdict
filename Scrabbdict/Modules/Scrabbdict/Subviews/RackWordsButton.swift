@@ -15,12 +15,13 @@ struct RackWordsButton: View {
                 .font(.callout.weight(.semibold))
                 .foregroundStyle(.white)
                 .padding(14)
-                .frame(maxWidth: 268)
-                .background(Color.brandAccent)
+                .frame(maxWidth: .infinity)
+                .background(.brandAccent)
                 .clipShape(.capsule)
         }
         .buttonStyle(.plain)
-        .shadow(color: Color.appShadow, radius: 10, x: 0, y: 5)
+        .frame(maxWidth: .infinity)
+        .shadow(color: .appShadow, radius: 10, x: 0, y: 5)
     }
 }
 

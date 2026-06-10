@@ -19,13 +19,13 @@ struct SearchModePickerView: View {
         .frame(maxHeight: maxHeight)
         .fixedSize(horizontal: false, vertical: true)
         .scrollBounceBehavior(.basedOnSize)
-        .background(Color.settingsBackground, in: .rect(cornerRadius: 12))
+        .background(.settingsBackground, in: .rect(cornerRadius: 12))
         .clipShape(.rect(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.surfaceStroke, lineWidth: 1)
+                .stroke(.surfaceStroke, lineWidth: 1)
         )
-        .shadow(color: Color.appShadow.opacity(0.7), radius: 10, x: 0, y: 4)
+        .shadow(color: .appShadow.opacity(0.7), radius: 10, x: 0, y: 4)
     }
 
     private var options: some View {
@@ -44,7 +44,7 @@ struct SearchModePickerView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(mode.title)
                         .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Color.primaryInk)
+                        .foregroundStyle(.primaryInk)
 
                     SearchModeDescriptionText(mode: mode)
                 }
@@ -58,7 +58,7 @@ struct SearchModePickerView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
             .background(
-                searchMode == mode ? Color.brandAccent.opacity(0.08) : Color.clear,
+                searchMode == mode ? .brandAccent.opacity(0.08) : .clear,
                 in: .rect(cornerRadius: 8)
             )
         }
@@ -71,15 +71,15 @@ struct SearchModePickerView: View {
     private func searchModeSelectionIcon(_ mode: SearchMode) -> some View {
         Image(systemName: searchMode == mode ? "checkmark.circle.fill" : "circle")
             .font(.headline.weight(.semibold))
-            .foregroundStyle(searchMode == mode ? Color.brandAccent : Color.secondaryText.opacity(0.45))
+            .foregroundStyle(searchMode == mode ? .brandAccent : .secondaryText.opacity(0.45))
             .accessibilityHidden(true)
     }
 }
 
 private struct SearchModeDescriptionText: View {
-    @Environment(\.locale) var locale
-
     let mode: SearchMode
+
+    @Environment(\.locale) var locale
 
     private var localizedBundle: Bundle {
         Bundle.localizationBundle(for: locale)
@@ -112,7 +112,7 @@ private struct SearchModeDescriptionText: View {
             }
         }
         .font(.caption.weight(.medium))
-        .foregroundStyle(Color.secondaryText)
+        .foregroundStyle(.secondaryText)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: text))
     }
@@ -225,8 +225,8 @@ private struct WildcardTile: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.TableBackground.tileTop,
-                                Color.TableBackground.tileBottom
+                                .TableBackground.tileTop,
+                                .TableBackground.tileBottom
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -237,7 +237,7 @@ private struct WildcardTile: View {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(Color.TableBackground.tileStroke, lineWidth: 0.8)
             }
-            .shadow(color: Color.TableBackground.tileShadow, radius: 1, x: 0.4, y: 0.8)
+            .shadow(color: .TableBackground.tileShadow, radius: 1, x: 0.4, y: 0.8)
             .accessibilityHidden(true)
     }
 }

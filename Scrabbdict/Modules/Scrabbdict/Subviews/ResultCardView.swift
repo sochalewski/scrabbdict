@@ -8,9 +8,11 @@ import Foundation
 import SwiftUI
 
 struct ResultCardView: View {
-    @Environment(\.locale) var locale
+    static let defaultWidth: CGFloat = 268
 
     let result: ValidatorResult
+
+    @Environment(\.locale) var locale
 
     private var resultTitle: LocalizedStringResource {
         switch result {
@@ -23,13 +25,6 @@ struct ResultCardView: View {
         switch result {
         case .valid: .resultGreen
         case .invalid: .resultRed
-        }
-    }
-
-    private var resultVerticalPadding: CGFloat {
-        switch result {
-        case .valid: 20
-        case .invalid: 16
         }
     }
 
@@ -46,7 +41,7 @@ struct ResultCardView: View {
         VStack(spacing: 0) {
             Text(.resultCaption)
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Color.resultCaption)
+                .foregroundStyle(.resultCaption)
 
             Text(resultTitle)
                 .font(.title.weight(.black))
@@ -55,29 +50,28 @@ struct ResultCardView: View {
             if case let .valid(points) = result {
                 Divider()
                     .frame(height: 1)
-                    .overlay(Color.divider)
-                    .padding(.horizontal, 16)
+                    .overlay(.divider)
                     .padding(.vertical, 12)
 
                 Text(verbatim: "\(points)")
                     .font(.title.weight(.black))
-                    .foregroundStyle(Color.resultBlue)
+                    .foregroundStyle(.resultBlue)
 
                 Text(verbatim: localizedPointNoun(for: points))
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.resultCaption)
+                    .foregroundStyle(.resultCaption)
             }
         }
         .multilineTextAlignment(.center)
-        .padding(.vertical, resultVerticalPadding)
-        .padding(.horizontal, 16)
-        .frame(width: 268)
-        .background(Color.elevatedSurface, in: .rect(cornerRadius: 18))
+        .padding(.vertical, 20)
+        .padding(.horizontal, 32)
+        .frame(minWidth: Self.defaultWidth, maxWidth: .infinity)
+        .background(.elevatedSurface, in: .rect(cornerRadius: 18))
         .overlay(
             RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.surfaceStroke, lineWidth: 1)
+                .stroke(.surfaceStroke, lineWidth: 1)
         )
-        .shadow(color: Color.appShadow, radius: 17, x: 0, y: 14)
+        .shadow(color: .appShadow, radius: 17, x: 0, y: 14)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
     }

@@ -29,19 +29,19 @@ struct SettingsView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     if #available(iOS 26, *) {
                         Button(role: .cancel) { send(.cancelButtonTapped) }
-                            .foregroundStyle(Color.settingsAccent)
+                            .foregroundStyle(.settingsAccent)
                     } else {
                         Button(.settingsCancel) { send(.cancelButtonTapped) }
-                            .foregroundStyle(Color.settingsAccent)
+                            .foregroundStyle(.settingsAccent)
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     if #available(iOS 26, *) {
                         Button(role: .confirm) { send(.saveButtonTapped) }
-                            .foregroundStyle(Color.settingsAccent)
+                            .foregroundStyle(.settingsAccent)
                     } else {
                         Button(.settingsSave) { send(.saveButtonTapped) }
-                            .foregroundStyle(Color.settingsAccent)
+                            .foregroundStyle(.settingsAccent)
                             .fontWeight(.semibold)
                     }
                 }
@@ -50,7 +50,7 @@ struct SettingsView: View {
                 send(.loaded)
             }
         }
-        .tint(Color.settingsAccent)
+        .tint(.settingsAccent)
     }
 }
 
@@ -59,7 +59,7 @@ private extension SettingsView {
         VStack(alignment: .leading, spacing: 16) {
             Text(.settingsDictionary)
                 .font(.headline.weight(.bold))
-                .foregroundStyle(Color.settingsText)
+                .foregroundStyle(.settingsText)
 
             VStack(spacing: 0) {
                 ForEach(Language.allCases, id: \.self) { language in
@@ -71,12 +71,12 @@ private extension SettingsView {
                         HStack {
                             Text(language.name)
                                 .font(.callout.weight(.semibold))
-                                .foregroundStyle(Color.settingsText)
+                                .foregroundStyle(.settingsText)
                             Spacer()
                             if isSelected {
                                 Image(systemName: "checkmark")
                                     .font(.footnote.weight(.semibold))
-                                    .foregroundStyle(Color.settingsAccent)
+                                    .foregroundStyle(.settingsAccent)
                             }
                         }
                         .padding(.horizontal, 16)
@@ -91,7 +91,7 @@ private extension SettingsView {
                         .overlay(alignment: .bottom) {
                             if language != Language.allCases.last {
                                 Rectangle()
-                                    .fill(Color.divider)
+                                    .fill(.divider)
                                     .frame(height: 1)
                                     .padding(.horizontal, 16)
                             }
@@ -107,7 +107,7 @@ private extension SettingsView {
             .clipShape(.rect(cornerRadius: 14))
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.surfaceStroke, lineWidth: 1)
+                    .stroke(.surfaceStroke, lineWidth: 1)
             )
 
             ZStack(alignment: .topLeading) {
@@ -120,7 +120,7 @@ private extension SettingsView {
                             + Text(language.wordCount, format: .number)
                     )
                     .font(.callout.weight(.medium))
-                    .foregroundStyle(Color.settingsText.opacity(0.82))
+                    .foregroundStyle(.settingsText.opacity(0.82))
                     .fixedSize(horizontal: false, vertical: true)
                     .opacity(store.selectedLanguage == language ? 1 : 0)
                     .accessibilityHidden(store.selectedLanguage != language)

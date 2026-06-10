@@ -30,11 +30,10 @@ struct SearchSkeletonView: View {
     var body: some View {
         VStack(spacing: 24) {
             if case let .result(showsRackWordsButton) = variant {
-                ResultCardView(result: .valid(points: 12))
-
-                if showsRackWordsButton {
-                    RackWordsButton(action: {})
-                }
+                ResultCardStackView(
+                    result: .valid(points: 12),
+                    showsRackWordsButton: showsRackWordsButton
+                )
             }
 
             if variant == .words {

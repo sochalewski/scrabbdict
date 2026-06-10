@@ -53,10 +53,10 @@ private struct ScrabbdictRootView: View {
                 .overlay(alignment: .topLeading) {
                     Text(verbatim: .init(describing: dynamicTypeSize))
                         .font(.system(size: 12).monospaced())
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(.white)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.black.opacity(0.72), in: .capsule)
+                        .background(.black.opacity(0.72), in: .capsule)
                         .padding(12)
                         .opacity(dynamicTypeSize == .large ? 0 : 1)
                         .allowsHitTesting(false)

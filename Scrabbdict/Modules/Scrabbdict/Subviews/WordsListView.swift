@@ -9,32 +9,68 @@ import SwiftUI
 struct WordsListView: View {
     let words: [Word]
 
+    @Environment(\.resultContentLayout) var resultContentLayout
     @ScaledMetric(relativeTo: .footnote) var pointsHorizontalPadding: CGFloat = 9
     @ScaledMetric(relativeTo: .footnote) var pointsVerticalPadding: CGFloat = 3
 
     var body: some View {
-        List(words, id: \.string) { word in
-            HStack(spacing: 0) {
-                Text(verbatim: word.string)
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(Color.primaryInk)
-
-                Spacer(minLength: 16)
-
-                Text(verbatim: "\(word.points)")
-                    .font(.footnote.weight(.bold).monospaced())
-                    .foregroundStyle(Color.brandAccent)
-                    .padding(.horizontal, pointsHorizontalPadding)
-                    .padding(.vertical, pointsVerticalPadding)
-                    .background(Color.brandAccent.opacity(0.12), in: .capsule)
+        List {
+            ForEach(Array(words.enumerated()), id: \.element.string) { index, word in
+                listRow(for: word, isFirst: index == 0)
             }
-            .listRowBackground(Color.clear)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(verbatim: word.string) + Text(verbatim: ", ") + Text(.wordAccessibilityPoints(word.points)))
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    func listRow(for word: Word, isFirst: Bool) -> some View {
+        let row = rowContent(for: word)
+            .padding(.horizontal, resultContentLayout.horizontalPadding)
+            .frame(maxWidth: resultContentLayout.maxWidth)
+            .frame(maxWidth: .infinity)
+            .alignmentGuide(.listRowSeparatorLeading) { dimensions in
+                listRowSeparatorHorizontalInset(for: dimensions.width)
+            }
+            .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                dimensions.width - listRowSeparatorHorizontalInset(for: dimensions.width)
+            }
+            .listRowBackground(Color.clear)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(verbatim: word.string) + Text(verbatim: ", ") + Text(.wordAccessibilityPoints(word.points)))
+
+        if isFirst {
+            row.listRowSeparator(.hidden, edges: .top)
+        } else {
+            row
+        }
+    }
+
+    func rowContent(for word: Word) -> some View {
+        HStack(spacing: 0) {
+            Text(verbatim: word.string)
+                .font(.body.weight(.semibold))
+                .foregroundStyle(.primaryInk)
+
+            Spacer(minLength: 16)
+
+            Text(verbatim: "\(word.points)")
+                .font(.footnote.weight(.bold).monospaced())
+                .foregroundStyle(.brandAccent)
+                .padding(.horizontal, pointsHorizontalPadding)
+                .padding(.vertical, pointsVerticalPadding)
+                .background(.brandAccent.opacity(0.12), in: .capsule)
+        }
+    }
+
+    func listRowSeparatorHorizontalInset(for rowWidth: CGFloat) -> CGFloat {
+        guard resultContentLayout.maxWidth.isFinite else {
+            return resultContentLayout.horizontalPadding
+        }
+
+        let constrainedWidth = min(rowWidth, resultContentLayout.maxWidth)
+        return ((rowWidth - constrainedWidth) / 2) + resultContentLayout.horizontalPadding
     }
 }
 
@@ -47,4 +83,29 @@ struct WordsListView: View {
             Word(string: "retina", points: 6)
         ]
     )
+}
+
+struct ResultContentLayout {
+    var maxWidth: CGFloat = .infinity
+    var horizontalPadding: CGFloat = 0
+}
+
+private struct ResultContentLayoutKey: EnvironmentKey {
+    static let defaultValue = ResultContentLayout()
+}
+
+extension EnvironmentValues {
+    var resultContentLayout: ResultContentLayout {
+        get { self[ResultContentLayoutKey.self] }
+        set { self[ResultContentLayoutKey.self] = newValue }
+    }
+}
+
+extension View {
+    func resultContentLayout(maxWidth: CGFloat, horizontalPadding: CGFloat) -> some View {
+        environment(
+            \.resultContentLayout,
+            ResultContentLayout(maxWidth: maxWidth, horizontalPadding: horizontalPadding)
+        )
+    }
 }

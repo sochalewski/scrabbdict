@@ -13,16 +13,16 @@ struct EmptySearchResultView: View {
         VStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
                 .font(.title.weight(.semibold))
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(.secondaryText)
                 .frame(width: 44, height: 44)
 
             Text(result.title)
                 .font(.headline.weight(.semibold))
-                .foregroundStyle(Color.primaryInk)
+                .foregroundStyle(.primaryInk)
 
             Text(result.message)
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(.secondaryText)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .multilineTextAlignment(.center)

@@ -50,13 +50,13 @@ struct SearchBarView: View {
         }
         .padding(.horizontal, (searchFieldHeight - actionButtonSize) / 2)
         .frame(height: searchFieldHeight)
-        .background(Color.surface)
+        .background(.surface)
         .clipShape(Capsule(style: .circular))
         .overlay(
             Capsule(style: .circular)
-                .stroke(Color.surfaceStroke, lineWidth: 1)
+                .stroke(.surfaceStroke, lineWidth: 1)
         )
-        .shadow(color: Color.appShadow, radius: 18, x: 0, y: 8)
+        .shadow(color: .appShadow, radius: 18, x: 0, y: 8)
     }
 
     private var searchModePicker: some View {
@@ -81,8 +81,8 @@ struct SearchBarView: View {
         }
         .font(.title2.weight(.medium))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .foregroundStyle(Color.primaryInk)
-        .tint(Color.brandAccent)
+        .foregroundStyle(.primaryInk)
+        .tint(.brandAccent)
         .multilineTextAlignment(.center)
         .textInputAutocapitalization(.never)
         .autocorrectionDisabled(true)
@@ -111,7 +111,7 @@ struct SearchBarView: View {
         Button(action: onClear) {
             Image(systemName: "xmark.circle.fill")
                 .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Color.secondaryText)
+                .foregroundStyle(.secondaryText)
                 .frame(width: clearButtonSize)
                 .frame(maxHeight: .infinity)
                 .contentShape(.rect)
@@ -124,9 +124,9 @@ struct SearchBarView: View {
         Button(action: onSearchModePickerTapped) {
             Image(systemName: "chevron.down")
                 .font(.subheadline.weight(.bold))
-                .foregroundStyle(Color.brandAccent)
+                .foregroundStyle(.brandAccent)
                 .frame(width: actionButtonSize, height: actionButtonSize)
-                .background(Color.brandAccent.opacity(0.12), in: .circle)
+                .background(.brandAccent.opacity(0.12), in: .circle)
                 .rotationEffect(.degrees(isSearchModePickerExpanded ? 180 : 0))
         }
         .buttonStyle(.plain)
@@ -138,13 +138,13 @@ struct SearchBarView: View {
         Button(action: onSearch) {
             Image(systemName: "magnifyingglass")
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(.white)
                 .frame(width: actionButtonSize, height: actionButtonSize)
-                .background(Color.brandAccent, in: .circle)
+                .background(.brandAccent, in: .circle)
         }
         .buttonStyle(.plain)
         .disabled(text.isEmpty)
-        .shadow(color: Color.appShadow, radius: 8, x: 0, y: 3)
+        .shadow(color: .appShadow, radius: 8, x: 0, y: 3)
         .accessibilityLabel(.searchButtonAccessibilityLabel)
     }
 }

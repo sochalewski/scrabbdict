@@ -43,8 +43,8 @@ struct ScrabbleTableBackground: View {
                         ScrabbleBackgroundTile(letter: "A", points: 1, column: 0, row: 3)
                     ],
                     bonuses: [
-                        ScrabbleBackgroundBonus(column: 2, row: 1, color: Color.TableBackground.bonusBlue),
-                        ScrabbleBackgroundBonus(column: 1, row: 4, color: Color.TableBackground.bonusRed)
+                        ScrabbleBackgroundBonus(column: 2, row: 1, color: .TableBackground.bonusBlue),
+                        ScrabbleBackgroundBonus(column: 1, row: 4, color: .TableBackground.bonusRed)
                     ],
                     gridFade: .topLeading
                 )
@@ -61,8 +61,8 @@ struct ScrabbleTableBackground: View {
                         ScrabbleBackgroundTile(letter: "L", points: 1, column: 4, row: 4)
                     ],
                     bonuses: [
-                        ScrabbleBackgroundBonus(column: 4, row: 3, color: Color.TableBackground.bonusRed),
-                        ScrabbleBackgroundBonus(column: 5, row: 2, color: Color.TableBackground.bonusBlue)
+                        ScrabbleBackgroundBonus(column: 4, row: 3, color: .TableBackground.bonusRed),
+                        ScrabbleBackgroundBonus(column: 5, row: 2, color: .TableBackground.bonusBlue)
                     ],
                     gridFade: .bottomTrailing
                 )
@@ -84,9 +84,9 @@ struct ScrabbleTableBackground: View {
         ZStack {
             LinearGradient(
                 colors: [
-                    Color.TableBackground.tableBackgroundTop,
-                    Color.TableBackground.tableBackgroundMiddle,
-                    Color.TableBackground.tableBackgroundBottom
+                    .TableBackground.tableBackgroundTop,
+                    .TableBackground.tableBackgroundMiddle,
+                    .TableBackground.tableBackgroundBottom
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -94,7 +94,7 @@ struct ScrabbleTableBackground: View {
 
             RadialGradient(
                 colors: [
-                    Color.TableBackground.tableHighlight,
+                    .TableBackground.tableHighlight,
                     .clear
                 ],
                 center: .center,
@@ -107,8 +107,8 @@ struct ScrabbleTableBackground: View {
     private var centerVeil: some View {
         RadialGradient(
             colors: [
-                Color.TableBackground.tableVeil,
-                Color.TableBackground.tableVeilSecondary,
+                .TableBackground.tableVeil,
+                .TableBackground.tableVeilSecondary,
                 .clear
             ],
             center: .center,
@@ -219,8 +219,8 @@ private struct ScrabbleBackgroundLetterTile: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.TableBackground.tileTop,
-                                Color.TableBackground.tileBottom
+                                .TableBackground.tileTop,
+                                .TableBackground.tileBottom
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -239,8 +239,8 @@ private struct ScrabbleBackgroundLetterTile: View {
                     .strokeBorder(
                         LinearGradient(
                             colors: [
-                                Color.TableBackground.tileHighlight,
-                                Color.TableBackground.tileBevelBottom
+                                .TableBackground.tileHighlight,
+                                .TableBackground.tileBevelBottom
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -261,13 +261,13 @@ private struct ScrabbleBackgroundLetterTile: View {
                     .padding(proxy.size.width * 0.10)
             }
             .shadow(
-                color: Color.TableBackground.tileShadow,
+                color: .TableBackground.tileShadow,
                 radius: 1.5,
                 x: 0.5,
                 y: 1.0
             )
             .shadow(
-                color: Color.TableBackground.tileElevatedShadow,
+                color: .TableBackground.tileElevatedShadow,
                 radius: 7.0,
                 x: 1.5,
                 y: 3.5
