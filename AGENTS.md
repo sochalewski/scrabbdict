@@ -1,5 +1,6 @@
 Follow the existing SwiftUI and Composable Architecture patterns in this project before introducing new structure or abstractions.
 For Composable Architecture code, prefer macro-based APIs over protocol conformances, for example `@Reducer` instead of `Reducer`.
+For Composable Architecture store scoping, prefer `scope(_:action:)` and `Scope(_:action:)` over the labeled `scope(state:action:)` and `Scope(state:action:)` forms.
 
 Keep user-facing text localizable. Prefer the existing `LocalizedStringResource` and `Text` localization patterns over hardcoded display strings.
 

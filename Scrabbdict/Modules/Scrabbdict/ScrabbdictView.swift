@@ -35,7 +35,7 @@ struct ScrabbdictView: View {
                         dismissButton: .default(Text(.alertOk))
                     )
                 }
-                .sheet(item: $store.scope(state: \.destination?.settings, action: \.destination.settings)) { settingsStore in
+                .sheet(item: $store.scope(\.destination?.settings, action: \.destination.settings)) { settingsStore in
                     SettingsView(store: settingsStore)
                         .presentationDetents(horizontalSizeClass == .regular ? [.large] : [.medium, .large])
                 }
