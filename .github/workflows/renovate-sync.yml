@@ -1,0 +1,57 @@
+name: Renovate Sync
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: renovate-sync-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  package-resolution:
+    name: Refresh Swift package artifacts
+    if: >-
+      github.actor == 'renovate[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: macos-26
+
+    steps:
+      - name: Check out pull request branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project Scrabbdict.xcodeproj \
+            -scheme Scrabbdict
+
+      - name: Update package notices
+        run: ruby .github/workflows/update-package-notices.rb
+
+      - name: Commit refreshed package artifacts
+        run: |
+          if git diff --quiet -- \
+            Scrabbdict.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved \
+            Scrabbdict/Resources/Settings.bundle/Root.plist; then
+            echo "No package artifact changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            Scrabbdict.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved \
+            Scrabbdict/Resources/Settings.bundle/Root.plist
+          git commit -m "Refresh Swift package artifacts"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}

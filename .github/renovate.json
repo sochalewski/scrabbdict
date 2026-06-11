@@ -1,0 +1,41 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Europe/Warsaw",
+  "labels": ["dependencies"],
+  "enabledManagers": ["github-actions", "mise", "custom.regex"],
+  "prConcurrentLimit": 5,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update direct SwiftPM package references in the Xcode project",
+      "managerFilePatterns": ["/^Scrabbdict\\.xcodeproj\\/project\\.pbxproj$/"],
+      "matchStrings": [
+        "repositoryURL = \"https://github\\.com/(?<depName>[^\";]+?)(?:\\.git)?\";\\s+requirement = \\{\\s+kind = upToNextMajorVersion;\\s+minimumVersion = (?<currentValue>[^;]+);"
+      ],
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver",
+      "depTypeTemplate": "xcode-swiftpm"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Update Xcode SwiftPM dependencies",
+      "matchManagers": ["custom.regex"],
+      "matchDepTypes": ["xcode-swiftpm"],
+      "prBodyNotes": [
+        "This repository stores SwiftPM requirements in the Xcode project. The Renovate Sync workflow refreshes `Package.resolved` and package notices when needed."
+      ]
+    },
+    {
+      "description": "Update GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "Update mise tools",
+      "matchManagers": ["mise"],
+      "groupName": "mise tools"
+    }
+  ]
+}
