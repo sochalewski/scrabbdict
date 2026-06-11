@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Europe/Warsaw",
+  "dependencyDashboard": false,
+  "labels": ["dependencies"],
+  "enabledManagers": ["github-actions", "mise", "custom.regex"],
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update pinned SwiftPM package versions in Package.resolved",
+      "managerFilePatterns": [
+        "/^Scrabbdict\\.xcodeproj\\/project\\.xcworkspace\\/xcshareddata\\/swiftpm\\/Package\\.resolved$/"
+      ],
+      "matchStrings": [
+        "\"identity\" : \"[^\"]+\",\\s+\"kind\" : \"remoteSourceControl\",\\s+\"location\" : \"https://github\\.com/(?<depName>[^\"]+?)(?:\\.git)?\",\\s+\"state\" : \\{\\s+\"revision\" : \"[a-f0-9]+\",\\s+\"version\" : \"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "loose",
+      "depTypeTemplate": "swiftpm-resolved"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Update pinned SwiftPM package versions",
+      "matchManagers": ["custom.regex"],
+      "matchDepTypes": ["swiftpm-resolved"],
+      "prBodyNotes": [
+        "This repository keeps SwiftPM requirements in the Xcode project and pins resolved versions in `Package.resolved`. The Renovate Sync workflow refreshes package resolution and package notices when needed."
+      ]
+    },
+    {
+      "description": "Update GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "Update mise tools",
+      "matchManagers": ["mise"],
+      "groupName": "mise tools"
+    }
+  ]
+}
