@@ -1,5 +1,7 @@
 # Scrabbdict
 
+[![codecov](https://codecov.io/gh/sochalewski/scrabbdict/graph/badge.svg?token=D2TW0KDFYB)](https://codecov.io/gh/sochalewski/scrabbdict)
+
 <p align="center">
   <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/AE47019C-73E8-4C0B-A949-31C0CC8131EA.png" alt="Screenshot #1" width="180" />
   <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/1BBF5C40-CB0D-4FC3-A298-382A64CC634D.png" alt="Screenshot #2" width="180" />

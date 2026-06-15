@@ -1,19 +1,23 @@
-name: Pull Request
+name: CI
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: pull-request-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.event_name == 'pull_request' && format('ci-pr-{0}', github.event.pull_request.number) || format('ci-run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  swiftformat:
+  lint:
     name: Lint
+    if: github.event_name != 'push'
     runs-on: macos-26
 
     steps:
@@ -47,29 +51,30 @@ jobs:
           install: true
           cache: true
 
+      - name: Prepare DAWG files
+        run: |
+          source=".dictionaries/DAWG/"
+          destination="Scrabbdict/Resources/Dictionaries/"
+          mkdir -p "$destination"
+          rsync -a --delete "$source" "$destination"
+
       - name: Resolve Swift packages
         run: |
           xcodebuild -resolvePackageDependencies \
             -project Scrabbdict.xcodeproj \
-            -scheme Scrabbdict
+            -scheme Scrabbdict \
+            -onlyUsePackageVersionsFromResolvedFile \
+            -derivedDataPath DerivedData
 
       - name: Build DAWGBuilder
+        if: github.event_name != 'push'
         run: |
           xcodebuild build \
             -project Scrabbdict.xcodeproj \
             -scheme DAWGBuilder \
             -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO
-
-      - name: Build Scrabbdict
-        run: |
-          xcodebuild build \
-            -project Scrabbdict.xcodeproj \
-            -scheme Scrabbdict \
-            -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
-            -skipPackagePluginValidation \
-            -skipMacroValidation \
+            -disableAutomaticPackageResolution \
+            -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run enabled tests
@@ -82,7 +87,24 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
             -skipPackagePluginValidation \
             -skipMacroValidation \
+            -enableCodeCoverage YES \
+            -disableAutomaticPackageResolution \
+            -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Export coverage
+        run: .github/workflows/export-coverage --output coverage.lcov
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          files: coverage.lcov
+          flags: ios
+          name: Scrabbdict
+          disable_search: true
+          disable_telem: true
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   dawg_performance_changes:
     name: Detect DAWG performance changes

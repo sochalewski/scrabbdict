@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: .github/workflows/export-coverage [--derived-data PATH] [--output PATH]
+
+Exports Xcode coverage from DerivedData to LCOV using llvm-cov.
+
+Options:
+  --derived-data PATH  DerivedData directory used by xcodebuild.
+                       Defaults to DerivedData.
+  --output PATH        LCOV output path. Defaults to standard output.
+  --help               Show this help.
+
+Example:
+  .github/workflows/export-coverage --output coverage.lcov
+EOF
+}
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/../.." && pwd)"
+derived_data="DerivedData"
+output="-"
+ignore_filename_regex='(^|/)(ScrabbdictTests|Marketing|\.samples|\.dictionaries)/|(^|/)Scrabbdict/Resources/|(^|/)DAWGBuilder/main\.swift$|/SourcePackages/'
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    --derived-data)
+      if [[ -z "${2:-}" ]]; then
+        echo "--derived-data requires a path." >&2
+        usage >&2
+        exit 64
+      fi
+      derived_data="$2"
+      shift 2
+      ;;
+    --derived-data=*)
+      derived_data="${1#--derived-data=}"
+      shift
+      ;;
+    --output)
+      if [[ -z "${2:-}" ]]; then
+        echo "--output requires a path." >&2
+        usage >&2
+        exit 64
+      fi
+      output="$2"
+      shift 2
+      ;;
+    --output=*)
+      output="${1#--output=}"
+      shift
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 64
+      ;;
+    *)
+      echo "Unexpected argument: $1" >&2
+      usage >&2
+      exit 64
+      ;;
+  esac
+done
+
+if [[ ! -d "$derived_data" ]]; then
+  echo "DerivedData directory not found: $derived_data" >&2
+  exit 66
+fi
+
+newest_matching_file() {
+  local root="$1"
+  local name="$2"
+  local newest=""
+  local file
+
+  while IFS= read -r -d '' file; do
+    if [[ -z "$newest" || "$file" -nt "$newest" ]]; then
+      newest="$file"
+    fi
+  done < <(find "$root" -name "$name" -type f -print0 2>/dev/null)
+
+  printf '%s' "$newest"
+}
+
+newest_matching_path() {
+  local root="$1"
+  local path_pattern="$2"
+  local newest=""
+  local file
+
+  while IFS= read -r -d '' file; do
+    if [[ -z "$newest" || "$file" -nt "$newest" ]]; then
+      newest="$file"
+    fi
+  done < <(find "$root" -path "$path_pattern" -type f -print0 2>/dev/null)
+
+  printf '%s' "$newest"
+}
+
+profile_data="$(newest_matching_file "$derived_data/Build/ProfileData" "Coverage.profdata")"
+if [[ -z "$profile_data" ]]; then
+  echo "Coverage.profdata not found under $derived_data/Build/ProfileData." >&2
+  echo "Make sure tests were run with -enableCodeCoverage YES and the same -derivedDataPath." >&2
+  exit 66
+fi
+
+products_dir="$derived_data/Build/Products"
+coverage_objects=()
+
+add_object() {
+  local object="$1"
+  if [[ -n "$object" ]]; then
+    coverage_objects+=("$object")
+  fi
+}
+
+add_object "$(newest_matching_path "$products_dir" "*/Scrabbdict.app/Scrabbdict")"
+add_object "$(newest_matching_path "$products_dir" "*/ScrabbdictTests.xctest/ScrabbdictTests")"
+
+if [[ "${#coverage_objects[@]}" -eq 0 ]]; then
+  echo "Coverage binaries not found under $products_dir." >&2
+  echo "Expected Scrabbdict.app/Scrabbdict and/or ScrabbdictTests.xctest/ScrabbdictTests." >&2
+  exit 66
+fi
+
+primary_object="${coverage_objects[0]}"
+command=(
+  xcrun llvm-cov export
+  -format=lcov
+  -instr-profile "$profile_data"
+  -path-equivalence "$repo_root,."
+  -ignore-filename-regex "$ignore_filename_regex"
+  "$primary_object"
+)
+
+for object in "${coverage_objects[@]:1}"; do
+  command+=(-object "$object")
+done
+
+if [[ "$output" == "-" ]]; then
+  "${command[@]}"
+else
+  mkdir -p "$(dirname "$output")"
+  "${command[@]}" > "$output"
+  echo "Wrote LCOV coverage to $output." >&2
+fi
