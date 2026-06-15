@@ -5,6 +5,8 @@ usage() {
   cat <<'EOF'
 Usage: Scripts/dawg-performance
        Scripts/dawg-performance <base-ref> <compare-ref>
+       Scripts/dawg-performance --format markdown
+       Scripts/dawg-performance --format markdown <base-ref> <compare-ref>
 
 Builds and runs DAWGPerformanceTests without resolving SwiftPM dependencies.
 The standalone test runner compiles only the DAWG reader, DAWG format constants,
@@ -23,28 +25,79 @@ Environment:
 
 Examples:
   Scripts/dawg-performance
+  Scripts/dawg-performance --format markdown
   Scripts/dawg-performance 9d54d17 5b58342
+  Scripts/dawg-performance --format markdown 9d54d17 5b58342
 EOF
 }
-
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  usage
-  exit 0
-fi
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
 mode="current"
+output_format="text"
 base_ref=""
 compare_ref=""
+positionals=()
 
-case "$#" in
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    --format)
+      if [[ -z "${2:-}" ]]; then
+        echo "--format requires one of: text, markdown" >&2
+        usage >&2
+        exit 64
+      fi
+      output_format="$2"
+      shift 2
+      ;;
+    --format=*)
+      output_format="${1#--format=}"
+      shift
+      ;;
+    --markdown)
+      output_format="markdown"
+      shift
+      ;;
+    --)
+      shift
+      while [[ "$#" -gt 0 ]]; do
+        positionals+=("$1")
+        shift
+      done
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 64
+      ;;
+    *)
+      positionals+=("$1")
+      shift
+      ;;
+  esac
+done
+
+case "$output_format" in
+  text | markdown)
+    ;;
+  *)
+    echo "Unsupported output format: $output_format" >&2
+    usage >&2
+    exit 64
+    ;;
+esac
+
+case "${#positionals[@]}" in
   0)
     ;;
   2)
     mode="comparison"
-    base_ref="$1"
-    compare_ref="$2"
+    base_ref="${positionals[0]}"
+    compare_ref="${positionals[1]}"
     ;;
   *)
     usage >&2
@@ -95,6 +148,70 @@ require_commit() {
 require_dictionary_commit() {
   local ref="$1"
   git -C "$dictionary_repo" cat-file -e "$ref^{commit}"
+}
+
+assert_real_dictionary_files() {
+  local directory="$1"
+  local files=("$directory"/*.dawg)
+
+  if [[ ! -e "${files[0]}" ]]; then
+    echo "Dictionary files not found in $directory." >&2
+    exit 66
+  fi
+
+  for file in "${files[@]}"; do
+    if [[ "$(head -n 1 "$file")" == "version https://git-lfs.github.com/spec/v1" ]]; then
+      echo "Dictionary file is still a Git LFS pointer: $file" >&2
+      echo "Fetch LFS objects for the dictionaries repository before running this script." >&2
+      exit 66
+    fi
+  done
+}
+
+copy_dictionary_ref() {
+  local dictionary_ref="$1"
+  local label="$2"
+  local build_dir="$tmp_root/$label/Build"
+  local lfs_storage
+  local copied_count=0
+
+  lfs_storage="$(git -C "$dictionary_repo" lfs env | awk -F= '$1 == "LocalMediaDir" { print $2; exit }')"
+  if [[ -z "$lfs_storage" ]]; then
+    echo "Could not resolve Git LFS storage for $dictionary_repo." >&2
+    exit 66
+  fi
+
+  while IFS= read -r dictionary_path; do
+    local output_file="$build_dir/$(basename "$dictionary_path")"
+    local pointer
+    local oid
+
+    [[ "$dictionary_path" == *.dawg ]] || continue
+
+    pointer="$(git -C "$dictionary_repo" show "$dictionary_ref:$dictionary_path")"
+    oid="$(printf "%s\n" "$pointer" | awk '$1 == "oid" && $2 ~ /^sha256:/ { sub(/^sha256:/, "", $2); print $2; exit }')"
+
+    if [[ -z "$oid" ]]; then
+      printf "%s\n" "$pointer" > "$output_file"
+    else
+      local lfs_object="$lfs_storage/${oid:0:2}/${oid:2:2}/$oid"
+      if [[ ! -f "$lfs_object" ]]; then
+        echo "Git LFS object missing for $dictionary_path at $dictionary_ref: $oid" >&2
+        echo "Fetch LFS objects for the dictionaries repository before running this script." >&2
+        exit 66
+      fi
+      cp "$lfs_object" "$output_file"
+    fi
+
+    copied_count=$((copied_count + 1))
+  done < <(git -C "$dictionary_repo" ls-tree -r --name-only "$dictionary_ref" DAWG)
+
+  if [[ "$copied_count" -eq 0 ]]; then
+    echo "Dictionary files not found at $dictionary_ref:DAWG." >&2
+    exit 66
+  fi
+
+  assert_real_dictionary_files "$build_dir"
 }
 
 compile_release() {
@@ -243,8 +360,7 @@ prepare_ref_sources() {
 
   dictionary_ref="$(git -C "$repo_root" rev-parse "$ref:.dictionaries")"
   require_dictionary_commit "$dictionary_ref"
-  git -C "$dictionary_repo" archive "$dictionary_ref" DAWG | tar -x -C "$build_dir"
-  cp "$build_dir"/DAWG/*.dawg "$build_dir"/
+  copy_dictionary_ref "$dictionary_ref" "$label"
 }
 
 prepare_current_sources() {
@@ -270,6 +386,7 @@ prepare_current_sources() {
   fi
 
   cp "$dictionary_source"/*.dawg "$build_dir"/
+  assert_real_dictionary_files "$build_dir"
 }
 
 run_memory_probe() {
@@ -489,6 +606,131 @@ print_retained_memory_metrics() {
   ' "$tsv_file"
 }
 
+print_clock_comparison_markdown() {
+  local base_label="$1"
+  local compare_label="$2"
+  local base_tsv="$tmp_root/$base_label/metrics.tsv"
+  local compare_tsv="$tmp_root/$compare_label/metrics.tsv"
+
+  echo
+  echo "### Clock Monotonic Time"
+  echo
+  echo "Lower is better."
+  echo
+  echo "| Test | Base (ms) | Compare (ms) | Delta (ms) | Change |"
+  echo "| --- | ---: | ---: | ---: | ---: |"
+  awk -F '\t' '
+    FNR == NR {
+      if ($2 == "Clock Monotonic Time, s") {
+        base[$1] = $3
+      }
+      next
+    }
+    $2 == "Clock Monotonic Time, s" && ($1 in base) {
+      test = $1
+      gsub(/\|/, "\\|", test)
+      base_ms = base[$1] * 1000
+      compare_ms = $3 * 1000
+      delta_ms = compare_ms - base_ms
+      if (base[$1] == 0) {
+        change = "n/a"
+      } else {
+        change_value = (($3 / base[$1]) - 1) * 100
+        change = sprintf("%+.2f%%", change_value)
+        if ($3 > 0) {
+          ratios += log($3 / base[$1])
+          count += 1
+        }
+      }
+      printf "| %s | %.3f | %.3f | %+.3f | %s |\n", test, base_ms, compare_ms, delta_ms, change
+    }
+    END {
+      if (count > 0) {
+        geomean_change = (exp(ratios / count) - 1) * 100
+        printf "| Geomean |  |  |  | %+.2f%% |\n", geomean_change
+      } else {
+        print "| Geomean |  |  |  | n/a |"
+      }
+    }
+  ' "$base_tsv" "$compare_tsv"
+}
+
+print_clock_metrics_markdown() {
+  local label="$1"
+  local tsv_file="$tmp_root/$label/metrics.tsv"
+
+  echo
+  echo "### Clock Monotonic Time"
+  echo
+  echo "Lower is better."
+  echo
+  printf "| Test | %s (ms) |\n" "$label"
+  echo "| --- | ---: |"
+  awk -F '\t' '
+    $2 == "Clock Monotonic Time, s" {
+      test = $1
+      gsub(/\|/, "\\|", test)
+      printf "| %s | %.3f |\n", test, $3 * 1000
+    }
+  ' "$tsv_file"
+}
+
+print_retained_memory_comparison_markdown() {
+  local base_label="$1"
+  local compare_label="$2"
+  local base_tsv="$tmp_root/$base_label/memory.tsv"
+  local compare_tsv="$tmp_root/$compare_label/memory.tsv"
+
+  echo
+  echo "### Loaded DAWG Physical Footprint Delta"
+  echo
+  echo "Median MiB, lower is better."
+  echo
+  echo "| Dictionary | Base (MiB) | Compare (MiB) | Delta (MiB) | Change | Samples |"
+  echo "| --- | ---: | ---: | ---: | ---: | ---: |"
+  awk -F '\t' '
+    FNR == NR {
+      base[$1] = $2
+      baseSamples[$1] = $3
+      next
+    }
+    $1 in base {
+      dictionary = $1
+      gsub(/\|/, "\\|", dictionary)
+      baseMiB = base[$1] / 1024 / 1024
+      compareMiB = $2 / 1024 / 1024
+      deltaMiB = compareMiB - baseMiB
+      samples = baseSamples[$1] "/" $3
+      if (base[$1] == 0) {
+        change = "n/a"
+      } else {
+        change = sprintf("%+.2f%%", (($2 / base[$1]) - 1) * 100)
+      }
+      printf "| %s | %.3f | %.3f | %+.3f | %s | %s |\n", dictionary, baseMiB, compareMiB, deltaMiB, change, samples
+    }
+  ' "$base_tsv" "$compare_tsv"
+}
+
+print_retained_memory_metrics_markdown() {
+  local label="$1"
+  local tsv_file="$tmp_root/$label/memory.tsv"
+
+  echo
+  echo "### Loaded DAWG Physical Footprint Delta"
+  echo
+  echo "Median MiB, lower is better."
+  echo
+  printf "| Dictionary | %s (MiB) | Samples |\n" "$label"
+  echo "| --- | ---: | ---: |"
+  awk -F '\t' '
+    {
+      dictionary = $1
+      gsub(/\|/, "\\|", dictionary)
+      printf "| %s | %.3f | %s |\n", dictionary, $2 / 1024 / 1024, $3
+    }
+  ' "$tsv_file"
+}
+
 if [[ ! -d "$xctest_framework_dir" ]]; then
   echo "XCTest framework directory not found: $xctest_framework_dir" >&2
   exit 69
@@ -527,18 +769,34 @@ if [[ "$mode" == "comparison" ]]; then
     run_memory_probe "compare"
   fi
 
-  echo
-  echo "DAWGPerformanceTests comparison"
-  echo "Base:    $base_ref"
-  echo "Compare: $compare_ref"
-  echo "Build:   swiftc -O -whole-module-optimization"
+  if [[ "$output_format" == "markdown" ]]; then
+    echo "**DAWGPerformanceTests comparison**"
+    echo
+    echo "| Base | Compare | Build |"
+    echo "| --- | --- | --- |"
+    echo "| \`$base_ref\` | \`$compare_ref\` | \`swiftc -O -whole-module-optimization\` |"
 
-  print_clock_comparison "base" "compare"
-  if [[ "$memory_samples" -gt 0 ]]; then
-    print_retained_memory_comparison "base" "compare"
+    print_clock_comparison_markdown "base" "compare"
+    if [[ "$memory_samples" -gt 0 ]]; then
+      print_retained_memory_comparison_markdown "base" "compare"
+    else
+      echo
+      echo "_Retained-memory probe skipped because \`DAWG_PERF_MEMORY_SAMPLES=0\`._"
+    fi
   else
     echo
-    echo "Retained-memory probe skipped because DAWG_PERF_MEMORY_SAMPLES=0."
+    echo "DAWGPerformanceTests comparison"
+    echo "Base:    $base_ref"
+    echo "Compare: $compare_ref"
+    echo "Build:   swiftc -O -whole-module-optimization"
+
+    print_clock_comparison "base" "compare"
+    if [[ "$memory_samples" -gt 0 ]]; then
+      print_retained_memory_comparison "base" "compare"
+    else
+      echo
+      echo "Retained-memory probe skipped because DAWG_PERF_MEMORY_SAMPLES=0."
+    fi
   fi
 else
   echo "DAWGPerformanceTests current checkout" >&2
@@ -549,15 +807,31 @@ else
     run_memory_probe "current"
   fi
 
-  echo
-  echo "DAWGPerformanceTests current checkout"
-  echo "Build: swiftc -O -whole-module-optimization"
+  if [[ "$output_format" == "markdown" ]]; then
+    echo "**DAWGPerformanceTests current checkout**"
+    echo
+    echo "| Build |"
+    echo "| --- |"
+    echo "| \`swiftc -O -whole-module-optimization\` |"
 
-  print_clock_metrics "current"
-  if [[ "$memory_samples" -gt 0 ]]; then
-    print_retained_memory_metrics "current"
+    print_clock_metrics_markdown "current"
+    if [[ "$memory_samples" -gt 0 ]]; then
+      print_retained_memory_metrics_markdown "current"
+    else
+      echo
+      echo "_Retained-memory probe skipped because \`DAWG_PERF_MEMORY_SAMPLES=0\`._"
+    fi
   else
     echo
-    echo "Retained-memory probe skipped because DAWG_PERF_MEMORY_SAMPLES=0."
+    echo "DAWGPerformanceTests current checkout"
+    echo "Build: swiftc -O -whole-module-optimization"
+
+    print_clock_metrics "current"
+    if [[ "$memory_samples" -gt 0 ]]; then
+      print_retained_memory_metrics "current"
+    else
+      echo
+      echo "Retained-memory probe skipped because DAWG_PERF_MEMORY_SAMPLES=0."
+    fi
   fi
 fi

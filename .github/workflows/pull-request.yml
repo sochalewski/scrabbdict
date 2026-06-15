@@ -47,11 +47,6 @@ jobs:
           install: true
           cache: true
 
-      - name: Select default Xcode
-        run: |
-          xcodebuild -version
-          xcrun simctl list runtimes
-
       - name: Resolve Swift packages
         run: |
           xcodebuild -resolvePackageDependencies \
@@ -88,3 +83,158 @@ jobs:
             -skipPackagePluginValidation \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO
+
+  dawg_performance_changes:
+    name: Detect DAWG performance changes
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.user.login != 'renovate[bot]'
+    runs-on: macos-26
+    permissions:
+      pull-requests: read
+    outputs:
+      changed: ${{ steps.filter.outputs.changed }}
+
+    steps:
+      - name: Check changed files
+        id: filter
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100,
+            })
+
+            const matchingFiles = files
+              .map((file) => file.filename)
+              .filter((filename) => {
+                const basename = filename.split('/').at(-1)
+                return !filename.startsWith('ScrabbdictTests/') && /^DAWG.*\.swift$/.test(basename)
+              })
+
+            const changed = matchingFiles.length > 0
+            core.setOutput('changed', String(changed))
+            await core.summary
+              .addHeading('DAWG performance filter')
+              .addRaw(changed
+                ? `Benchmark will run because these DAWG-related files changed:\n\n${matchingFiles.map((file) => `- \`${file}\``).join('\n')}`
+                : 'Benchmark skipped because no DAWG-related files changed.'
+              )
+              .write()
+
+  dawg_performance:
+    name: DAWG performance
+    needs: dawg_performance_changes
+    if: needs.dawg_performance_changes.outputs.changed == 'true'
+    runs-on: macos-26
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Check out pull request head
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          token: ${{ secrets.CHECKOUT_TOKEN || github.token }}
+          submodules: recursive
+
+      - name: Fetch target main
+        run: |
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+
+      - name: Resolve comparison refs
+        id: refs
+        run: |
+          set -euo pipefail
+
+          target_ref="origin/main"
+          base_ref="$(git merge-base HEAD "$target_ref" || true)"
+          if [[ -z "$base_ref" ]]; then
+            base_ref="$target_ref"
+          fi
+
+          compare_ref="$(git rev-parse HEAD)"
+
+          echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
+          echo "compare_ref=$compare_ref" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch dictionary LFS objects
+        run: |
+          set -euo pipefail
+
+          base_dictionary_ref="$(git rev-parse "${{ steps.refs.outputs.base_ref }}:.dictionaries")"
+          compare_dictionary_ref="$(git rev-parse "${{ steps.refs.outputs.compare_ref }}:.dictionaries")"
+
+          git -C .dictionaries fetch --no-tags origin "$base_dictionary_ref"
+          git -C .dictionaries fetch --no-tags origin "$compare_dictionary_ref"
+          git -C .dictionaries lfs fetch --include="DAWG/*.dawg" origin "$base_dictionary_ref"
+          git -C .dictionaries lfs fetch --include="DAWG/*.dawg" origin "$compare_dictionary_ref"
+
+      - name: Run DAWG performance comparison
+        run: |
+          set -euo pipefail
+
+          Scripts/dawg-performance \
+            --format markdown \
+            "${{ steps.refs.outputs.base_ref }}" \
+            "${{ steps.refs.outputs.compare_ref }}" \
+            | tee dawg-performance.md
+
+      - name: Build pull request comment
+        run: |
+          set -euo pipefail
+
+          {
+            echo "<!-- dawg-performance -->"
+            echo "## DAWG performance"
+            echo
+            echo "<details open><summary>Results</summary>"
+            echo
+            cat dawg-performance.md
+            echo
+            echo "</details>"
+          } > dawg-performance-comment.md
+
+      - name: Comment pull request
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs')
+
+            const marker = '<!-- dawg-performance -->'
+            const body = fs.readFileSync('dawg-performance-comment.md', 'utf8')
+            const { owner, repo } = context.repo
+            const issue_number = context.issue.number
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            })
+
+            const existingComment = comments.find((comment) =>
+              comment.user.type === 'Bot' && comment.body?.includes(marker)
+            )
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existingComment.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              })
+            }
