@@ -22,7 +22,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/../.." && pwd)"
 derived_data="DerivedData"
 output="-"
-ignore_filename_regex='(^|/)(ScrabbdictTests|Marketing|\.samples|\.dictionaries)/|(^|/)Scrabbdict/Resources/|(^|/)DAWGBuilder/main\.swift$|/SourcePackages/'
+ignore_filename_regex='(^|/)(ScrabbdictTests|Marketing|\.samples|\.dictionaries)/|(^|/)Scrabbdict/Resources/|(^|/)DAWGBuilder/main\.swift$|/SourcePackages/|/Build/Intermediates\.noindex/'
 
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
@@ -121,12 +121,13 @@ add_object() {
   fi
 }
 
+add_object "$(newest_matching_path "$products_dir" "*/Scrabbdict.app/Scrabbdict.debug.dylib")"
 add_object "$(newest_matching_path "$products_dir" "*/Scrabbdict.app/Scrabbdict")"
 add_object "$(newest_matching_path "$products_dir" "*/ScrabbdictTests.xctest/ScrabbdictTests")"
 
 if [[ "${#coverage_objects[@]}" -eq 0 ]]; then
   echo "Coverage binaries not found under $products_dir." >&2
-  echo "Expected Scrabbdict.app/Scrabbdict and/or ScrabbdictTests.xctest/ScrabbdictTests." >&2
+  echo "Expected Scrabbdict.app/Scrabbdict.debug.dylib, Scrabbdict.app/Scrabbdict, and/or ScrabbdictTests.xctest/ScrabbdictTests." >&2
   exit 66
 fi
 
