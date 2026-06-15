@@ -9,9 +9,7 @@ import UIKit
 
 final class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        #if !targetEnvironment(simulator) && !DEBUG
-            FirebaseApp.configure()
-        #endif
+        FirebaseApp.configure()
 
         return true
     }

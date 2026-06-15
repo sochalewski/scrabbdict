@@ -14,29 +14,6 @@ struct ResultCardView: View {
 
     @Environment(\.locale) var locale
 
-    private var resultTitle: LocalizedStringResource {
-        switch result {
-        case .valid: .resultValid
-        case .invalid: .resultInvalid
-        }
-    }
-
-    private var resultColor: Color {
-        switch result {
-        case .valid: .resultGreen
-        case .invalid: .resultRed
-        }
-    }
-
-    private var accessibilityLabel: Text {
-        switch result {
-        case let .valid(points):
-            Text(.resultAccessibilityValid) + Text(verbatim: ", ") + Text(.wordAccessibilityPoints(points))
-        case .invalid:
-            Text(.resultAccessibilityInvalid)
-        }
-    }
-
     var body: some View {
         VStack(spacing: 0) {
             Text(.resultCaption)
@@ -74,15 +51,46 @@ struct ResultCardView: View {
         .shadow(color: .appShadow, radius: 17, x: 0, y: 14)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
+        .accessibilityValue(accessibilityValue)
+    }
+}
+
+private extension ResultCardView {
+    var resultTitle: LocalizedStringResource {
+        switch result {
+        case .valid: .resultValid
+        case .invalid: .resultInvalid
+        }
     }
 
-    private func localizedPointNoun(for points: Int) -> String {
+    var resultColor: Color {
+        switch result {
+        case .valid: .resultGreen
+        case .invalid: .resultRed
+        }
+    }
+
+    var accessibilityLabel: Text {
+        switch result {
+        case .valid: Text(.resultAccessibilityValid)
+        case .invalid: Text(.resultAccessibilityInvalid)
+        }
+    }
+
+    var accessibilityValue: Text? {
+        switch result {
+        case let .valid(points): Text(.wordAccessibilityPoints(points))
+        case .invalid: nil
+        }
+    }
+
+    func localizedPointNoun(for points: Int) -> String {
         localizedResultPoints(for: points, locale: locale)
             .replacingOccurrences(of: #"\[[^\]]*\]"#, with: "", options: .regularExpression)
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private func localizedResultPoints(for points: Int, locale: Locale) -> String {
+    func localizedResultPoints(for points: Int, locale: Locale) -> String {
         Bundle.localizationBundle(for: locale)
             .localizedString(forKey: "result.points", locale: locale, arguments: points)
     }

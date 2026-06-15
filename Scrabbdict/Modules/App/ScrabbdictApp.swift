@@ -10,7 +10,9 @@ import SwiftUI
 
 @main
 struct ScrabbdictApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    #if !targetEnvironment(simulator) && !DEBUG
+        @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    #endif
 
     var body: some Scene {
         WindowGroup {

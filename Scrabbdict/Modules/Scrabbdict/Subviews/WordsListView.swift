@@ -23,7 +23,9 @@ struct WordsListView: View {
         .scrollContentBackground(.hidden)
         .frame(maxWidth: .infinity)
     }
+}
 
+private extension WordsListView {
     @ViewBuilder
     func listRow(for word: Word, isFirst: Bool) -> some View {
         let row = rowContent(for: word)
@@ -38,8 +40,8 @@ struct WordsListView: View {
             }
             .listRowBackground(Color.clear)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(verbatim: word.string) + Text(verbatim: ", ") + Text(.wordAccessibilityPoints(word.points)))
-
+            .accessibilityLabel(Text(verbatim: word.string))
+            .accessibilityValue(Text(.wordAccessibilityPoints(word.points)))
         if isFirst {
             row.listRowSeparator(.hidden, edges: .top)
         } else {
@@ -74,17 +76,6 @@ struct WordsListView: View {
     }
 }
 
-#Preview {
-    WordsListView(
-        words: [
-            Word(string: "nastier", points: 7),
-            Word(string: "retains", points: 7),
-            Word(string: "stainer", points: 7),
-            Word(string: "retina", points: 6)
-        ]
-    )
-}
-
 struct ResultContentLayout {
     var maxWidth: CGFloat = .infinity
     var horizontalPadding: CGFloat = 0
@@ -108,4 +99,15 @@ extension View {
             ResultContentLayout(maxWidth: maxWidth, horizontalPadding: horizontalPadding)
         )
     }
+}
+
+#Preview {
+    WordsListView(
+        words: [
+            Word(string: "nastier", points: 7),
+            Word(string: "retains", points: 7),
+            Word(string: "stainer", points: 7),
+            Word(string: "retina", points: 6)
+        ]
+    )
 }

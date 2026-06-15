@@ -8,9 +8,7 @@ import Foundation
 
 extension [String] {
     func mapToWords(language: Language) -> [Word] {
-        guard !isEmpty else { return [] }
-
-        return map { Word(string: $0, points: language.points(for: $0)) }
+        map { Word(string: $0, points: language.points(for: $0)) }
             .sorted {
                 if $0.points == $1.points {
                     $0.string < $1.string

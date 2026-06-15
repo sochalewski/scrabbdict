@@ -79,8 +79,10 @@ struct ScrabbleTableBackground: View {
         .ignoresSafeArea()
         .accessibilityHidden(true)
     }
+}
 
-    private var tableBase: some View {
+private extension ScrabbleTableBackground {
+    var tableBase: some View {
         ZStack {
             LinearGradient(
                 colors: [
@@ -104,7 +106,7 @@ struct ScrabbleTableBackground: View {
         }
     }
 
-    private var centerVeil: some View {
+    var centerVeil: some View {
         RadialGradient(
             colors: [
                 .TableBackground.tableVeil,

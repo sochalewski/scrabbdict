@@ -27,8 +27,10 @@ struct SearchModePickerView: View {
         )
         .shadow(color: .appShadow.opacity(0.7), radius: 10, x: 0, y: 4)
     }
+}
 
-    private var options: some View {
+private extension SearchModePickerView {
+    var options: some View {
         VStack(spacing: 6) {
             ForEach(SearchMode.allCases, id: \.self) { mode in
                 searchModeOption(mode)
@@ -36,7 +38,7 @@ struct SearchModePickerView: View {
         }
     }
 
-    private func searchModeOption(_ mode: SearchMode) -> some View {
+    func searchModeOption(_ mode: SearchMode) -> some View {
         Button {
             onSearchModeSelected(mode)
         } label: {
@@ -68,7 +70,7 @@ struct SearchModePickerView: View {
         .accessibilityAddTraits(searchMode == mode ? [.isSelected] : [])
     }
 
-    private func searchModeSelectionIcon(_ mode: SearchMode) -> some View {
+    func searchModeSelectionIcon(_ mode: SearchMode) -> some View {
         Image(systemName: searchMode == mode ? "checkmark.circle.fill" : "circle")
             .font(.headline.weight(.semibold))
             .foregroundStyle(searchMode == mode ? .brandAccent : .secondaryText.opacity(0.45))
@@ -80,18 +82,6 @@ private struct SearchModeDescriptionText: View {
     let mode: SearchMode
 
     @Environment(\.locale) var locale
-
-    private var localizedBundle: Bundle {
-        Bundle.localizationBundle(for: locale)
-    }
-
-    private var descriptionLocalizationValue: String.LocalizationValue {
-        switch mode {
-        case .auto: "search_mode.auto.description"
-        case .check: "search_mode.check.description"
-        case .rack: "search_mode.rack.description"
-        }
-    }
 
     var body: some View {
         let text = String(localized: descriptionLocalizationValue, bundle: localizedBundle)
@@ -115,6 +105,20 @@ private struct SearchModeDescriptionText: View {
         .foregroundStyle(.secondaryText)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: text))
+    }
+}
+
+private extension SearchModeDescriptionText {
+    var localizedBundle: Bundle {
+        Bundle.localizationBundle(for: locale)
+    }
+
+    var descriptionLocalizationValue: String.LocalizationValue {
+        switch mode {
+        case .auto: "search_mode.auto.description"
+        case .check: "search_mode.check.description"
+        case .rack: "search_mode.rack.description"
+        }
     }
 }
 

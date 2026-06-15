@@ -23,10 +23,6 @@ struct SearchBarView: View {
     @ScaledMetric(relativeTo: .title2) var clearButtonSize: CGFloat = 32
     @ScaledMetric(relativeTo: .title2) var actionButtonSize: CGFloat = 42
 
-    private var searchModePickerMaxHeight: CGFloat {
-        max(120, searchModePickerAvailableHeight - pickerTopPadding - 16)
-    }
-
     var body: some View {
         searchField
             .overlay(alignment: .top) {
@@ -41,8 +37,14 @@ struct SearchBarView: View {
             .animation(.easeOut(duration: 0.12), value: isFocused)
             .animation(.easeInOut(duration: 0.18), value: isSearchModePickerExpanded)
     }
+}
 
-    private var searchField: some View {
+private extension SearchBarView {
+    var searchModePickerMaxHeight: CGFloat {
+        max(120, searchModePickerAvailableHeight - pickerTopPadding - 16)
+    }
+
+    var searchField: some View {
         HStack(spacing: (searchFieldHeight - actionButtonSize) / 2) {
             textField
             searchModeButton
@@ -59,7 +61,7 @@ struct SearchBarView: View {
         .shadow(color: .appShadow, radius: 18, x: 0, y: 8)
     }
 
-    private var searchModePicker: some View {
+    var searchModePicker: some View {
         SearchModePickerView(
             searchMode: searchMode,
             maxHeight: searchModePickerMaxHeight,
@@ -68,14 +70,14 @@ struct SearchBarView: View {
         .frame(maxWidth: .infinity)
     }
 
-    private var textField: some View {
+    var textField: some View {
         HStack(spacing: 0) {
             searchTextField
             textFieldTrailingControl
         }
     }
 
-    private var searchTextField: some View {
+    var searchTextField: some View {
         TextField(text: $text) {
             Text(verbatim: "")
         }
@@ -101,13 +103,13 @@ struct SearchBarView: View {
     }
 
     @ViewBuilder
-    private var textFieldTrailingControl: some View {
+    var textFieldTrailingControl: some View {
         if isFocused, !text.isEmpty {
             clearButton
         }
     }
 
-    private var clearButton: some View {
+    var clearButton: some View {
         Button(action: onClear) {
             Image(systemName: "xmark.circle.fill")
                 .font(.subheadline.weight(.semibold))
@@ -120,7 +122,7 @@ struct SearchBarView: View {
         .accessibilityLabel(.searchFieldClear)
     }
 
-    private var searchModeButton: some View {
+    var searchModeButton: some View {
         Button(action: onSearchModePickerTapped) {
             Image(systemName: "chevron.down")
                 .font(.subheadline.weight(.bold))
@@ -134,7 +136,7 @@ struct SearchBarView: View {
         .accessibilityValue(searchMode.title)
     }
 
-    private var searchButton: some View {
+    var searchButton: some View {
         Button(action: onSearch) {
             Image(systemName: "magnifyingglass")
                 .font(.title3.weight(.semibold))

@@ -219,20 +219,3 @@ private struct Alphabet {
         })
     }
 }
-
-private extension Data {
-    mutating func appendLittleEndianUInt16(_ value: UInt16) {
-        Swift.withUnsafeBytes(of: value.littleEndian) { append(contentsOf: $0) }
-    }
-
-    mutating func appendLittleEndianUInt32(_ value: UInt32) {
-        Swift.withUnsafeBytes(of: value.littleEndian) { append(contentsOf: $0) }
-    }
-}
-
-private extension Sequence where Element: Hashable {
-    func uniqued() -> [Element] {
-        var seen = Set<Element>()
-        return filter { seen.insert($0).inserted }
-    }
-}

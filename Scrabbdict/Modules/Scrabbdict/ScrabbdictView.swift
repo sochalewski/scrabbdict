@@ -13,10 +13,6 @@ struct ScrabbdictView: View {
     @FocusState var isSearchFocused: Bool
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
-    private var contentMaxWidth: CGFloat {
-        horizontalSizeClass == .regular ? 560 : .infinity
-    }
-
     var body: some View {
         NavigationStack {
             content
@@ -45,6 +41,10 @@ struct ScrabbdictView: View {
 }
 
 private extension ScrabbdictView {
+    var contentMaxWidth: CGFloat {
+        horizontalSizeClass == .regular ? 560 : .infinity
+    }
+
     @ToolbarContentBuilder
     var settingsToolbar: some ToolbarContent {
         if #available(iOS 26, *) {

@@ -55,6 +55,8 @@
 			membershipExceptions = (
 				DAWGBuilder.swift,
 				DAWGFormat.swift,
+				"Extensions/Data+Extension.swift",
+				"Extensions/Sequence+Extension.swift",
 				main.swift,
 			);
 			target = AE62F7202024EA8C00A57DAE /* DAWGBuilder */;
@@ -71,6 +73,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DAWGBuilder.swift,
+				"Extensions/Data+Extension.swift",
+				"Extensions/Sequence+Extension.swift",
 				main.swift,
 				RAW,
 			);

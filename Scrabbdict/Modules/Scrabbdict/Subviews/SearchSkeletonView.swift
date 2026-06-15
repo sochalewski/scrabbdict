@@ -14,19 +14,6 @@ struct SearchSkeletonView: View {
 
     let variant: Variant
 
-    private var placeholderWords: [Word] {
-        [
-            Word(string: "placeholder", points: 19),
-            Word(string: "dictionary", points: 16),
-            Word(string: "matches", points: 14),
-            Word(string: "scrabble", points: 14),
-            Word(string: "loading", points: 9),
-            Word(string: "pattern", points: 9),
-            Word(string: "letters", points: 7),
-            Word(string: "results", points: 7)
-        ]
-    }
-
     var body: some View {
         VStack(spacing: 24) {
             if case let .result(showsRackWordsButton) = variant {
@@ -42,6 +29,21 @@ struct SearchSkeletonView: View {
         }
         .redacted(reason: .placeholder)
         .allowsHitTesting(false)
+    }
+}
+
+private extension SearchSkeletonView {
+    var placeholderWords: [Word] {
+        [
+            Word(string: "placeholder", points: 19),
+            Word(string: "dictionary", points: 16),
+            Word(string: "matches", points: 14),
+            Word(string: "scrabble", points: 14),
+            Word(string: "loading", points: 9),
+            Word(string: "pattern", points: 9),
+            Word(string: "letters", points: 7),
+            Word(string: "results", points: 7)
+        ]
     }
 }
 

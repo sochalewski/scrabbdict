@@ -185,13 +185,6 @@ private enum WordListError: Error, CustomStringConvertible {
     }
 }
 
-private extension Sequence where Element: Hashable {
-    func uniqued() -> [Element] {
-        var seen = Set<Element>()
-        return filter { seen.insert($0).inserted }
-    }
-}
-
 private let options = parseOptions(arguments: CommandLine.arguments)
 
 guard FileManager.default.fileExists(atPath: options.inputDirectory.path) else {
