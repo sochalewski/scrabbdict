@@ -54,8 +54,10 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DAWGBuilder.swift,
+				DAWGCommand.swift,
 				DAWGFormat.swift,
 				"Extensions/Data+Extension.swift",
+				"Extensions/Process+Extension.swift",
 				"Extensions/Sequence+Extension.swift",
 				main.swift,
 			);
@@ -64,6 +66,7 @@
 		AECC64D12FB9D6A10032633A /* Exceptions for "DAWGBuilder" folder in "ScrabbdictTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"Extensions/Process+Extension.swift",
 				main.swift,
 				RAW,
 			);
@@ -73,7 +76,9 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DAWGBuilder.swift,
+				DAWGCommand.swift,
 				"Extensions/Data+Extension.swift",
+				"Extensions/Process+Extension.swift",
 				"Extensions/Sequence+Extension.swift",
 				main.swift,
 				RAW,

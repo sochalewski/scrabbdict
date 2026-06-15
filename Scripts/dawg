@@ -30,7 +30,10 @@ configuration="${DAWGBUILDER_CONFIGURATION:-Release}"
 build_dir="${DAWGBUILDER_BUILD_DIR:-${TMPDIR:-/tmp}/scrabbdict-dawgbuilder}"
 module_cache_dir="$build_dir/module-cache"
 executable="$build_dir/DAWGBuilder"
-source_files=("$repo_root"/DAWGBuilder/*.swift)
+source_files=(
+  "$repo_root"/DAWGBuilder/*.swift
+  "$repo_root"/DAWGBuilder/Extensions/*.swift
+)
 
 case "$configuration" in
   Debug)

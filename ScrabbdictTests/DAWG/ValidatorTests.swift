@@ -161,6 +161,31 @@ final class ValidatorTests: XCTestCase {
         XCTAssertEqual(resultWithDiacritic, resultWithoutDiacritic)
     }
 
+    func testInvalidLengthInputsReturnWithoutLoggingAnalytics() async throws {
+        let analytics = AnalyticsEventRecorder()
+        sut = withDependencies {
+            $0.analyticsClient = analytics.analyticsClient()
+            $0.languageStorage.current = { .englishGB }
+        } operation: {
+            Validator()
+        }
+
+        let shortWordCheck = try await sut.check(word: "a")
+        let longWordCheck = try await sut.check(word: String(repeating: "a", count: 16))
+        let shortLettersWords = try await sut.words(from: "a")
+        let longLettersWords = try await sut.words(from: String(repeating: "a", count: 16))
+        let shortPatternWords = try await sut.regex(phrase: "a")
+        let longPatternWords = try await sut.regex(phrase: String(repeating: "a", count: 16))
+
+        XCTAssertEqual(shortWordCheck, .invalid)
+        XCTAssertEqual(longWordCheck, .invalid)
+        XCTAssertEqual(shortLettersWords, [])
+        XCTAssertEqual(longLettersWords, [])
+        XCTAssertEqual(shortPatternWords, [])
+        XCTAssertEqual(longPatternWords, [])
+        XCTAssertEqual(analytics.recordedEvents, [])
+    }
+
     func testChangingLanguageReloadsDictionaryAndUsesNewScoring() async throws {
         _ = try await sut.check(word: "pizza")
         currentLanguage.set(.polish)

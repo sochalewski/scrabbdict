@@ -21,4 +21,17 @@ final class SearchModeStorageClientTests: XCTestCase {
             XCTAssertEqual(client.current(), .rack)
         }
     }
+
+    func testFallsBackToAutoWhenStoredSearchModeIsInvalid() {
+        let appStorage = UserDefaults.inMemory
+        appStorage.set(999, forKey: "searchMode")
+
+        withDependencies {
+            $0.defaultAppStorage = appStorage
+        } operation: {
+            let client = SearchModeStorageClient.liveValue
+
+            XCTAssertEqual(client.current(), .auto)
+        }
+    }
 }

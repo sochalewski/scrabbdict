@@ -21,4 +21,17 @@ final class LanguageStorageClientTests: XCTestCase {
             XCTAssertEqual(client.current(), .polish)
         }
     }
+
+    func testFallsBackToEnglishUSWhenStoredLanguageIsInvalid() {
+        let appStorage = UserDefaults.inMemory
+        appStorage.set("de_DE", forKey: "dictionaryLang")
+
+        withDependencies {
+            $0.defaultAppStorage = appStorage
+        } operation: {
+            let client = LanguageStorageClient.liveValue
+
+            XCTAssertEqual(client.current(), .englishUS)
+        }
+    }
 }
