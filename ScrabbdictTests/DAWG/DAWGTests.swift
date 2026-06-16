@@ -50,6 +50,21 @@ final class DAWGTests: XCTestCase {
         XCTAssertEqual(words, ["pized", "pizes", "pizza"])
     }
 
+    func testBundledDictionariesHaveValidEdges() throws {
+        for language in Language.allCases {
+            let url = try XCTUnwrap(
+                Bundle.main.url(forResource: language.rawValue, withExtension: "dawg"),
+                "Missing bundled DAWG for \(language.rawValue)."
+            )
+            let data = try Data(contentsOf: url, options: .mappedIfSafe)
+
+            XCTAssertNoThrow(
+                try DAWG(data: data, validatesEdges: true),
+                "Bundled DAWG has invalid edges: \(language.rawValue)."
+            )
+        }
+    }
+
     // MARK: - Unit tests using controlled DAWG data
 
     // MARK: Contains
@@ -122,20 +137,20 @@ final class DAWGTests: XCTestCase {
     func testRejectsInvalidMagic() {
         let data = makeDAWGData(magic: 0)
 
-        XCTAssertThrowsError(try DAWG(data: data))
+        XCTAssertThrowsError(try DAWG(data: data, validatesEdges: true))
     }
 
     func testRejectsUnsupportedVersion() {
         let data = makeDAWGData(version: 0)
 
-        XCTAssertThrowsError(try DAWG(data: data))
+        XCTAssertThrowsError(try DAWG(data: data, validatesEdges: true))
     }
 
     func testRejectsInvalidSize() {
         var data = makeDAWGData()
         data.removeLast()
 
-        XCTAssertThrowsError(try DAWG(data: data))
+        XCTAssertThrowsError(try DAWG(data: data, validatesEdges: true))
     }
 
     func testRejectsEdgeTargetOutsideEdgeTable() {
@@ -143,7 +158,7 @@ final class DAWGTests: XCTestCase {
             packedEdge(keyIndex: 0, target: 1, isWord: true, isLast: true)
         ])
 
-        XCTAssertThrowsError(try DAWG(data: data))
+        XCTAssertThrowsError(try DAWG(data: data, validatesEdges: true))
     }
 
     func testRejectsEdgeKeyOutsideAlphabet() {
@@ -151,7 +166,7 @@ final class DAWGTests: XCTestCase {
             packedEdge(keyIndex: 1, target: 0, isWord: true, isLast: true)
         ])
 
-        XCTAssertThrowsError(try DAWG(data: data))
+        XCTAssertThrowsError(try DAWG(data: data, validatesEdges: true))
     }
 
     func testRejectsUnsortedEdgesWithinNodeBlock() {
@@ -163,7 +178,7 @@ final class DAWGTests: XCTestCase {
             ]
         )
 
-        XCTAssertThrowsError(try DAWG(data: data))
+        XCTAssertThrowsError(try DAWG(data: data, validatesEdges: true))
     }
 
     func testRejectsEdgeTableWithoutLastFlag() {
@@ -171,12 +186,12 @@ final class DAWGTests: XCTestCase {
             packedEdge(keyIndex: 0, target: 0, isWord: true, isLast: false)
         ])
 
-        XCTAssertThrowsError(try DAWG(data: data))
+        XCTAssertThrowsError(try DAWG(data: data, validatesEdges: true))
     }
 }
 
 private func makeTestDAWG(words: [String]) throws -> DAWG {
-    try DAWG(data: DAWGBuilder(words: words.sorted()).data())
+    try DAWG(data: DAWGBuilder(words: words.sorted()).data(), validatesEdges: true)
 }
 
 private func makeDAWGData(
