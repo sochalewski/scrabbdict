@@ -10,7 +10,8 @@ on:
 
 permissions:
   contents: write
-  pull-requests: read
+  issues: write
+  pull-requests: write
 
 concurrency:
   group: renovate-sync-${{ github.event.pull_request.number }}
@@ -30,21 +31,92 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Update Package.resolved revisions
+      - name: Fetch base branch package state
         run: |
           git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.base.sha }}
+
+      - name: Detect Swift package update
+        id: swiftpm_update
+        run: |
+          package_resolved="Scrabbdict.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+
+          if git diff --quiet FETCH_HEAD -- "$package_resolved"; then
+            echo "package_resolved_changed=false" >> "$GITHUB_OUTPUT"
+            echo "No Package.resolved changes detected."
+          else
+            echo "package_resolved_changed=true" >> "$GITHUB_OUTPUT"
+            echo "Package.resolved changes detected."
+          fi
+
+      - name: Update Package.resolved revisions
+        if: steps.swiftpm_update.outputs.package_resolved_changed == 'true'
+        run: |
           ruby .github/workflows/update-package-resolved-revisions.rb FETCH_HEAD
 
       - name: Validate Swift package resolution
+        if: steps.swiftpm_update.outputs.package_resolved_changed == 'true'
         run: |
           xcodebuild -resolvePackageDependencies \
             -project Scrabbdict.xcodeproj \
             -scheme Scrabbdict
 
       - name: Update package notices
+        if: steps.swiftpm_update.outputs.package_resolved_changed == 'true'
         run: ruby .github/workflows/update-package-notices.rb
 
+      - name: Close unavailable Swift package update
+        id: unavailable_update
+        if: steps.swiftpm_update.outputs.package_resolved_changed == 'true'
+        run: |
+          package_resolved="Scrabbdict.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+
+          if ! ruby -rjson -ropen3 -e '
+            path = ARGV.fetch(0)
+            base_text, status = Open3.capture2("git", "show", "FETCH_HEAD:#{path}")
+            exit 2 unless status.success?
+
+            base_pins = JSON.parse(base_text).fetch("pins").to_h do |pin|
+              [pin.fetch("identity"), pin.fetch("state")]
+            end
+            current_pins = JSON.parse(File.read(path)).fetch("pins").to_h do |pin|
+              [pin.fetch("identity"), pin.fetch("state")]
+            end
+
+            exit(base_pins == current_pins ? 0 : 1)
+          ' "$package_resolved"; then
+            echo "closed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "closed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Close unavailable pull request
+        if: steps.unavailable_update.outputs.closed == 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo
+            const issue_number = context.issue.number
+            const body = 'SwiftPM resolved this dependency update back to the base dependency graph, so the requested version is not currently satisfiable by the package requirements in the Xcode project. Renovate is configured not to recreate closed SwiftPM resolved PRs for the same update; a newer resolvable version can still be proposed later.'
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body,
+            })
+
+            await github.rest.pulls.update({
+              owner,
+              repo,
+              pull_number: issue_number,
+              state: 'closed',
+            })
+
       - name: Commit refreshed package artifacts
+        if: >-
+          steps.swiftpm_update.outputs.package_resolved_changed == 'true' &&
+          steps.unavailable_update.outputs.closed != 'true'
         run: |
           if git diff --quiet -- \
             Scrabbdict.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved \

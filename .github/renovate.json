@@ -4,6 +4,7 @@
   "timezone": "Europe/Warsaw",
   "dependencyDashboard": false,
   "labels": ["dependencies"],
+  "recreateWhen": "never",
   "enabledManagers": ["github-actions", "mise", "custom.regex"],
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
