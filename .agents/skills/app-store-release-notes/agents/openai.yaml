@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Store Release Notes"
+  short_description: "Draft nontechnical App Store update notes"
+  default_prompt: "Use $app-store-release-notes to draft an English App Store update note from this commit range."

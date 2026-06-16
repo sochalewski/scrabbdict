@@ -1,5 +1,10 @@
 # Project Instructions
 
+## Communication and Language
+
+- Keep responses free of boilerplate: include only the decision, changes, results, and any relevant risks.
+- Always generate code and code documentation, project Markdown file changes, commit title suggestions, merge request title suggestions, merge request descriptions, and App Store change descriptions in English.
+
 ## Architecture
 
 - Follow the existing SwiftUI and Composable Architecture patterns in this project before introducing new structure or abstractions.

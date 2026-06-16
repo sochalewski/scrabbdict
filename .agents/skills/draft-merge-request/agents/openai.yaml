@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draft Merge Request"
+  short_description: "Draft English merge request text"
+  default_prompt: "Use $draft-merge-request to draft an English merge request title and description."
