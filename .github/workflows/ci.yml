@@ -78,19 +78,49 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run enabled tests
+        env:
+          SNAPSHOT_ARTIFACTS: ${{ github.workspace }}/snapshot-artifacts/failures
         run: |
           set -o pipefail
+          rm -rf TestResults snapshot-artifacts
+          mkdir -p TestResults snapshot-artifacts/failures
+
           xcodebuild test \
             -project Scrabbdict.xcodeproj \
             -scheme Scrabbdict \
             -testPlan Scrabbdict \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+            -resultBundlePath TestResults/Scrabbdict.xcresult \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             -enableCodeCoverage YES \
             -disableAutomaticPackageResolution \
             -derivedDataPath DerivedData \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Collect snapshot artifacts
+        if: failure()
+        run: |
+          set -euo pipefail
+
+          mkdir -p snapshot-artifacts/recorded
+
+          while IFS= read -r snapshot; do
+            destination="snapshot-artifacts/recorded/$snapshot"
+            mkdir -p "$(dirname "$destination")"
+            cp "$snapshot" "$destination"
+          done < <(git ls-files --modified --others --exclude-standard -- ScrabbdictTests/Snapshots/__Snapshots__)
+
+      - name: Upload snapshot failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: snapshot-failure-artifacts
+          path: |
+            snapshot-artifacts
+            TestResults/Scrabbdict.xcresult
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Export coverage
         run: .github/workflows/export-coverage --output coverage.lcov
