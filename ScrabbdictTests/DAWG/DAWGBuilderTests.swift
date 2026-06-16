@@ -12,7 +12,7 @@ final class DAWGBuilderTests: XCTestCase {
         let words = ["a", "an", "ant", "bar", "bat", "cat", "rat", "tar"]
 
         let data = try DAWGBuilder(words: words).data()
-        let dawg = try DAWG(data: data)
+        let dawg = try DAWG(data: data, validatesEdges: true)
 
         XCTAssertEqual(dawg.count, words.count)
 
@@ -28,7 +28,7 @@ final class DAWGBuilderTests: XCTestCase {
 
     func testGeneratedDataDeduplicatesDuplicateWords() throws {
         let data = try DAWGBuilder(words: ["ant", "ant", "ant"]).data()
-        let dawg = try DAWG(data: data)
+        let dawg = try DAWG(data: data, validatesEdges: true)
 
         XCTAssertEqual(dawg.count, 1)
         XCTAssertTrue(dawg.contains("ant"))

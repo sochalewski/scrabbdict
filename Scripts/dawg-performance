@@ -756,9 +756,12 @@ if [[ "$mode" == "comparison" ]]; then
   require_commit "$base_ref"
   require_commit "$compare_ref"
 
+  base_display_ref="$(git -C "$repo_root" rev-parse --short=7 --verify "$base_ref^{commit}")"
+  compare_display_ref="$(git -C "$repo_root" rev-parse --short=7 --verify "$compare_ref^{commit}")"
+
   echo "DAWGPerformanceTests comparison" >&2
-  echo "Base:    $base_ref" >&2
-  echo "Compare: $compare_ref" >&2
+  echo "Base:    $base_display_ref" >&2
+  echo "Compare: $compare_display_ref" >&2
 
   prepare_ref_sources "$base_ref" "base"
   prepare_ref_sources "$compare_ref" "compare"
@@ -774,7 +777,7 @@ if [[ "$mode" == "comparison" ]]; then
     echo
     echo "| Base | Compare | Build |"
     echo "| --- | --- | --- |"
-    echo "| \`$base_ref\` | \`$compare_ref\` | \`swiftc -O -whole-module-optimization\` |"
+    echo "| \`$base_display_ref\` | \`$compare_display_ref\` | \`swiftc -O -whole-module-optimization\` |"
 
     print_clock_comparison_markdown "base" "compare"
     if [[ "$memory_samples" -gt 0 ]]; then
@@ -786,8 +789,8 @@ if [[ "$mode" == "comparison" ]]; then
   else
     echo
     echo "DAWGPerformanceTests comparison"
-    echo "Base:    $base_ref"
-    echo "Compare: $compare_ref"
+    echo "Base:    $base_display_ref"
+    echo "Compare: $compare_display_ref"
     echo "Build:   swiftc -O -whole-module-optimization"
 
     print_clock_comparison "base" "compare"

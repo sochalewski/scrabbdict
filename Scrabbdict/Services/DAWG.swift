@@ -16,10 +16,6 @@ final class DAWG: Sendable {
     private let keyByScalar: [UInt16]
     /// Packed edges as described by ``DAWGFormat``.
     private let edges: [UInt32]
-    /// Edges remaining after each edge within its node block (`0` for the last edge).
-    /// This is derived from edge last flags at load time, not stored in the file.
-    /// `UInt8` is enough because node fan-out is capped by the 8-bit alphabet.
-    private let remainingEdges: [UInt8]
 
     convenience init?(language: Language, bundle: Bundle = .main) {
         guard let url = bundle.url(forResource: language.rawValue, withExtension: "dawg") else {
@@ -35,10 +31,10 @@ final class DAWG: Sendable {
 
     convenience init(url: URL) throws {
         let data = try Data(contentsOf: url, options: .mappedIfSafe)
-        try self.init(data: data)
+        try self.init(data: data, validatesEdges: false)
     }
 
-    init(data: Data) throws {
+    init(data: Data, validatesEdges: Bool) throws {
         let (wordCount, alphabet, edges) = try data.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) throws -> (Int, [UInt16], [UInt32]) in
             guard buffer.count >= DAWGFormat.headerSize else { throw DAWGError.invalidHeader }
 
@@ -66,32 +62,11 @@ final class DAWG: Sendable {
                 initializedCount = edgeCount
             }
 
+            if validatesEdges {
+                try Self.validateEdges(edges, alphabetCount: alphabet.count)
+            }
+
             return (Int(wordCount), alphabet, edges)
-        }
-
-        var previousEdgeKey: UInt32 = 0
-        var isWithinNodeBlock = false
-        for edge in edges {
-            let edgeKey = edge >> DAWGFormat.edgeKeyShift
-            guard
-                Int(edge & DAWGFormat.edgeTargetMask) < edges.count,
-                Int(edgeKey) < alphabet.count,
-                // Edge lookup relies on keys sorted ascending within a node block.
-                !isWithinNodeBlock || edgeKey > previousEdgeKey
-            else { throw DAWGError.invalidEdges }
-
-            previousEdgeKey = edgeKey
-            isWithinNodeBlock = edge & DAWGFormat.edgeLastFlag == 0
-        }
-        if let lastEdge = edges.last {
-            guard lastEdge & DAWGFormat.edgeLastFlag != 0 else { throw DAWGError.invalidEdges }
-        }
-
-        var remainingEdges = [UInt8](repeating: 0, count: edges.count)
-        var run: UInt8 = 0
-        for index in stride(from: edges.count - 1, through: 0, by: -1) {
-            run = edges[index] & DAWGFormat.edgeLastFlag != 0 ? 0 : run &+ 1
-            remainingEdges[index] = run
         }
 
         var keyByScalar = [UInt16](repeating: .max, count: Int(alphabet.max() ?? 0) + 1)
@@ -103,7 +78,6 @@ final class DAWG: Sendable {
         self.alphabet = alphabet
         self.keyByScalar = keyByScalar
         self.edges = edges
-        self.remainingEdges = remainingEdges
     }
 
     func contains(_ word: String) -> Bool {
@@ -197,10 +171,9 @@ final class DAWG: Sendable {
         currentWord: inout [UInt16],
         result: inout [String]
     ) {
-        let firstEdge = Int(firstEdge)
-        let lastEdge = firstEdge + Int(remainingEdges[firstEdge])
+        var edgeIndex = Int(firstEdge)
 
-        for edgeIndex in firstEdge...lastEdge {
+        while true {
             let edge = edges[edgeIndex]
             let key = UInt16(edge >> DAWGFormat.edgeKeyShift)
 
@@ -219,6 +192,11 @@ final class DAWG: Sendable {
                 currentWord.removeLast()
                 availableLetters.restore(at: letterIndex)
             }
+
+            if edge & DAWGFormat.edgeLastFlag != 0 {
+                break
+            }
+            edgeIndex += 1
         }
     }
 
@@ -232,11 +210,16 @@ final class DAWG: Sendable {
         let patternKey = pattern[patternIndex]
 
         if patternKey == Self.wildcardKey {
-            let firstEdge = Int(firstEdge)
-            let lastEdge = firstEdge + Int(remainingEdges[firstEdge])
+            var edgeIndex = Int(firstEdge)
 
-            for edgeIndex in firstEdge...lastEdge {
-                descend(along: edges[edgeIndex], matching: pattern, patternIndex: patternIndex, currentWord: &currentWord, result: &result)
+            while true {
+                let edge = edges[edgeIndex]
+                descend(along: edge, matching: pattern, patternIndex: patternIndex, currentWord: &currentWord, result: &result)
+
+                if edge & DAWGFormat.edgeLastFlag != 0 {
+                    break
+                }
+                edgeIndex += 1
             }
         } else if let edge = edge(for: patternKey, startingAt: firstEdge) {
             descend(along: edge, matching: pattern, patternIndex: patternIndex, currentWord: &currentWord, result: &result)
@@ -267,10 +250,9 @@ final class DAWG: Sendable {
     }
 
     private func edge(for key: UInt16, startingAt firstEdge: UInt32) -> UInt32? {
-        let firstEdge = Int(firstEdge)
-        let lastEdge = firstEdge + Int(remainingEdges[firstEdge])
+        var edgeIndex = Int(firstEdge)
 
-        for edgeIndex in firstEdge...lastEdge {
+        while true {
             let edge = edges[edgeIndex]
             let edgeKey = UInt16(edge >> DAWGFormat.edgeKeyShift)
             if edgeKey == key {
@@ -279,9 +261,36 @@ final class DAWG: Sendable {
             if edgeKey > key {
                 break
             }
+            if edge & DAWGFormat.edgeLastFlag != 0 {
+                break
+            }
+            edgeIndex += 1
         }
 
         return nil
+    }
+}
+
+private extension DAWG {
+    static func validateEdges(_ edges: [UInt32], alphabetCount: Int) throws {
+        var previousEdgeKey: UInt16 = 0
+        var isWithinNodeBlock = false
+
+        for edge in edges {
+            let edgeKey = UInt16(edge >> DAWGFormat.edgeKeyShift)
+            guard
+                Int(edge & DAWGFormat.edgeTargetMask) < edges.count,
+                Int(edgeKey) < alphabetCount,
+                // Edge lookup relies on keys sorted ascending within a node block.
+                !isWithinNodeBlock || edgeKey > previousEdgeKey
+            else { throw DAWGError.invalidEdges }
+
+            previousEdgeKey = edgeKey
+            isWithinNodeBlock = edge & DAWGFormat.edgeLastFlag == 0
+        }
+        if let lastEdge = edges.last {
+            guard lastEdge & DAWGFormat.edgeLastFlag != 0 else { throw DAWGError.invalidEdges }
+        }
     }
 }
 
