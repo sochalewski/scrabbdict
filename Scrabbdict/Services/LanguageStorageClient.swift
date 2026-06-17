@@ -4,8 +4,9 @@
 //  Licensed under the Apache License, Version 2.0.
 //
 
-import ComposableArchitecture
+import Dependencies
 import Foundation
+import Sharing
 
 struct LanguageStorageClient: Sendable {
     var current: @Sendable () -> Language
@@ -20,7 +21,7 @@ extension LanguageStorageClient: DependencyKey {
             guard
                 let rawValue = appStorage.string(forKey: storageKey),
                 let language = Language(rawValue: rawValue)
-            else { return .englishUS }
+            else { return .current }
             return language
         },
         setCurrent: { language in
@@ -45,6 +46,23 @@ extension DependencyValues {
     var languageStorage: LanguageStorageClient {
         get { self[LanguageStorageClient.self] }
         set { self[LanguageStorageClient.self] = newValue }
+    }
+}
+
+private extension Language {
+    static var current: Self {
+        @Dependency(\.locale) var locale
+
+        switch locale.language.languageCode?.identifier.lowercased() {
+        case "en":
+            switch locale.language.region?.identifier.uppercased() {
+            case "US", "CA": return .englishUS
+            default: return .englishGB
+            }
+        case "fr": return .french
+        case "pl": return .polish
+        default: return .englishGB
+        }
     }
 }
 

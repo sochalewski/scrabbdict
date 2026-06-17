@@ -4,7 +4,7 @@
 //  Licensed under the Apache License, Version 2.0.
 //
 
-import ComposableArchitecture
+import Dependencies
 import FirebaseCrashlytics
 import Foundation
 
