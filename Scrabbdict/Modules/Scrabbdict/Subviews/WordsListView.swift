@@ -14,10 +14,8 @@ struct WordsListView: View {
     @ScaledMetric(relativeTo: .footnote) var pointsVerticalPadding: CGFloat = 3
 
     var body: some View {
-        List {
-            ForEach(Array(words.enumerated()), id: \.element.string) { index, word in
-                listRow(for: word, isFirst: index == 0)
-            }
+        List(words, id: \.string) { word in
+            listRow(for: word, isFirst: word.string == words.first?.string)
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -26,9 +24,8 @@ struct WordsListView: View {
 }
 
 private extension WordsListView {
-    @ViewBuilder
     func listRow(for word: Word, isFirst: Bool) -> some View {
-        let row = rowContent(for: word)
+        rowContent(for: word)
             .padding(.horizontal, resultContentLayout.horizontalPadding)
             .frame(maxWidth: resultContentLayout.maxWidth)
             .frame(maxWidth: .infinity)
@@ -42,11 +39,7 @@ private extension WordsListView {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(verbatim: word.string))
             .accessibilityValue(Text(.wordAccessibilityPoints(word.points)))
-        if isFirst {
-            row.listRowSeparator(.hidden, edges: .top)
-        } else {
-            row
-        }
+            .listRowSeparator(isFirst ? .hidden : .automatic, edges: .top)
     }
 
     func rowContent(for word: Word) -> some View {
