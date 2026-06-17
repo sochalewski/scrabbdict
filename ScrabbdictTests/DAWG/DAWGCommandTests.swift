@@ -57,6 +57,40 @@ final class DAWGCommandTests: XCTestCase {
         }
     }
 
+    func testParseOptionsRejectsHelpWithUsage() {
+        XCTAssertThrowsError(try DAWGCommand.parseOptions(arguments: ["DAWGBuilder", "--help"])) { error in
+            guard case let .help(usage) = error as? DAWGCommand.CommandError else {
+                XCTFail()
+                return
+            }
+
+            XCTAssertTrue(usage.contains("Usage: DAWGBuilder"))
+            XCTAssertTrue(usage.contains("--input-dir PATH"))
+            XCTAssertTrue(usage.contains("--output-dir PATH"))
+        }
+    }
+
+    func testCommandErrorsExposeExitCodesAndDescriptions() {
+        let inputDirectory = temporaryURL("input")
+        let outputURL = temporaryURL("output").appendingPathComponent("test.dawg")
+        let underlyingError = WordListError.unzipFailed("archive missing")
+
+        let cases: [(error: DAWGCommand.CommandError, exitCode: Int32, description: String)] = [
+            (.help("Usage text"), 0, "Usage text"),
+            (.missingOptionValue("--input-dir"), 64, "Missing value for --input-dir"),
+            (.unknownOption("--bad"), 64, "Unknown option: --bad\n\(DAWGCommand.usage())"),
+            (.inputDirectoryMissing(inputDirectory), 66, "Input directory does not exist: \(inputDirectory.path)"),
+            (.noWordListsFound(inputDirectory), 66, "No word lists found in \(inputDirectory.path)."),
+            (.preparationFailed(underlyingError), 66, "Could not prepare DAWG generation: \(underlyingError)"),
+            (.generationFailed(outputURL, underlyingError), 1, "Failed to generate \(outputURL.path): \(underlyingError)")
+        ]
+
+        for testCase in cases {
+            XCTAssertEqual(testCase.error.exitCode, testCase.exitCode)
+            XCTAssertEqual(testCase.error.description, testCase.description)
+        }
+    }
+
     func testLanguagesDiscoversTextAndZipWordListsWithoutDuplicates() throws {
         try withTemporaryDirectory { inputDirectory in
             try Data().write(to: inputDirectory.appendingPathComponent("pl_OSPS.txt"))
@@ -184,6 +218,56 @@ final class DAWGCommandTests: XCTestCase {
                 XCTAssertTrue(dawg.contains("cat"))
             }
         }
+    }
+
+    func testGenerateWrapsLanguageGenerationFailure() throws {
+        try withTemporaryDirectory { inputDirectory in
+            try withTemporaryDirectory { outputDirectory in
+                let unsupportedScalar = String(UnicodeScalar(128_512)!)
+                try "\(unsupportedScalar)\n".write(
+                    to: inputDirectory.appendingPathComponent("test.txt"),
+                    atomically: true,
+                    encoding: .utf8
+                )
+
+                XCTAssertThrowsError(try DAWGCommand().generate(arguments: [
+                    "DAWGBuilder",
+                    "--input-dir", inputDirectory.path,
+                    "--output-dir", outputDirectory.path
+                ])) { error in
+                    guard case let .generationFailed(outputURL, underlyingError) = error as? DAWGCommand.CommandError else {
+                        return XCTFail("Expected generation failure, got \(error).")
+                    }
+
+                    XCTAssertEqual(outputURL, outputDirectory.appendingPathComponent("test.dawg"))
+                    guard case DAWGBuilderError.unsupportedScalar(128_512) = underlyingError else {
+                        return XCTFail("Expected unsupported scalar error, got \(underlyingError).")
+                    }
+                    XCTAssertEqual(
+                        (underlyingError as? DAWGBuilderError)?.description,
+                        "DAWG supports Unicode scalars up to \(UInt16.max); unsupported scalar: 128512."
+                    )
+                }
+            }
+        }
+    }
+
+    func testWordListErrorsExposeDescriptions() {
+        let inputDirectory = temporaryURL("input")
+        let invalidUTF8URL = inputDirectory.appendingPathComponent("test.zip")
+
+        XCTAssertEqual(
+            WordListError.invalidUTF8(invalidUTF8URL).description,
+            "Word list is not valid UTF-8: \(invalidUTF8URL.path)"
+        )
+        XCTAssertEqual(
+            WordListError.missingWordList(language: "test", inputDirectory: inputDirectory).description,
+            "Missing word list for test. Expected test.zip or test.txt in \(inputDirectory.path)."
+        )
+        XCTAssertEqual(
+            WordListError.unzipFailed("archive missing").description,
+            "Could not read zipped word list: archive missing"
+        )
     }
 }
 
