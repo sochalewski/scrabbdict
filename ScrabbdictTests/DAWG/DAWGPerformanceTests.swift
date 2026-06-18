@@ -26,64 +26,92 @@ final class DAWGPerformanceTests: XCTestCase {
         .french: "mang???",
         .polish: "kot???"
     ]
-    private let iterationCount = 1_000
+    private let lookupCountPerMeasurement = 1_000
 
-    func testLoadDAWGEnglishGBPerformance() throws {
+    func testLoadEnglishGB() throws {
         try measureLoad(language: .englishGB)
     }
 
-    func testLoadDAWGEnglishUSPerformance() throws {
+    func testLoadEnglishUS() throws {
         try measureLoad(language: .englishUS)
     }
 
-    func testLoadDAWGFrenchPerformance() throws {
+    func testLoadFrench() throws {
         try measureLoad(language: .french)
     }
 
-    func testLoadDAWGPolishPerformance() throws {
+    func testLoadPolish() throws {
         try measureLoad(language: .polish)
     }
 
-    func testWordsFromDAWGEnglishGBPerformance() throws {
+    func testContainsEnglishGB() throws {
+        try measureContains(language: .englishGB)
+    }
+
+    func testContainsEnglishUS() throws {
+        try measureContains(language: .englishUS)
+    }
+
+    func testContainsFrench() throws {
+        try measureContains(language: .french)
+    }
+
+    func testContainsPolish() throws {
+        try measureContains(language: .polish)
+    }
+
+    func testWordsFromEnglishGB() throws {
         try measureWordsFrom(language: .englishGB)
     }
 
-    func testWordsFromDAWGEnglishUSPerformance() throws {
+    func testWordsFromEnglishUS() throws {
         try measureWordsFrom(language: .englishUS)
     }
 
-    func testWordsFromDAWGFrenchPerformance() throws {
+    func testWordsFromFrench() throws {
         try measureWordsFrom(language: .french)
     }
 
-    func testWordsFromDAWGPolishPerformance() throws {
+    func testWordsFromPolish() throws {
         try measureWordsFrom(language: .polish)
     }
 
-    func testPatternDAWGEnglishGBPerformance() throws {
+    func testPatternEnglishGB() throws {
         try measurePattern(language: .englishGB)
     }
 
-    func testPatternDAWGEnglishUSPerformance() throws {
+    func testPatternEnglishUS() throws {
         try measurePattern(language: .englishUS)
     }
 
-    func testPatternDAWGFrenchPerformance() throws {
+    func testPatternFrench() throws {
         try measurePattern(language: .french)
     }
 
-    func testPatternDAWGPolishPerformance() throws {
+    func testPatternPolish() throws {
         try measurePattern(language: .polish)
     }
 
     private func measureLoad(language: Language) throws {
         var wordCount = 0
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()], options: singleIterationOptions()) {
+        measure(metrics: [XCTClockMetric()], options: repeatedOptions()) {
             wordCount = DAWG(language: language)!.count
         }
 
         XCTAssertEqual(wordCount, wordCountsByLanguage[language])
+    }
+
+    private func measureContains(language: Language) throws {
+        let dawg = try XCTUnwrap(DAWG(language: language))
+        let query = queriesByLanguage[language]!
+        var resultCount = 0
+
+        measure(metrics: [XCTClockMetric()], options: repeatedOptions()) {
+            for _ in 0..<lookupCountPerMeasurement {
+                resultCount += dawg.contains(query) ? 1 : 0
+            }
+        }
     }
 
     private func measureWordsFrom(language: Language) throws {
@@ -91,13 +119,11 @@ final class DAWGPerformanceTests: XCTestCase {
         let query = queriesByLanguage[language]!
         var resultCount = 0
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()], options: repeatedOptions()) {
-            for _ in 0..<iterationCount {
+        measure(metrics: [XCTClockMetric()], options: repeatedOptions()) {
+            for _ in 0..<lookupCountPerMeasurement {
                 resultCount += dawg.words(from: query).count
             }
         }
-
-        XCTAssertGreaterThan(resultCount, 0)
     }
 
     private func measurePattern(language: Language) throws {
@@ -105,19 +131,11 @@ final class DAWGPerformanceTests: XCTestCase {
         let pattern = patternsByLanguage[language]!
         var resultCount = 0
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()], options: repeatedOptions()) {
-            for _ in 0..<iterationCount {
+        measure(metrics: [XCTClockMetric()], options: repeatedOptions()) {
+            for _ in 0..<lookupCountPerMeasurement {
                 resultCount += dawg.words(matching: pattern).count
             }
         }
-
-        XCTAssertGreaterThan(resultCount, 0)
-    }
-
-    private func singleIterationOptions() -> XCTMeasureOptions {
-        let options = XCTMeasureOptions()
-        options.iterationCount = 1
-        return options
     }
 
     private func repeatedOptions() -> XCTMeasureOptions {

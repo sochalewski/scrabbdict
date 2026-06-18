@@ -13,8 +13,9 @@ The standalone test runner compiles only the DAWG reader, DAWG format constants,
 and DAWGPerformanceTests with Release optimization.
 
 With no refs, tests the current checkout and current dictionaries.
-With two refs, compares exactly those two repository commits and their matching
-dictionary submodule commits.
+With two refs, compares the DAWG reader and format constants from those two
+repository commits and their matching dictionary submodule commits, using the
+current DAWGPerformanceTests source for both sides.
 
 Environment:
   DAWG_DICTIONARY_REPO      Path to the initialized dictionaries repository.
@@ -145,6 +146,17 @@ require_commit() {
   git -C "$repo_root" rev-parse --verify "$ref^{commit}" >/dev/null
 }
 
+dawg_format_version_for_ref() {
+  local ref="$1"
+  local version
+
+  version="$(git -C "$repo_root" show "$ref:DAWGBuilder/DAWGFormat.swift" \
+    | sed -nE 's/^[[:space:]]*static[[:space:]]+let[[:space:]]+version([[:space:]]*:[^=]+)?[[:space:]]*=[[:space:]]*([0-9]+).*$/\2/p' \
+    | head -n 1)"
+
+  [[ -n "$version" ]] && printf "v%s" "$version"
+}
+
 require_dictionary_commit() {
   local ref="$1"
   git -C "$dictionary_repo" cat-file -e "$ref^{commit}"
@@ -243,18 +255,22 @@ import Darwin
 import XCTest
 
 let suite = XCTestSuite(name: "DAWGPerformanceTests")
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadDAWGEnglishGBPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadDAWGEnglishUSPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadDAWGFrenchPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadDAWGPolishPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromDAWGEnglishGBPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromDAWGEnglishUSPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromDAWGFrenchPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromDAWGPolishPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternDAWGEnglishGBPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternDAWGEnglishUSPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternDAWGFrenchPerformance)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternDAWGPolishPerformance)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadEnglishGB)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadEnglishUS)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadFrench)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadPolish)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsEnglishGB)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsEnglishUS)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsFrench)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsPolish)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromEnglishGB)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromEnglishUS)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromFrench)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromPolish)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternEnglishGB)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternEnglishUS)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternFrench)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternPolish)))
 suite.run()
 
 exit(suite.testRun?.hasSucceeded == true ? 0 : 1)
@@ -343,6 +359,13 @@ prepare_generated_sources() {
   write_memory_probe "$source_dir/MemoryProbe.swift"
 }
 
+copy_current_performance_tests() {
+  local output_file="$1"
+
+  sed '/@testable import Scrabbdict/d' "$repo_root/ScrabbdictTests/DAWG/DAWGPerformanceTests.swift" \
+    > "$output_file"
+}
+
 prepare_ref_sources() {
   local ref="$1"
   local label="$2"
@@ -354,9 +377,7 @@ prepare_ref_sources() {
 
   git -C "$repo_root" show "$ref:DAWGBuilder/DAWGFormat.swift" > "$source_dir/DAWGFormat.swift"
   git -C "$repo_root" show "$ref:Scrabbdict/Services/DAWG.swift" > "$source_dir/DAWG.swift"
-  git -C "$repo_root" show "$ref:ScrabbdictTests/DAWG/DAWGPerformanceTests.swift" \
-    | sed '/@testable import Scrabbdict/d' \
-    > "$source_dir/DAWGPerformanceTests.swift"
+  copy_current_performance_tests "$source_dir/DAWGPerformanceTests.swift"
 
   dictionary_ref="$(git -C "$repo_root" rev-parse "$ref:.dictionaries")"
   require_dictionary_commit "$dictionary_ref"
@@ -373,8 +394,7 @@ prepare_current_sources() {
 
   cp "$repo_root/DAWGBuilder/DAWGFormat.swift" "$source_dir/DAWGFormat.swift"
   cp "$repo_root/Scrabbdict/Services/DAWG.swift" "$source_dir/DAWG.swift"
-  sed '/@testable import Scrabbdict/d' "$repo_root/ScrabbdictTests/DAWG/DAWGPerformanceTests.swift" \
-    > "$source_dir/DAWGPerformanceTests.swift"
+  copy_current_performance_tests "$source_dir/DAWGPerformanceTests.swift"
 
   if [[ ! -d "$dictionary_source" ]]; then
     dictionary_source="$repo_root/Scrabbdict/Resources/Dictionaries"
@@ -758,10 +778,16 @@ if [[ "$mode" == "comparison" ]]; then
 
   base_display_ref="$(git -C "$repo_root" rev-parse --short=7 --verify "$base_ref^{commit}")"
   compare_display_ref="$(git -C "$repo_root" rev-parse --short=7 --verify "$compare_ref^{commit}")"
+  base_format_version="$(dawg_format_version_for_ref "$base_ref")"
+  compare_format_version="$(dawg_format_version_for_ref "$compare_ref")"
+  base_display_ref_with_version="$base_display_ref"
+  compare_display_ref_with_version="$compare_display_ref"
+  [[ -n "$base_format_version" ]] && base_display_ref_with_version="$base_display_ref_with_version ($base_format_version)"
+  [[ -n "$compare_format_version" ]] && compare_display_ref_with_version="$compare_display_ref_with_version ($compare_format_version)"
 
   echo "DAWGPerformanceTests comparison" >&2
-  echo "Base:    $base_display_ref" >&2
-  echo "Compare: $compare_display_ref" >&2
+  echo "Base:    $base_display_ref_with_version" >&2
+  echo "Compare: $compare_display_ref_with_version" >&2
 
   prepare_ref_sources "$base_ref" "base"
   prepare_ref_sources "$compare_ref" "compare"
@@ -777,7 +803,7 @@ if [[ "$mode" == "comparison" ]]; then
     echo
     echo "| Base | Compare | Build |"
     echo "| --- | --- | --- |"
-    echo "| \`$base_display_ref\` | \`$compare_display_ref\` | \`swiftc -O -whole-module-optimization\` |"
+    echo "| \`$base_display_ref_with_version\` | \`$compare_display_ref_with_version\` | \`swiftc -O -whole-module-optimization\` |"
 
     print_clock_comparison_markdown "base" "compare"
     if [[ "$memory_samples" -gt 0 ]]; then
@@ -789,8 +815,8 @@ if [[ "$mode" == "comparison" ]]; then
   else
     echo
     echo "DAWGPerformanceTests comparison"
-    echo "Base:    $base_display_ref"
-    echo "Compare: $compare_display_ref"
+    echo "Base:    $base_display_ref_with_version"
+    echo "Compare: $compare_display_ref_with_version"
     echo "Build:   swiftc -O -whole-module-optimization"
 
     print_clock_comparison "base" "compare"
