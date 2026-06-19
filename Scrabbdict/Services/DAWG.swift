@@ -106,7 +106,7 @@ final class DAWG: Sendable {
     func words(from letters: String, minLength: Int = 2) -> [String] {
         guard !letters.isEmpty, !edges.isEmpty else { return [] }
 
-        var availableLetters = LetterCounter(letters, keyForScalar: key)
+        var availableLetters = LetterCounter(letters, alphabetCount: alphabet.count, keyForScalar: key)
         guard !availableLetters.isEmpty else { return [] }
 
         var currentWord = [UInt16]()
@@ -177,7 +177,7 @@ final class DAWG: Sendable {
             let edge = edges[edgeIndex]
             let key = UInt16(edge >> DAWGFormat.edgeKeyShift)
 
-            if let letterIndex = availableLetters.consume(key) {
+            if availableLetters.consume(key) {
                 currentWord.append(key)
 
                 if edge & DAWGFormat.edgeWordFlag != 0, currentWord.count >= minLength {
@@ -190,7 +190,7 @@ final class DAWG: Sendable {
                 }
 
                 currentWord.removeLast()
-                availableLetters.restore(at: letterIndex)
+                availableLetters.restore(key)
             }
 
             if edge & DAWGFormat.edgeLastFlag != 0 {
@@ -301,16 +301,15 @@ private enum DAWGError: Error {
 }
 
 private struct LetterCounter: Sendable {
-    private var keys = [UInt16]()
-    private var counts = [Int]()
+    private var counts: [UInt8]
+    private var hasLetters = false
 
     var isEmpty: Bool {
-        keys.isEmpty
+        !hasLetters
     }
 
-    init(_ letters: String, keyForScalar: (UInt16) -> UInt16?) {
-        keys.reserveCapacity(letters.unicodeScalars.count)
-        counts.reserveCapacity(letters.unicodeScalars.count)
+    init(_ letters: String, alphabetCount: Int, keyForScalar: (UInt16) -> UInt16?) {
+        self.counts = [UInt8](repeating: 0, count: alphabetCount)
 
         for scalar in letters.unicodeScalars {
             guard
@@ -318,26 +317,21 @@ private struct LetterCounter: Sendable {
                 let key = keyForScalar(scalarKey)
             else { continue }
 
-            if let index = keys.firstIndex(of: key) {
-                counts[index] += 1
-            } else {
-                keys.append(key)
-                counts.append(1)
-            }
+            counts[Int(key)] += 1
+            self.hasLetters = true
         }
     }
 
-    mutating func consume(_ key: UInt16) -> Int? {
-        for index in keys.indices where keys[index] == key && counts[index] > 0 {
-            counts[index] -= 1
-            return index
-        }
+    mutating func consume(_ key: UInt16) -> Bool {
+        let index = Int(key)
+        guard counts[index] > 0 else { return false }
 
-        return nil
+        counts[index] -= 1
+        return true
     }
 
-    mutating func restore(at index: Int) {
-        counts[index] += 1
+    mutating func restore(_ key: UInt16) {
+        counts[Int(key)] += 1
     }
 }
 
