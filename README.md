@@ -222,6 +222,12 @@ You can also compare two repository commits and their matching dictionary submod
 Scripts/dawg-performance <base-ref> <compare-ref>
 ```
 
+Use `current` as either ref to compare the current checkout, including uncommitted changes:
+
+```sh
+Scripts/dawg-performance main current
+```
+
 ## Supported Dictionaries
 
 The app currently references these language identifiers:

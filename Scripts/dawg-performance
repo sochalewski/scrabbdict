@@ -15,7 +15,8 @@ and DAWGPerformanceTests with Release optimization.
 With no refs, tests the current checkout and current dictionaries.
 With two refs, compares the DAWG reader and format constants from those two
 repository commits and their matching dictionary submodule commits, using the
-current DAWGPerformanceTests source for both sides.
+current DAWGPerformanceTests source for both sides. Use current as either ref
+to compare the current checkout, including uncommitted changes.
 
 Environment:
   DAWG_DICTIONARY_REPO      Path to the initialized dictionaries repository.
@@ -27,6 +28,7 @@ Environment:
 Examples:
   Scripts/dawg-performance
   Scripts/dawg-performance --format markdown
+  Scripts/dawg-performance current main
   Scripts/dawg-performance 9d54d17 5b58342
   Scripts/dawg-performance --format markdown 9d54d17 5b58342
 EOF
@@ -146,6 +148,15 @@ require_commit() {
   git -C "$repo_root" rev-parse --verify "$ref^{commit}" >/dev/null
 }
 
+is_current_ref() {
+  [[ "$1" == "current" ]]
+}
+
+require_comparison_ref() {
+  local ref="$1"
+  is_current_ref "$ref" || require_commit "$ref"
+}
+
 dawg_format_version_for_ref() {
   local ref="$1"
   local version
@@ -155,6 +166,36 @@ dawg_format_version_for_ref() {
     | head -n 1)"
 
   [[ -n "$version" ]] && printf "v%s" "$version"
+}
+
+dawg_format_version_for_current() {
+  local version
+
+  version="$(sed -nE 's/^[[:space:]]*static[[:space:]]+let[[:space:]]+version([[:space:]]*:[^=]+)?[[:space:]]*=[[:space:]]*([0-9]+).*$/\2/p' \
+    "$repo_root/DAWGBuilder/DAWGFormat.swift" \
+    | head -n 1)"
+
+  [[ -n "$version" ]] && printf "v%s" "$version"
+}
+
+display_ref() {
+  local ref="$1"
+
+  if is_current_ref "$ref"; then
+    printf "current"
+  else
+    git -C "$repo_root" rev-parse --short=7 --verify "$ref^{commit}"
+  fi
+}
+
+format_version_for_comparison_ref() {
+  local ref="$1"
+
+  if is_current_ref "$ref"; then
+    dawg_format_version_for_current
+  else
+    dawg_format_version_for_ref "$ref"
+  fi
 }
 
 require_dictionary_commit() {
@@ -407,6 +448,17 @@ prepare_current_sources() {
 
   cp "$dictionary_source"/*.dawg "$build_dir"/
   assert_real_dictionary_files "$build_dir"
+}
+
+prepare_comparison_sources() {
+  local ref="$1"
+  local label="$2"
+
+  if is_current_ref "$ref"; then
+    prepare_current_sources "$label"
+  else
+    prepare_ref_sources "$ref" "$label"
+  fi
 }
 
 run_memory_probe() {
@@ -767,19 +819,19 @@ if [[ ! -d "$xctest_swift_module_dir" ]]; then
 fi
 
 if [[ "$mode" == "comparison" ]]; then
-  if ! git -C "$dictionary_repo" rev-parse --git-dir >/dev/null 2>&1; then
+  if { ! is_current_ref "$base_ref" || ! is_current_ref "$compare_ref"; } && ! git -C "$dictionary_repo" rev-parse --git-dir >/dev/null 2>&1; then
     echo "Dictionary repository is not initialized: $dictionary_repo" >&2
     echo "Initialize .dictionaries first; this script does not fetch from the network." >&2
     exit 66
   fi
 
-  require_commit "$base_ref"
-  require_commit "$compare_ref"
+  require_comparison_ref "$base_ref"
+  require_comparison_ref "$compare_ref"
 
-  base_display_ref="$(git -C "$repo_root" rev-parse --short=7 --verify "$base_ref^{commit}")"
-  compare_display_ref="$(git -C "$repo_root" rev-parse --short=7 --verify "$compare_ref^{commit}")"
-  base_format_version="$(dawg_format_version_for_ref "$base_ref")"
-  compare_format_version="$(dawg_format_version_for_ref "$compare_ref")"
+  base_display_ref="$(display_ref "$base_ref")"
+  compare_display_ref="$(display_ref "$compare_ref")"
+  base_format_version="$(format_version_for_comparison_ref "$base_ref")"
+  compare_format_version="$(format_version_for_comparison_ref "$compare_ref")"
   base_display_ref_with_version="$base_display_ref"
   compare_display_ref_with_version="$compare_display_ref"
   [[ -n "$base_format_version" ]] && base_display_ref_with_version="$base_display_ref_with_version ($base_format_version)"
@@ -789,8 +841,8 @@ if [[ "$mode" == "comparison" ]]; then
   echo "Base:    $base_display_ref_with_version" >&2
   echo "Compare: $compare_display_ref_with_version" >&2
 
-  prepare_ref_sources "$base_ref" "base"
-  prepare_ref_sources "$compare_ref" "compare"
+  prepare_comparison_sources "$base_ref" "base"
+  prepare_comparison_sources "$compare_ref" "compare"
   run_tests "base"
   run_tests "compare"
   if [[ "$memory_samples" -gt 0 ]]; then
