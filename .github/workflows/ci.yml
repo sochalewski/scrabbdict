@@ -40,10 +40,48 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
+        env:
+          GIT_LFS_SKIP_SMUDGE: 1
         with:
           token: ${{ secrets.CHECKOUT_TOKEN || github.token }}
           submodules: recursive
-          lfs: true
+
+      - name: Restore snapshot Git LFS cache
+        id: snapshot_lfs_cache
+        uses: actions/cache/restore@v5
+        with:
+          path: .git/lfs/objects
+          key: ${{ runner.os }}-snapshot-lfs-${{ hashFiles('ScrabbdictTests/Snapshots/__Snapshots__/**/*.png') }}
+          restore-keys: ${{ runner.os }}-snapshot-lfs-
+
+      - name: Restore dictionary Git LFS cache
+        id: dictionary_lfs_cache
+        uses: actions/cache/restore@v5
+        with:
+          path: .git/modules/Dictionaries/lfs/objects
+          key: ${{ runner.os }}-dictionary-lfs-test-${{ hashFiles('.dictionaries/DAWG/*.dawg') }}
+          restore-keys: ${{ runner.os }}-dictionary-lfs-
+
+      - name: Fetch required Git LFS objects
+        run: |
+          set -euo pipefail
+
+          git lfs pull --include="ScrabbdictTests/Snapshots/__Snapshots__/**/*.png"
+          git -C .dictionaries lfs pull --include="DAWG/*.dawg"
+
+      - name: Save snapshot Git LFS cache
+        if: steps.snapshot_lfs_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: .git/lfs/objects
+          key: ${{ steps.snapshot_lfs_cache.outputs.cache-primary-key }}
+
+      - name: Save dictionary Git LFS cache
+        if: steps.dictionary_lfs_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: .git/modules/Dictionaries/lfs/objects
+          key: ${{ steps.dictionary_lfs_cache.outputs.cache-primary-key }}
 
       - name: Install project tools
         uses: jdx/mise-action@v4
@@ -191,6 +229,8 @@ jobs:
     steps:
       - name: Check out pull request head
         uses: actions/checkout@v7
+        env:
+          GIT_LFS_SKIP_SMUDGE: 1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -217,17 +257,43 @@ jobs:
           echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
           echo "compare_ref=$compare_ref" >> "$GITHUB_OUTPUT"
 
-      - name: Fetch dictionary LFS objects
+      - name: Resolve dictionary refs
+        id: dictionary_refs
         run: |
           set -euo pipefail
 
           base_dictionary_ref="$(git rev-parse "${{ steps.refs.outputs.base_ref }}:.dictionaries")"
           compare_dictionary_ref="$(git rev-parse "${{ steps.refs.outputs.compare_ref }}:.dictionaries")"
 
+          echo "base_ref=$base_dictionary_ref" >> "$GITHUB_OUTPUT"
+          echo "compare_ref=$compare_dictionary_ref" >> "$GITHUB_OUTPUT"
+
+      - name: Restore dictionary Git LFS cache
+        id: dawg_dictionary_lfs_cache
+        uses: actions/cache/restore@v5
+        with:
+          path: .git/modules/Dictionaries/lfs/objects
+          key: ${{ runner.os }}-dictionary-lfs-dawg-${{ steps.dictionary_refs.outputs.base_ref }}-${{ steps.dictionary_refs.outputs.compare_ref }}
+          restore-keys: ${{ runner.os }}-dictionary-lfs-
+
+      - name: Fetch dictionary LFS objects
+        run: |
+          set -euo pipefail
+
+          base_dictionary_ref="${{ steps.dictionary_refs.outputs.base_ref }}"
+          compare_dictionary_ref="${{ steps.dictionary_refs.outputs.compare_ref }}"
+
           git -C .dictionaries fetch --no-tags origin "$base_dictionary_ref"
           git -C .dictionaries fetch --no-tags origin "$compare_dictionary_ref"
           git -C .dictionaries lfs fetch --include="DAWG/*.dawg" origin "$base_dictionary_ref"
           git -C .dictionaries lfs fetch --include="DAWG/*.dawg" origin "$compare_dictionary_ref"
+
+      - name: Save dictionary Git LFS cache
+        if: steps.dawg_dictionary_lfs_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: .git/modules/Dictionaries/lfs/objects
+          key: ${{ steps.dawg_dictionary_lfs_cache.outputs.cache-primary-key }}
 
       - name: Run DAWG performance comparison
         run: |

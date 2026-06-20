@@ -3,10 +3,10 @@
 [![codecov](https://codecov.io/gh/sochalewski/scrabbdict/graph/badge.svg?token=D2TW0KDFYB)](https://codecov.io/gh/sochalewski/scrabbdict)
 
 <p align="center">
-  <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/AE47019C-73E8-4C0B-A949-31C0CC8131EA.png" alt="Screenshot #1" width="180" />
-  <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/1BBF5C40-CB0D-4FC3-A298-382A64CC634D.png" alt="Screenshot #2" width="180" />
-  <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/4C10B9BF-BCD8-4C27-B92D-12A7CC7540A9.png" alt="Screenshot #3" width="180" />
-  <img src="Marketing/AppStore/Scrabbdict.butterkit/Assets/60639882-7F0A-4F0D-9345-D11AF2CE5EF4.png" alt="Screenshot #4" width="180" />
+  <img src="Marketing/README/screenshot-1.png" alt="Screenshot #1" width="180" />
+  <img src="Marketing/README/screenshot-2.png" alt="Screenshot #2" width="180" />
+  <img src="Marketing/README/screenshot-3.png" alt="Screenshot #3" width="180" />
+  <img src="Marketing/README/screenshot-4.png" alt="Screenshot #4" width="180" />
 </p>
 
 Scrabbdict is an iOS dictionary helper for word games. It can validate a word, find words that can be built from a set of tiles, and search dictionaries with a simple `?` wildcard pattern.
