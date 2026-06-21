@@ -159,7 +159,7 @@ struct DAWGBuilder {
     }
 }
 
-enum DAWGBuilderError: Error, CustomStringConvertible {
+enum DAWGBuilderError: Error, Hashable, CustomStringConvertible {
     case unsupportedScalar(UInt32)
     case tooManyEdgesForPackedTarget
     case tooManyAlphabetScalarsForUInt8(Int)

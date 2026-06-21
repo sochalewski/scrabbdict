@@ -7,13 +7,13 @@
 import Foundation
 
 struct DAWGCommand {
-    struct Options: Equatable {
+    struct Options: Hashable {
         var inputDirectory: URL
         var outputDirectory: URL
         var languages: [String]
     }
 
-    struct GenerationResult: Equatable {
+    struct GenerationResult: Hashable {
         let outputURL: URL
         let wordCount: Int
         let byteCount: Int
@@ -216,7 +216,7 @@ struct DAWGCommand {
     }
 }
 
-enum WordListError: Error, CustomStringConvertible {
+enum WordListError: Error, Hashable, CustomStringConvertible {
     case invalidUTF8(URL)
     case missingWordList(language: String, inputDirectory: URL)
     case unzipFailed(String)

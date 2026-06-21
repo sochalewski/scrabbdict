@@ -94,9 +94,6 @@ private extension SearchBarView {
         .contentShape(.rect)
         .accessibilityLabel(.searchFieldAccessibilityLabel)
         .accessibilityValue(text.wordQueryAccessibilityValue)
-        .onTapGesture {
-            isFocused = true
-        }
         .onChange(of: text) { _, newValue in
             text = newValue.sanitizedWordQuery
         }

@@ -8,7 +8,7 @@ import Dependencies
 import XCTest
 @testable import Scrabbdict
 
-private enum AnalyticsEvent: Equatable {
+private enum AnalyticsEvent: Hashable, Sendable {
     case regexSearch(Language)
     case tilesSearch(Language)
     case wordChecked(Language, exists: Bool)

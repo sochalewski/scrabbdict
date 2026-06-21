@@ -6,7 +6,7 @@
 
 import Foundation
 
-enum Language: String, CaseIterable, Sendable {
+enum Language: String, CaseIterable, Hashable, Sendable {
     /// CSW24 (Collins Scrabble Words)
     case englishGB = "en_GB_csw"
     /// NWL2023 (NASPA Word List)

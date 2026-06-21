@@ -74,15 +74,8 @@ struct ResultContentLayout {
     var horizontalPadding: CGFloat = 0
 }
 
-private struct ResultContentLayoutKey: EnvironmentKey {
-    static let defaultValue = ResultContentLayout()
-}
-
 extension EnvironmentValues {
-    var resultContentLayout: ResultContentLayout {
-        get { self[ResultContentLayoutKey.self] }
-        set { self[ResultContentLayoutKey.self] = newValue }
-    }
+    @Entry var resultContentLayout = ResultContentLayout()
 }
 
 extension View {

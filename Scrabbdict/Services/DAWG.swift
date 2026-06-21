@@ -294,7 +294,7 @@ private extension DAWG {
     }
 }
 
-private enum DAWGError: Error {
+private enum DAWGError: Error, Hashable {
     case invalidHeader
     case invalidSize
     case invalidEdges

@@ -24,13 +24,7 @@ struct ScrabbdictView: View {
                     settingsToolbar
                 }
                 .bind($store.isSearchFocused, to: $isSearchFocused)
-                .alert(item: $store.alert) { alert in
-                    Alert(
-                        title: Text(alert.title),
-                        message: Text(alert.message),
-                        dismissButton: .default(Text(.alertOk))
-                    )
-                }
+                .alert($store.scope(\.alert, action: \.alert))
                 .sheet(item: $store.scope(\.destination?.settings, action: \.destination.settings)) { settingsStore in
                     SettingsView(store: settingsStore)
                         .presentationDetents(horizontalSizeClass == .regular ? [.large] : [.medium, .large])
@@ -78,6 +72,8 @@ private extension ScrabbdictView {
         GeometryReader { proxy in
             ZStack {
                 ScrabbleTableBackground()
+                    .contentShape(.rect)
+                    .onTapGesture { send(.backgroundTapped) }
 
                 VStack(spacing: 0) {
                     SearchBarView(
@@ -110,7 +106,6 @@ private extension ScrabbdictView {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .onTapGesture { send(.backgroundTapped) }
     }
 
     var settingsButton: some View {

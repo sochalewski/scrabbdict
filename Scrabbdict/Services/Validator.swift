@@ -7,7 +7,7 @@
 import Dependencies
 import Foundation
 
-enum ValidatorError: Error, Hashable, Sendable {
+enum ValidatorError: Error, Hashable {
     case dictionaryUnavailable
 
     var description: LocalizedStringResource {

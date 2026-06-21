@@ -14,18 +14,18 @@ struct SettingsFeature {
         var selectedLanguage: Language = .englishUS
     }
 
-    enum Action: Sendable, Equatable, ViewAction {
+    enum Action: Hashable, Sendable, ViewAction {
         case view(ViewAction)
         case delegate(DelegateAction)
 
-        enum ViewAction: Sendable, Equatable {
+        enum ViewAction: Hashable, Sendable {
             case loaded
             case cancelButtonTapped
             case languageSelected(Language)
             case saveButtonTapped
         }
 
-        enum DelegateAction: Sendable, Equatable {
+        enum DelegateAction: Hashable, Sendable {
             case languageUpdated
         }
     }

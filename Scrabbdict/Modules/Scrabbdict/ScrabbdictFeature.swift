@@ -12,7 +12,7 @@ struct ScrabbdictFeature {
     @ObservableState
     struct State: Hashable, Sendable {
         @Presents var destination: Destination.State?
-        var alert: ScrabbdictAlert?
+        @Presents var alert: AlertState<Action.Alert>?
         var isSearchFocused = false
         var query = ""
         var result: ValidatorResult?
@@ -24,14 +24,14 @@ struct ScrabbdictFeature {
         var words = [Word]()
     }
 
-    enum Action: Sendable, Equatable, ViewAction, BindableAction {
+    enum Action: Equatable, Sendable, ViewAction, BindableAction {
         case view(ViewAction)
         case `internal`(InternalAction)
+        case alert(PresentationAction<Alert>)
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
 
-        enum ViewAction: Sendable, Equatable {
-            case alertDismissed
+        enum ViewAction: Hashable, Sendable {
             case backgroundTapped
             case clearButtonTapped
             case loaded
@@ -42,15 +42,17 @@ struct ScrabbdictFeature {
             case settingsButtonTapped
         }
 
-        enum InternalAction: Sendable, Equatable {
+        enum InternalAction: Hashable, Sendable {
             case searchResponse(SearchResponse)
 
-            enum SearchResponse: Sendable, Equatable {
+            enum SearchResponse: Hashable, Sendable {
                 case checked(ValidatorResult)
                 case failed(ValidatorError)
                 case matchedWords([Word], emptyResult: EmptySearchResult)
             }
         }
+
+        enum Alert: Hashable, Sendable {}
     }
 
     @Reducer
@@ -99,6 +101,7 @@ struct ScrabbdictFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        .ifLet(\.$alert, action: \.alert)
     }
 
     private func clearOutput(_ state: inout State) {
@@ -117,9 +120,6 @@ struct ScrabbdictFeature {
 private extension ScrabbdictFeature {
     func handle(viewAction: Action.ViewAction, _ state: inout State) -> Effect<Action> {
         switch viewAction {
-        case .alertDismissed:
-            state.alert = nil
-            return .none
         case .backgroundTapped:
             state.isSearchFocused = false
             state.isSearchModePickerExpanded = false
@@ -271,7 +271,7 @@ private extension ScrabbdictFeature {
             }
         case let .searchResponse(.failed(error)):
             state.search = nil
-            state.alert = .init(kind: .dictionaryUnavailable)
+            state.alert = .dictionaryUnavailable
             crashlytics.record(error)
             return .none
         case let .searchResponse(.matchedWords(words, emptyResult)):
@@ -284,4 +284,16 @@ private extension ScrabbdictFeature {
 }
 
 extension ScrabbdictFeature.Destination.State: Hashable, Sendable {}
-extension ScrabbdictFeature.Destination.Action: Sendable, Equatable {}
+extension ScrabbdictFeature.Destination.Action: Equatable, Sendable {}
+
+extension AlertState where Action == ScrabbdictFeature.Action.Alert {
+    static let dictionaryUnavailable = Self {
+        TextState(.alertWarningTitle)
+    } actions: {
+        ButtonState {
+            TextState(.alertOk)
+        }
+    } message: {
+        TextState(.errorDictionaryUnavailable)
+    }
+}

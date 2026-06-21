@@ -10,7 +10,7 @@ import SwiftUI
 
 @main
 struct ScrabbdictApp: App {
-    #if !targetEnvironment(simulator) && !DEBUG
+    #if !DEBUG && !targetEnvironment(simulator)
         @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     #endif
 
