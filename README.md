@@ -263,9 +263,4 @@ When Swift Package Manager dependencies used by the app at runtime change, updat
 
 ## Contributing Notes
 
-- Keep generated `.dawg` files in sync with their source `.zip` word list archives when changing dictionary data.
-- Cover UI changes with accessibility metadata, including labels, values, hints, traits, and reading order where they affect VoiceOver or other assistive technologies.
-- Check UI changes with VoiceOver and Dynamic Type when they affect navigation, controls, results, settings, or other user-facing flows.
-- Keep legal notices and third-party notices current when changing dependencies, assets, or app branding.
-- Prefix commit messages with `[AI]` when the commit mainly contains AI-generated code, for example `[AI] Optimize DAWG performance`.
-- Do not commit personal signing credentials, provisioning profiles, private API keys, or production service configuration for forks.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for issue, pull request, formatting, testing, localization, accessibility, DAWG performance, and credential-handling guidelines.

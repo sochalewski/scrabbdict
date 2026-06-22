@@ -37,3 +37,7 @@
 ## Testing
 
 - Treat snapshot changes as intentional UI changes. Do not update or accept snapshots just to make tests pass without confirming the visual change is expected.
+
+## Contributor Guidance
+
+- When making repository changes, follow the contributor-facing process and verification guidance in [CONTRIBUTING.md](CONTRIBUTING.md).
