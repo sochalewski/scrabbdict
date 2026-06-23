@@ -48,7 +48,7 @@ jobs:
 
       - name: Restore snapshot Git LFS cache
         id: snapshot_lfs_cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .git/lfs/objects
           key: ${{ runner.os }}-snapshot-lfs-${{ hashFiles('ScrabbdictTests/Snapshots/__Snapshots__/**/*.png') }}
@@ -56,7 +56,7 @@ jobs:
 
       - name: Restore dictionary Git LFS cache
         id: dictionary_lfs_cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .git/modules/Dictionaries/lfs/objects
           key: ${{ runner.os }}-dictionary-lfs-test-${{ hashFiles('.dictionaries/DAWG/*.dawg') }}
@@ -71,14 +71,14 @@ jobs:
 
       - name: Save snapshot Git LFS cache
         if: steps.snapshot_lfs_cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: .git/lfs/objects
           key: ${{ steps.snapshot_lfs_cache.outputs.cache-primary-key }}
 
       - name: Save dictionary Git LFS cache
         if: steps.dictionary_lfs_cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: .git/modules/Dictionaries/lfs/objects
           key: ${{ steps.dictionary_lfs_cache.outputs.cache-primary-key }}
@@ -270,7 +270,7 @@ jobs:
 
       - name: Restore dictionary Git LFS cache
         id: dawg_dictionary_lfs_cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: .git/modules/Dictionaries/lfs/objects
           key: ${{ runner.os }}-dictionary-lfs-dawg-${{ steps.dictionary_refs.outputs.base_ref }}-${{ steps.dictionary_refs.outputs.compare_ref }}
@@ -290,7 +290,7 @@ jobs:
 
       - name: Save dictionary Git LFS cache
         if: steps.dawg_dictionary_lfs_cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: .git/modules/Dictionaries/lfs/objects
           key: ${{ steps.dawg_dictionary_lfs_cache.outputs.cache-primary-key }}
