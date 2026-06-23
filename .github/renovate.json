@@ -4,6 +4,7 @@
   "timezone": "Europe/Warsaw",
   "dependencyDashboard": false,
   "labels": ["dependencies"],
+  "gitIgnoredAuthors": ["41898282+github-actions[bot]@users.noreply.github.com"],
   "recreateWhen": "never",
   "enabledManagers": ["github-actions", "mise", "custom.regex"],
   "prConcurrentLimit": 0,
