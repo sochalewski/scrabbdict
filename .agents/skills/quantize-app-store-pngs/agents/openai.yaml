@@ -1,4 +1,4 @@
 interface:
   display_name: "Quantize App Store PNGs"
-  short_description: "Quantize changed App Store PNG assets"
-  default_prompt: "Use $quantize-app-store-pngs to quantize changed App Store PNG assets."
+  short_description: "Quantize changed App Store PNG assets and README screenshots"
+  default_prompt: "Use $quantize-app-store-pngs to quantize changed App Store PNG assets and matching README screenshots."
