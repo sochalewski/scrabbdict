@@ -343,18 +343,24 @@ private struct PremiumSquare: Shape {
 }
 
 private struct ScrabbleBackgroundTile: Identifiable {
-    let id = UUID()
     let letter: String
     let points: Int
     let column: Int
     let row: Int
+
+    var id: String {
+        "\(column)-\(row)-\(letter)"
+    }
 }
 
 private struct ScrabbleBackgroundBonus: Identifiable {
-    let id = UUID()
     let column: Int
     let row: Int
     let color: Color
+
+    var id: String {
+        "\(column)-\(row)"
+    }
 }
 
 #Preview {
