@@ -228,6 +228,26 @@ Use `current` as either ref to compare the current checkout, including uncommitt
 Scripts/dawg-performance main current
 ```
 
+## Measuring Points Performance
+
+To measure `Language.points(for:)` scoring performance without resolving the full app package graph, run:
+
+```sh
+Scripts/points-performance
+```
+
+You can also compare two repository refs:
+
+```sh
+Scripts/points-performance <base-ref> <compare-ref>
+```
+
+Use `current` as either ref to compare the current checkout, including uncommitted changes:
+
+```sh
+Scripts/points-performance main current
+```
+
 ## Supported Dictionaries
 
 The app currently references these language identifiers:
@@ -263,4 +283,4 @@ When Swift Package Manager dependencies used by the app at runtime change, updat
 
 ## Contributing Notes
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for issue, pull request, formatting, testing, localization, accessibility, DAWG performance, and credential-handling guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for issue, pull request, formatting, testing, localization, accessibility, scoring and DAWG performance, and credential-handling guidelines.

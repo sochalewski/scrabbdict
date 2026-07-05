@@ -12,7 +12,7 @@ extension String {
     }
 
     var sanitizedWordQuery: String {
-        let filtered = filter { character in
+        let filtered = precomposedStringWithCanonicalMapping.filter { character in
             character.isLetter || character == "?"
         }
         return String(filtered.prefix(String.maximumWordLength))

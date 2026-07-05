@@ -4,23 +4,89 @@
 //  Licensed under the Apache License, Version 2.0.
 //
 
+import Foundation
+
 extension Language {
+    private enum PointsResult {
+        case points(Int)
+        case needsPrecomposition
+    }
+
     private enum Constants {
         static let englishLetterPoints: [Character: Int] = ["A": 1, "B": 3, "C": 3, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, "J": 8, "K": 5, "L": 1, "M": 3, "N": 1, "O": 1, "P": 3, "Q": 10, "R": 1, "S": 1, "T": 1, "U": 1, "V": 4, "W": 4, "X": 8, "Y": 4, "Z": 10]
         static let frenchLetterPoints: [Character: Int] = ["A": 1, "B": 3, "C": 3, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, "J": 8, "K": 10, "L": 1, "M": 2, "N": 1, "O": 1, "P": 3, "Q": 8, "R": 1, "S": 1, "T": 1, "U": 1, "V": 4, "W": 10, "X": 10, "Y": 10, "Z": 10]
         static let polishLetterPoints: [Character: Int] = ["A": 1, "Ą": 5, "B": 3, "C": 2, "Ć": 6, "D": 2, "E": 1, "Ę": 5, "F": 5, "G": 3, "H": 3, "I": 1, "J": 3, "K": 2, "L": 2, "Ł": 3, "M": 2, "N": 1, "Ń": 7, "O": 1, "Ó": 5, "P": 2, "R": 1, "S": 1, "Ś": 5, "T": 2, "U": 3, "W": 1, "Y": 2, "Z": 1, "Ź": 9, "Ż": 5]
+
+        static let englishScalarPoints = scalarPoints(from: englishLetterPoints)
+        static let frenchScalarPoints = scalarPoints(from: frenchLetterPoints)
+        static let polishScalarPoints = scalarPoints(from: polishLetterPoints)
+
+        static func scalarPoints(from letterPoints: [Character: Int]) -> [UInt16: Int] {
+            Dictionary(uniqueKeysWithValues: letterPoints.compactMap { character, points in
+                guard
+                    let scalar = character.lowercased().unicodeScalars.first,
+                    let scalarKey = UInt16(exactly: scalar.value)
+                else {
+                    return nil
+                }
+
+                return (scalarKey, points)
+            })
+        }
     }
 
-    private var letterPoints: [Character: Int] {
+    private var scalarPoints: [UInt16: Int] {
         switch self {
-        case .englishUS, .englishGB: Constants.englishLetterPoints
-        case .french: Constants.frenchLetterPoints
-        case .polish: Constants.polishLetterPoints
+        case .englishUS, .englishGB: Constants.englishScalarPoints
+        case .french: Constants.frenchScalarPoints
+        case .polish: Constants.polishScalarPoints
         }
     }
 
     func points(for word: String) -> Int {
-        let letterPoints = letterPoints
-        return word.uppercased().compactMap { letterPoints[$0] }.reduce(0, +)
+        let lowercased = word.lowercased()
+        let scalarPoints = scalarPoints
+
+        switch points(
+            for: lowercased.unicodeScalars,
+            using: scalarPoints,
+            checksPrecomposition: true
+        ) {
+        case let .points(points):
+            return points
+        case .needsPrecomposition:
+            switch points(
+                for: lowercased.precomposedStringWithCanonicalMapping.unicodeScalars,
+                using: scalarPoints,
+                checksPrecomposition: false
+            ) {
+            case let .points(points):
+                return points
+            case .needsPrecomposition:
+                assertionFailure("Precomposition check is disabled.")
+                return 0
+            }
+        }
+    }
+}
+
+private extension Language {
+    private func points(
+        for scalars: String.UnicodeScalarView,
+        using scalarPoints: [UInt16: Int],
+        checksPrecomposition: Bool
+    ) -> PointsResult {
+        var points = 0
+
+        for scalar in scalars {
+            if checksPrecomposition, 0x0300...0x036F ~= scalar.value {
+                return .needsPrecomposition
+            }
+
+            guard let scalarKey = UInt16(exactly: scalar.value) else { continue }
+            points += scalarPoints[scalarKey] ?? 0
+        }
+
+        return .points(points)
     }
 }

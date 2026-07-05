@@ -14,6 +14,11 @@
 - When changing code directly related to the DAWG binary format, DAWG generation, or DAWG runtime implementation, run `Scripts/dawg-performance` and compare the results to make sure the change does not regress performance.
 - Treat DAWG code as performance-critical. Prefer the fastest implementation that preserves correctness and the documented binary format, even when it is less immediately readable than a more general or idiomatic version.
 
+## Scoring
+
+- When changing `Language.points(for:)`, letter point tables, or word scoring normalization, run `Scripts/points-performance main current` and compare the results to make sure the change does not regress performance.
+- Keep word scoring code efficient. It runs on search results and should preserve correctness for composed and decomposed Unicode input.
+
 ## Composable Architecture
 
 - Prefer macro-based APIs over protocol conformances, for example `@Reducer` instead of `Reducer`.
