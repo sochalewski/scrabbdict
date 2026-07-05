@@ -95,7 +95,9 @@ private extension SearchBarView {
         .accessibilityLabel(.searchFieldAccessibilityLabel)
         .accessibilityValue(text.wordQueryAccessibilityValue)
         .onChange(of: text) { _, newValue in
-            text = newValue.sanitizedWordQuery
+            let sanitized = newValue.sanitizedWordQuery
+            guard sanitized != newValue else { return }
+            text = sanitized
         }
     }
 
