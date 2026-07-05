@@ -110,27 +110,31 @@ final class ValidatorTests: XCTestCase {
     }
 
     func testWordsFromLetters() async throws {
-        let expectedWords = ["pizza", "ziz", "zip", "zap", "za", "pia", "pa", "pi", "ai"]
+        let expectedWords = [
+            Word(string: "pizza", points: 25),
+            Word(string: "ziz", points: 21),
+            Word(string: "zap", points: 14),
+            Word(string: "zip", points: 14),
+            Word(string: "za", points: 11),
+            Word(string: "pia", points: 5),
+            Word(string: "pa", points: 4),
+            Word(string: "pi", points: 4),
+            Word(string: "ai", points: 2)
+        ]
         let words = try await sut.words(from: "pizza")
 
-        XCTAssertEqual(expectedWords.count, words.count)
-        words.forEach { word in
-            if !expectedWords.contains(word.string) {
-                XCTFail()
-            }
-        }
+        XCTAssertEqual(words, expectedWords)
     }
 
     func testRegexFromPhrase() async throws {
-        let expectedWords = ["pizza", "pized", "pizes"]
+        let expectedWords = [
+            Word(string: "pizza", points: 25),
+            Word(string: "pized", points: 17),
+            Word(string: "pizes", points: 16)
+        ]
         let words = try await sut.regex(phrase: "piz??")
 
-        XCTAssertEqual(expectedWords.count, words.count)
-        words.forEach { word in
-            if !expectedWords.contains(word.string) {
-                XCTFail()
-            }
-        }
+        XCTAssertEqual(words, expectedWords)
     }
 
     func testLowerAndUppercaseCharacters() async throws {

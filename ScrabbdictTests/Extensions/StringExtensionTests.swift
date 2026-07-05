@@ -21,6 +21,10 @@ final class StringExtensionTests: XCTestCase {
         XCTAssertEqual("żółć?é1".sanitizedWordQuery, "żółć?é")
     }
 
+    func testSanitizedWordQueryPrecomposesCanonicalCharacters() {
+        XCTAssertEqual("je\u{0328}zyk".sanitizedWordQuery, "język")
+    }
+
     func testSanitizedWordQueryTruncatesToMaximumLength() {
         XCTAssertEqual("abcdefghijklmnop?".sanitizedWordQuery, "abcdefghijklmno")
     }

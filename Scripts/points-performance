@@ -1,0 +1,509 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: Scripts/points-performance
+       Scripts/points-performance <base-ref> <compare-ref>
+       Scripts/points-performance --format markdown
+       Scripts/points-performance --format markdown <base-ref> <compare-ref>
+
+Builds and runs a standalone Release-optimized benchmark for
+Language.points(for:) without resolving SwiftPM dependencies. The benchmark
+compiles the real Scrabbdict/Extensions/Language+Extension.swift file directly,
+with only a small Language enum stub and benchmark harness generated in a
+temporary directory.
+
+With no refs, tests the current checkout.
+With two refs, compares Language+Extension.swift from those two repository
+commits, using the same generated benchmark harness for both sides. Use current
+as either ref to compare the current checkout, including uncommitted changes.
+
+Environment:
+  POINTS_PERF_KEEP_TMP     Set to 1 to keep generated sources, binaries, and logs.
+  POINTS_PERF_ITERATIONS  Number of benchmark iterations per sample.
+                           Defaults to 200000.
+  POINTS_PERF_SAMPLES     Number of samples per workload. Defaults to 5.
+
+Examples:
+  Scripts/points-performance
+  Scripts/points-performance --format markdown
+  Scripts/points-performance current main
+  Scripts/points-performance 9d54d17 5b58342
+  Scripts/points-performance --format markdown 9d54d17 5b58342
+EOF
+}
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$script_dir/.." && pwd)"
+mode="current"
+output_format="text"
+base_ref=""
+compare_ref=""
+positionals=()
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    --format)
+      if [[ -z "${2:-}" ]]; then
+        echo "--format requires one of: text, markdown" >&2
+        usage >&2
+        exit 64
+      fi
+      output_format="$2"
+      shift 2
+      ;;
+    --format=*)
+      output_format="${1#--format=}"
+      shift
+      ;;
+    --markdown)
+      output_format="markdown"
+      shift
+      ;;
+    --)
+      shift
+      while [[ "$#" -gt 0 ]]; do
+        positionals+=("$1")
+        shift
+      done
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 64
+      ;;
+    *)
+      positionals+=("$1")
+      shift
+      ;;
+  esac
+done
+
+case "$output_format" in
+  text | markdown)
+    ;;
+  *)
+    echo "Unsupported output format: $output_format" >&2
+    usage >&2
+    exit 64
+    ;;
+esac
+
+case "${#positionals[@]}" in
+  0)
+    ;;
+  2)
+    mode="comparison"
+    base_ref="${positionals[0]}"
+    compare_ref="${positionals[1]}"
+    ;;
+  *)
+    usage >&2
+    exit 64
+    ;;
+esac
+
+keep_tmp="${POINTS_PERF_KEEP_TMP:-0}"
+iterations="${POINTS_PERF_ITERATIONS:-200000}"
+samples="${POINTS_PERF_SAMPLES:-5}"
+tmp_root="$(mktemp -d "${TMPDIR:-/tmp}/scrabbdict-points-performance.XXXXXX")"
+
+export LC_ALL=C
+export LANG=C
+
+if [[ ! "$iterations" =~ ^[1-9][0-9]*$ ]]; then
+  echo "POINTS_PERF_ITERATIONS must be a positive integer." >&2
+  exit 64
+fi
+
+if [[ ! "$samples" =~ ^[1-9][0-9]*$ ]]; then
+  echo "POINTS_PERF_SAMPLES must be a positive integer." >&2
+  exit 64
+fi
+
+cleanup() {
+  if [[ "$keep_tmp" == "1" ]]; then
+    echo "Keeping temporary files in $tmp_root" >&2
+  else
+    rm -rf "$tmp_root"
+  fi
+}
+trap cleanup EXIT
+
+require_commit() {
+  local ref="$1"
+  git -C "$repo_root" rev-parse --verify "$ref^{commit}" >/dev/null
+}
+
+is_current_ref() {
+  [[ "$1" == "current" ]]
+}
+
+require_comparison_ref() {
+  local ref="$1"
+  is_current_ref "$ref" || require_commit "$ref"
+}
+
+display_ref() {
+  local ref="$1"
+
+  if is_current_ref "$ref"; then
+    printf "current"
+  else
+    git -C "$repo_root" rev-parse --short=7 --verify "$ref^{commit}"
+  fi
+}
+
+compile_release() {
+  local module_cache_dir="$1"
+  local executable="$2"
+  shift 2
+  mkdir -p "$module_cache_dir"
+  xcrun swiftc -O -whole-module-optimization -module-cache-path "$module_cache_dir" "$@" -o "$executable"
+}
+
+write_language_model() {
+  local output_file="$1"
+
+  cat > "$output_file" <<'SWIFT'
+enum Language: CaseIterable {
+    case englishGB
+    case englishUS
+    case french
+    case polish
+}
+SWIFT
+}
+
+write_runner() {
+  local output_file="$1"
+
+  cat > "$output_file" <<'SWIFT'
+import Foundation
+
+struct Workload {
+    let name: String
+    let language: Language
+    let words: [String]
+}
+
+struct Benchmark {
+    let workload: Workload
+    let checksum: Int
+    let nsPerWordSamples: [Double]
+
+    var medianNsPerWord: Double {
+        let sorted = nsPerWordSamples.sorted()
+        return sorted[sorted.count / 2]
+    }
+}
+
+let arguments = CommandLine.arguments
+guard arguments.count == 3, let iterations = Int(arguments[1]), let samples = Int(arguments[2]) else {
+    fatalError("Expected arguments: <iterations> <samples>")
+}
+
+let workloads = [
+    Workload(
+        name: "English ASCII",
+        language: .englishGB,
+        words: ["pizza", "quiz", "jazz", "pizzas", "zipcode", "oxygen", "fizz", "wax", "quick", "abcdefghijkl"]
+    ),
+    Workload(
+        name: "Polish composed",
+        language: .polish,
+        words: ["język", "zażółć", "gęślą", "jaźń", "żółć", "późno", "źródło", "ćma", "pizza", "abcdefghijkl"]
+    ),
+    Workload(
+        name: "Polish decomposed",
+        language: .polish,
+        words: ["je\u{0328}zyk", "zazo\u{0301}łc\u{0301}", "ge\u{0328}s\u{0301}la\u{0328}", "jaz\u{0301}n\u{0301}", "z\u{0307}o\u{0301}łc\u{0301}", "po\u{0301}z\u{0301}no", "z\u{0301}ro\u{0301}dło", "c\u{0301}ma", "pizza", "abcdefghijkl"]
+    ),
+    Workload(
+        name: "Mixed result-like",
+        language: .englishGB,
+        words: ["pizza", "ziz", "zap", "zip", "za", "pia", "pa", "pi", "ai", "pized", "pizes", "quiz"]
+    )
+]
+
+@inline(never)
+func measure(workload: Workload, iterations: Int, samples: Int) -> Benchmark {
+    var benchmarkSamples: [Double] = []
+    var lastChecksum = 0
+    let wordCount = workload.words.count * iterations
+
+    for _ in 0..<samples {
+        var checksum = 0
+        let start = DispatchTime.now().uptimeNanoseconds
+
+        for _ in 0..<iterations {
+            for word in workload.words {
+                checksum &+= workload.language.points(for: word)
+            }
+        }
+
+        let elapsed = DispatchTime.now().uptimeNanoseconds - start
+        benchmarkSamples.append(Double(elapsed) / Double(wordCount))
+        lastChecksum = checksum
+    }
+
+    return Benchmark(workload: workload, checksum: lastChecksum, nsPerWordSamples: benchmarkSamples)
+}
+
+for result in workloads.map({ measure(workload: $0, iterations: iterations, samples: samples) }) {
+    print("\(result.workload.name)\t\(result.medianNsPerWord)\t\(result.checksum)\t\(samples)")
+}
+SWIFT
+}
+
+prepare_generated_sources() {
+  local label="$1"
+  local source_dir="$tmp_root/$label/Sources"
+  local build_dir="$tmp_root/$label/Build"
+  mkdir -p "$source_dir" "$build_dir"
+  write_language_model "$source_dir/Language.swift"
+  write_runner "$source_dir/main.swift"
+}
+
+prepare_ref_sources() {
+  local ref="$1"
+  local label="$2"
+  local source_dir="$tmp_root/$label/Sources"
+
+  prepare_generated_sources "$label"
+  git -C "$repo_root" show "$ref:Scrabbdict/Extensions/Language+Extension.swift" > "$source_dir/Language+Extension.swift"
+}
+
+prepare_current_sources() {
+  local label="$1"
+  local source_dir="$tmp_root/$label/Sources"
+
+  prepare_generated_sources "$label"
+  cp "$repo_root/Scrabbdict/Extensions/Language+Extension.swift" "$source_dir/Language+Extension.swift"
+}
+
+prepare_comparison_sources() {
+  local ref="$1"
+  local label="$2"
+
+  if is_current_ref "$ref"; then
+    prepare_current_sources "$label"
+  else
+    prepare_ref_sources "$ref" "$label"
+  fi
+}
+
+run_benchmark() {
+  local label="$1"
+  local source_dir="$tmp_root/$label/Sources"
+  local build_dir="$tmp_root/$label/Build"
+  local module_cache_dir="$tmp_root/$label/module-cache"
+  local executable="$build_dir/PointsPerformance"
+  local raw_file="$tmp_root/$label/points-raw.tsv"
+  local tsv_file="$tmp_root/$label/metrics.tsv"
+
+  echo "Building $label with Release optimization (-O -whole-module-optimization)..." >&2
+  compile_release "$module_cache_dir" "$executable" \
+    "$source_dir/Language.swift" \
+    "$source_dir/Language+Extension.swift" \
+    "$source_dir/main.swift"
+
+  echo "Running PointsPerformance for $label..." >&2
+  if ! "$executable" "$iterations" "$samples" > "$raw_file" 2>&1; then
+    cat "$raw_file" >&2
+    exit 1
+  fi
+
+  cp "$raw_file" "$tsv_file"
+}
+
+print_points_comparison() {
+  local base_label="$1"
+  local compare_label="$2"
+  local base_tsv="$tmp_root/$base_label/metrics.tsv"
+  local compare_tsv="$tmp_root/$compare_label/metrics.tsv"
+
+  echo
+  echo "Language.points(for:) Time (ns/word median, lower is better)"
+  awk -F '\t' -v base_label="$base_label" -v compare_label="$compare_label" '
+    BEGIN {
+      printf "%-24s %12s %12s %12s %10s %8s\n", "Workload", base_label, compare_label, "Delta", "Change", "Samples"
+      printf "%-24s %12s %12s %12s %10s %8s\n", "--------", "----", "----", "-----", "------", "-------"
+    }
+    FNR == NR {
+      base[$1] = $2
+      baseSamples[$1] = $4
+      next
+    }
+    $1 in base {
+      delta = $2 - base[$1]
+      samples = baseSamples[$1] "/" $4
+      if (base[$1] == 0) {
+        printf "%-24s %12.2f %12.2f %+12.2f %10s %8s\n", $1, base[$1], $2, delta, "n/a", samples
+      } else {
+        change = (($2 / base[$1]) - 1) * 100
+        if ($2 > 0) {
+          ratios += log($2 / base[$1])
+          count += 1
+        }
+        printf "%-24s %12.2f %12.2f %+12.2f %+9.2f%% %8s\n", $1, base[$1], $2, delta, change, samples
+      }
+    }
+    END {
+      if (count > 0) {
+        geomean_change = (exp(ratios / count) - 1) * 100
+        printf "%-24s %12s %12s %12s %+9.2f%% %8s\n", "Geomean", "", "", "", geomean_change, ""
+      } else {
+        printf "%-24s %12s %12s %12s %10s %8s\n", "Geomean", "", "", "", "n/a", ""
+      }
+    }
+  ' "$base_tsv" "$compare_tsv"
+}
+
+print_points_metrics() {
+  local label="$1"
+  local tsv_file="$tmp_root/$label/metrics.tsv"
+
+  echo
+  echo "Language.points(for:) Time (ns/word median, lower is better)"
+  awk -F '\t' -v label="$label" '
+    BEGIN {
+      printf "%-24s %12s %8s %12s\n", "Workload", label, "Samples", "Checksum"
+      printf "%-24s %12s %8s %12s\n", "--------", "----", "-------", "--------"
+    }
+    {
+      printf "%-24s %12.2f %8s %12s\n", $1, $2, $4, $3
+    }
+  ' "$tsv_file"
+}
+
+print_points_comparison_markdown() {
+  local base_label="$1"
+  local compare_label="$2"
+  local base_tsv="$tmp_root/$base_label/metrics.tsv"
+  local compare_tsv="$tmp_root/$compare_label/metrics.tsv"
+
+  echo
+  echo "### Language.points(for:) Time"
+  echo
+  echo "Median ns/word, lower is better."
+  echo
+  echo "| Workload | Base | Compare | Delta | Change | Samples |"
+  echo "| --- | ---: | ---: | ---: | ---: | ---: |"
+  awk -F '\t' '
+    FNR == NR {
+      base[$1] = $2
+      baseSamples[$1] = $4
+      next
+    }
+    $1 in base {
+      workload = $1
+      gsub(/\|/, "\\|", workload)
+      delta = $2 - base[$1]
+      samples = baseSamples[$1] "/" $4
+      if (base[$1] == 0) {
+        change = "n/a"
+      } else {
+        change_value = (($2 / base[$1]) - 1) * 100
+        change = sprintf("%+.2f%%", change_value)
+        if ($2 > 0) {
+          ratios += log($2 / base[$1])
+          count += 1
+        }
+      }
+      printf "| %s | %.2f | %.2f | %+.2f | %s | %s |\n", workload, base[$1], $2, delta, change, samples
+    }
+    END {
+      if (count > 0) {
+        geomean_change = (exp(ratios / count) - 1) * 100
+        printf "| Geomean |  |  |  | %+.2f%% |  |\n", geomean_change
+      } else {
+        print "| Geomean |  |  |  | n/a |  |"
+      }
+    }
+  ' "$base_tsv" "$compare_tsv"
+}
+
+print_points_metrics_markdown() {
+  local label="$1"
+  local tsv_file="$tmp_root/$label/metrics.tsv"
+
+  echo
+  echo "### Language.points(for:) Time"
+  echo
+  echo "Median ns/word, lower is better."
+  printf "| Workload | %s | Samples | Checksum |\n" "$label"
+  echo "| --- | ---: | ---: | ---: |"
+  awk -F '\t' '
+    {
+      workload = $1
+      gsub(/\|/, "\\|", workload)
+      printf "| %s | %.2f | %s | %s |\n", workload, $2, $4, $3
+    }
+  ' "$tsv_file"
+}
+
+if [[ "$mode" == "comparison" ]]; then
+  require_comparison_ref "$base_ref"
+  require_comparison_ref "$compare_ref"
+
+  base_display_ref="$(display_ref "$base_ref")"
+  compare_display_ref="$(display_ref "$compare_ref")"
+
+  echo "PointsPerformance comparison" >&2
+  echo "Base:    $base_display_ref" >&2
+  echo "Compare: $compare_display_ref" >&2
+
+  prepare_comparison_sources "$base_ref" "base"
+  prepare_comparison_sources "$compare_ref" "compare"
+  run_benchmark "base"
+  run_benchmark "compare"
+
+  if [[ "$output_format" == "markdown" ]]; then
+    echo "**PointsPerformance comparison**"
+    echo
+    echo "| Base | Compare | Build | Iterations | Samples |"
+    echo "| --- | --- | --- | ---: | ---: |"
+    echo "| \`$base_display_ref\` | \`$compare_display_ref\` | \`swiftc -O -whole-module-optimization\` | $iterations | $samples |"
+
+    print_points_comparison_markdown "base" "compare"
+  else
+    echo
+    echo "PointsPerformance comparison"
+    echo "Base:       $base_display_ref"
+    echo "Compare:    $compare_display_ref"
+    echo "Build:      swiftc -O -whole-module-optimization"
+    echo "Iterations: $iterations"
+    echo "Samples:    $samples"
+
+    print_points_comparison "base" "compare"
+  fi
+else
+  echo "PointsPerformance current checkout" >&2
+
+  prepare_current_sources "current"
+  run_benchmark "current"
+
+  if [[ "$output_format" == "markdown" ]]; then
+    echo "**PointsPerformance current checkout**"
+    echo
+    echo "| Build | Iterations | Samples |"
+    echo "| --- | ---: | ---: |"
+    echo "| \`swiftc -O -whole-module-optimization\` | $iterations | $samples |"
+
+    print_points_metrics_markdown "current"
+  else
+    echo
+    echo "PointsPerformance current checkout"
+    echo "Build:      swiftc -O -whole-module-optimization"
+    echo "Iterations: $iterations"
+    echo "Samples:    $samples"
+
+    print_points_metrics "current"
+  fi
+fi

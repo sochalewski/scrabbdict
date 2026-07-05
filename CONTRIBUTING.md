@@ -76,6 +76,15 @@ When changing DAWG-related code:
 
 Do not submit full proprietary dictionaries to the public repository.
 
+## Scoring Performance Changes
+
+Changes to `Language.points(for:)`, letter point tables, or word scoring normalization should preserve scoring correctness and avoid unnecessary regressions in hot paths.
+
+When changing scoring-related code:
+
+- Add or update correctness tests for affected languages and Unicode normalization cases.
+- Run `Scripts/points-performance main current` and compare the result before submitting the pull request.
+
 ## Dependencies and Notices
 
 When Swift Package Manager dependencies used by the app at runtime change, update the user-visible third-party notices in:
@@ -99,5 +108,6 @@ Use this checklist before requesting review:
 - Accessibility and Dynamic Type were checked for affected flows.
 - Localization updates include all supported locales when needed.
 - Snapshot changes are intentional and included with the related code.
+- Scoring performance was measured for `Language.points(for:)`, letter point table, or word scoring normalization changes.
 - DAWG performance was measured for DAWG runtime, generator, or binary format changes.
 - No credentials, private service configuration, signing assets, or proprietary word lists are included.
