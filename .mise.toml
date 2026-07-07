@@ -1,5 +1,5 @@
 [tools]
-swiftformat = "0.61.1"
+swiftformat = "0.62.0"
 "npm:git-format-staged" = "4.0.1"
 
 [tasks.format]
