@@ -4,14 +4,7 @@
 //  Licensed under the Apache License, Version 2.0.
 //
 
-import Foundation
-
 extension Language {
-    private enum PointsResult {
-        case points(Int)
-        case needsPrecomposition
-    }
-
     private enum Constants {
         static let englishLetterPoints: [Character: Int] = ["A": 1, "B": 3, "C": 3, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, "J": 8, "K": 5, "L": 1, "M": 3, "N": 1, "O": 1, "P": 3, "Q": 10, "R": 1, "S": 1, "T": 1, "U": 1, "V": 4, "W": 4, "X": 8, "Y": 4, "Z": 10]
         static let frenchLetterPoints: [Character: Int] = ["A": 1, "B": 3, "C": 3, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, "J": 8, "K": 10, "L": 1, "M": 2, "N": 1, "O": 1, "P": 3, "Q": 8, "R": 1, "S": 1, "T": 1, "U": 1, "V": 4, "W": 10, "X": 10, "Y": 10, "Z": 10]
@@ -44,49 +37,14 @@ extension Language {
     }
 
     func points(for word: String) -> Int {
-        let lowercased = word.lowercased()
         let scalarPoints = scalarPoints
-
-        switch points(
-            for: lowercased.unicodeScalars,
-            using: scalarPoints,
-            checksPrecomposition: true
-        ) {
-        case let .points(points):
-            return points
-        case .needsPrecomposition:
-            switch points(
-                for: lowercased.precomposedStringWithCanonicalMapping.unicodeScalars,
-                using: scalarPoints,
-                checksPrecomposition: false
-            ) {
-            case let .points(points):
-                return points
-            case .needsPrecomposition:
-                assertionFailure("Precomposition check is disabled.")
-                return 0
-            }
-        }
-    }
-}
-
-private extension Language {
-    private func points(
-        for scalars: String.UnicodeScalarView,
-        using scalarPoints: [UInt16: Int],
-        checksPrecomposition: Bool
-    ) -> PointsResult {
         var points = 0
 
-        for scalar in scalars {
-            if checksPrecomposition, 0x0300...0x036F ~= scalar.value {
-                return .needsPrecomposition
-            }
-
+        for scalar in word.lowercased().unicodeScalars {
             guard let scalarKey = UInt16(exactly: scalar.value) else { continue }
             points += scalarPoints[scalarKey] ?? 0
         }
 
-        return .points(points)
+        return points
     }
 }

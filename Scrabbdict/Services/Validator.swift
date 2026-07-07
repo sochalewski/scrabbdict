@@ -40,8 +40,8 @@ actor Validator {
         let (language, dawg) = try validatorDependencies()
         guard word.isLengthValid else { return .invalid }
 
-        let normalizedWord = language.shouldRemoveDiacritics ? word.folding(options: .diacriticInsensitive, locale: nil) : word
-        let exists = dawg.contains(normalizedWord.lowercased())
+        let normalizedWord = normalized(word, language: language)
+        let exists = dawg.contains(normalizedWord)
 
         analytics.logWordChecked(language, exists)
 
@@ -52,8 +52,8 @@ actor Validator {
         let (language, dawg) = try validatorDependencies()
         guard letters.isLengthValid else { return [] }
 
-        let normalizedLetters = language.shouldRemoveDiacritics ? letters.folding(options: .diacriticInsensitive, locale: nil) : letters
-        let result = dawg.words(from: normalizedLetters.lowercased())
+        let normalizedLetters = normalized(letters, language: language)
+        let result = dawg.words(from: normalizedLetters)
             .mapToWords(language: language)
 
         analytics.logTilesSearch(language)
@@ -65,8 +65,8 @@ actor Validator {
         let (language, dawg) = try validatorDependencies()
         guard phrase.isLengthValid else { return [] }
 
-        let normalizedPhrase = language.shouldRemoveDiacritics ? phrase.folding(options: .diacriticInsensitive, locale: nil) : phrase
-        let result = dawg.words(matching: normalizedPhrase.lowercased())
+        let normalizedPhrase = normalized(phrase, language: language)
+        let result = dawg.words(matching: normalizedPhrase)
             .mapToWords(language: language)
 
         analytics.logRegexSearch(language)
@@ -86,5 +86,15 @@ actor Validator {
 
         guard let dawg else { throw .dictionaryUnavailable }
         return (currentLanguage, dawg)
+    }
+
+    private func normalized(_ input: String, language: Language) -> String {
+        let precomposed = input.precomposedStringWithCanonicalMapping
+        let normalized = if let locale = language.diacriticInsensitiveLocale {
+            precomposed.folding(options: .diacriticInsensitive, locale: locale)
+        } else {
+            precomposed
+        }
+        return normalized.lowercased()
     }
 }

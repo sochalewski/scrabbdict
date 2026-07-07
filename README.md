@@ -230,7 +230,7 @@ Scripts/dawg-performance main current
 
 ## Measuring Points Performance
 
-To measure `Language.points(for:)` scoring performance without resolving the full app package graph, run:
+To measure `Language.points(for:)` scoring performance on normalized scoring inputs without resolving the full app package graph, run:
 
 ```sh
 Scripts/points-performance
@@ -247,6 +247,8 @@ Use `current` as either ref to compare the current checkout, including uncommitt
 ```sh
 Scripts/points-performance main current
 ```
+
+Canonical decomposition is handled at user-input boundaries and covered by validator tests. `Scripts/points-performance` focuses on the scoring hot path for precomposed dictionary results.
 
 ## Supported Dictionaries
 
