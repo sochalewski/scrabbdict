@@ -16,8 +16,8 @@
 
 ## Scoring
 
-- When changing `Language.points(for:)`, letter point tables, or word scoring normalization, run `Scripts/points-performance main current` and compare the results to make sure the change does not regress performance.
-- Keep word scoring code efficient. It runs on search results and should preserve correctness for composed and decomposed Unicode input.
+- When changing `Language.points(for:)`, letter point tables, or word scoring normalization, run `Scripts/points-performance main current` and compare the normalized scoring input benchmark results to make sure the change does not regress performance.
+- Keep word scoring code efficient. User-input normalization must preserve composed and decomposed Unicode equivalence before DAWG lookup and scoring, while `Language.points(for:)` should remain optimized for normalized scoring inputs and DAWG-produced words.
 
 ## Composable Architecture
 

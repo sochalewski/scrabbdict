@@ -202,6 +202,23 @@ final class ValidatorTests: XCTestCase {
         }
     }
 
+    func testPrecomposesCanonicalInputBeforeSearchingDictionary() async throws {
+        currentLanguage.set(.polish)
+
+        switch try await sut.check(word: "je\u{0328}zyk") {
+        case let .valid(points):
+            XCTAssertEqual(points, 13)
+        case .invalid:
+            XCTFail()
+        }
+
+        let words = try await sut.words(from: "je\u{0328}zyk")
+        XCTAssertTrue(words.contains(Word(string: "język", points: 13)))
+
+        let regexWords = try await sut.regex(phrase: "je\u{0328}z??")
+        XCTAssertTrue(regexWords.contains(Word(string: "język", points: 13)))
+    }
+
     func testCheckLogsAnalyticsWithResult() async throws {
         let analytics = AnalyticsEventRecorder()
         sut = withDependencies {

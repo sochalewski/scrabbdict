@@ -78,12 +78,12 @@ Do not submit full proprietary dictionaries to the public repository.
 
 ## Scoring Performance Changes
 
-Changes to `Language.points(for:)`, letter point tables, or word scoring normalization should preserve scoring correctness and avoid unnecessary regressions in hot paths.
+Changes to `Language.points(for:)`, letter point tables, or word scoring normalization should preserve scoring correctness and avoid unnecessary regressions in hot paths. `Language.points(for:)` is benchmarked on normalized scoring inputs; composed and decomposed Unicode equivalence should be preserved at user-input normalization boundaries before DAWG lookup and scoring.
 
 When changing scoring-related code:
 
-- Add or update correctness tests for affected languages and Unicode normalization cases.
-- Run `Scripts/points-performance main current` and compare the result before submitting the pull request.
+- Add or update correctness tests for affected languages, scoring behavior, and user-input Unicode normalization boundaries.
+- Run `Scripts/points-performance main current` and compare the normalized scoring input benchmark result before submitting the pull request.
 
 ## Dependencies and Notices
 

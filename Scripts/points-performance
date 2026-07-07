@@ -9,10 +9,12 @@ Usage: Scripts/points-performance
        Scripts/points-performance --format markdown <base-ref> <compare-ref>
 
 Builds and runs a standalone Release-optimized benchmark for
-Language.points(for:) without resolving SwiftPM dependencies. The benchmark
-compiles the real Scrabbdict/Extensions/Language+Extension.swift file directly,
-with only a small Language enum stub and benchmark harness generated in a
-temporary directory.
+Language.points(for:) on normalized scoring inputs, without resolving SwiftPM
+dependencies. The benchmark compiles the real
+Scrabbdict/Extensions/Language+Extension.swift file directly, with only a small
+Language enum stub and benchmark harness generated in a temporary directory.
+Canonical decomposition is validated at user-input boundaries, not in this
+scoring hot-path benchmark.
 
 With no refs, tests the current checkout.
 With two refs, compares Language+Extension.swift from those two repository
@@ -212,22 +214,22 @@ let workloads = [
     Workload(
         name: "English ASCII",
         language: .englishGB,
-        words: ["pizza", "quiz", "jazz", "pizzas", "zipcode", "oxygen", "fizz", "wax", "quick", "abcdefghijkl"]
+        words: ["quiz", "jazz", "pizzazz", "quick", "oxygen", "zipcode", "fuzzy", "waxwork", "jukebox", "quizzical"]
+    ),
+    Workload(
+        name: "English short results",
+        language: .englishGB,
+        words: ["pizza", "ziz", "zap", "zip", "za", "pia", "pa", "pi", "ai", "pized", "pizes", "quiz"]
+    ),
+    Workload(
+        name: "French normalized",
+        language: .french,
+        words: ["quiz", "wagon", "taxi", "zeste", "jouer", "azur", "kilo", "lynx", "bonjour", "scrabble"]
     ),
     Workload(
         name: "Polish composed",
         language: .polish,
-        words: ["język", "zażółć", "gęślą", "jaźń", "żółć", "późno", "źródło", "ćma", "pizza", "abcdefghijkl"]
-    ),
-    Workload(
-        name: "Polish decomposed",
-        language: .polish,
-        words: ["je\u{0328}zyk", "zazo\u{0301}łc\u{0301}", "ge\u{0328}s\u{0301}la\u{0328}", "jaz\u{0301}n\u{0301}", "z\u{0307}o\u{0301}łc\u{0301}", "po\u{0301}z\u{0301}no", "z\u{0301}ro\u{0301}dło", "c\u{0301}ma", "pizza", "abcdefghijkl"]
-    ),
-    Workload(
-        name: "Mixed result-like",
-        language: .englishGB,
-        words: ["pizza", "ziz", "zap", "zip", "za", "pia", "pa", "pi", "ai", "pized", "pizes", "quiz"]
+        words: ["język", "zażółć", "gęślą", "jaźń", "żółć", "późno", "źródło", "ćma", "mąż", "śląsk"]
     )
 ]
 
@@ -332,34 +334,43 @@ print_points_comparison() {
   echo "Language.points(for:) Time (ns/word median, lower is better)"
   awk -F '\t' -v base_label="$base_label" -v compare_label="$compare_label" '
     BEGIN {
-      printf "%-24s %12s %12s %12s %10s %8s\n", "Workload", base_label, compare_label, "Delta", "Change", "Samples"
-      printf "%-24s %12s %12s %12s %10s %8s\n", "--------", "----", "----", "-----", "------", "-------"
+      printf "%-24s %12s %12s %12s %10s %8s %8s\n", "Workload", base_label, compare_label, "Delta", "Change", "Samples", "Checksum"
+      printf "%-24s %12s %12s %12s %10s %8s %8s\n", "--------", "----", "----", "-----", "------", "-------", "--------"
     }
     FNR == NR {
       base[$1] = $2
+      baseChecksum[$1] = $3
       baseSamples[$1] = $4
       next
     }
     $1 in base {
       delta = $2 - base[$1]
       samples = baseSamples[$1] "/" $4
+      checksum = baseChecksum[$1] == $3 ? "ok" : "diff"
+      if (checksum == "diff") {
+        checksumDiffs += 1
+      }
       if (base[$1] == 0) {
-        printf "%-24s %12.2f %12.2f %+12.2f %10s %8s\n", $1, base[$1], $2, delta, "n/a", samples
+        printf "%-24s %12.2f %12.2f %+12.2f %10s %8s %8s\n", $1, base[$1], $2, delta, "n/a", samples, checksum
       } else {
         change = (($2 / base[$1]) - 1) * 100
-        if ($2 > 0) {
+        if (checksum == "ok" && $2 > 0) {
           ratios += log($2 / base[$1])
           count += 1
         }
-        printf "%-24s %12.2f %12.2f %+12.2f %+9.2f%% %8s\n", $1, base[$1], $2, delta, change, samples
+        printf "%-24s %12.2f %12.2f %+12.2f %+9.2f%% %8s %8s\n", $1, base[$1], $2, delta, change, samples, checksum
       }
     }
     END {
       if (count > 0) {
         geomean_change = (exp(ratios / count) - 1) * 100
-        printf "%-24s %12s %12s %12s %+9.2f%% %8s\n", "Geomean", "", "", "", geomean_change, ""
+        printf "%-24s %12s %12s %12s %+9.2f%% %8s %8s\n", "Geomean", "", "", "", geomean_change, "", ""
       } else {
-        printf "%-24s %12s %12s %12s %10s %8s\n", "Geomean", "", "", "", "n/a", ""
+        printf "%-24s %12s %12s %12s %10s %8s %8s\n", "Geomean", "", "", "", "n/a", "", ""
+      }
+      if (checksumDiffs > 0) {
+        print ""
+        print "Warning: checksum differs for " checksumDiffs " workload(s); those workloads are excluded from Geomean."
       }
     }
   ' "$base_tsv" "$compare_tsv"
@@ -393,11 +404,12 @@ print_points_comparison_markdown() {
   echo
   echo "Median ns/word, lower is better."
   echo
-  echo "| Workload | Base | Compare | Delta | Change | Samples |"
-  echo "| --- | ---: | ---: | ---: | ---: | ---: |"
+  echo "| Workload | Base | Compare | Delta | Change | Samples | Checksum |"
+  echo "| --- | ---: | ---: | ---: | ---: | ---: | --- |"
   awk -F '\t' '
     FNR == NR {
       base[$1] = $2
+      baseChecksum[$1] = $3
       baseSamples[$1] = $4
       next
     }
@@ -406,24 +418,32 @@ print_points_comparison_markdown() {
       gsub(/\|/, "\\|", workload)
       delta = $2 - base[$1]
       samples = baseSamples[$1] "/" $4
+      checksum = baseChecksum[$1] == $3 ? "ok" : "diff"
+      if (checksum == "diff") {
+        checksumDiffs += 1
+      }
       if (base[$1] == 0) {
         change = "n/a"
       } else {
         change_value = (($2 / base[$1]) - 1) * 100
         change = sprintf("%+.2f%%", change_value)
-        if ($2 > 0) {
+        if (checksum == "ok" && $2 > 0) {
           ratios += log($2 / base[$1])
           count += 1
         }
       }
-      printf "| %s | %.2f | %.2f | %+.2f | %s | %s |\n", workload, base[$1], $2, delta, change, samples
+      printf "| %s | %.2f | %.2f | %+.2f | %s | %s | %s |\n", workload, base[$1], $2, delta, change, samples, checksum
     }
     END {
       if (count > 0) {
         geomean_change = (exp(ratios / count) - 1) * 100
-        printf "| Geomean |  |  |  | %+.2f%% |  |\n", geomean_change
+        printf "| Geomean |  |  |  | %+.2f%% |  |  |\n", geomean_change
       } else {
-        print "| Geomean |  |  |  | n/a |  |"
+        print "| Geomean |  |  |  | n/a |  |  |"
+      }
+      if (checksumDiffs > 0) {
+        print ""
+        print "> Warning: checksum differs for " checksumDiffs " workload(s); those workloads are excluded from Geomean."
       }
     }
   ' "$base_tsv" "$compare_tsv"

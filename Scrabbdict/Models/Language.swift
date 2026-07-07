@@ -16,8 +16,11 @@ enum Language: String, CaseIterable, Hashable, Sendable {
     /// OSPS Update 52 (Oficjalny słownik polskiego scrabblisty)
     case polish = "pl_OSPS"
 
-    var shouldRemoveDiacritics: Bool {
-        self == .french
+    var diacriticInsensitiveLocale: Locale? {
+        switch self {
+        case .french: .init(identifier: "fr_FR")
+        default: nil
+        }
     }
 
     var name: LocalizedStringResource {
