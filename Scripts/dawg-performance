@@ -280,8 +280,9 @@ write_language_model() {
 
   cat > "$output_file" <<'SWIFT'
 enum Language: String, CaseIterable, Sendable {
-    case englishGB = "en_GB_csw"
-    case englishUS = "en_US_nwl"
+    case englishCSW = "en_GB_CSW"
+    case englishNWL = "en_US_NWL"
+    case englishWOW = "en_WOW"
     case french = "fr_ODS"
     case polish = "pl_OSPS"
 }
@@ -296,20 +297,24 @@ import Darwin
 import XCTest
 
 let suite = XCTestSuite(name: "DAWGPerformanceTests")
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadEnglishGB)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadEnglishUS)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadEnglishCSW)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadEnglishNWL)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadEnglishWOW)))
 suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadFrench)))
 suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testLoadPolish)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsEnglishGB)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsEnglishUS)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsEnglishCSW)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsEnglishNWL)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsEnglishWOW)))
 suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsFrench)))
 suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testContainsPolish)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromEnglishGB)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromEnglishUS)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromEnglishCSW)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromEnglishNWL)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromEnglishWOW)))
 suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromFrench)))
 suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testWordsFromPolish)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternEnglishGB)))
-suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternEnglishUS)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternEnglishCSW)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternEnglishNWL)))
+suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternEnglishWOW)))
 suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternFrench)))
 suite.addTest(DAWGPerformanceTests(selector: #selector(DAWGPerformanceTests.testPatternPolish)))
 suite.run()
@@ -469,7 +474,7 @@ run_memory_probe() {
   local executable="$build_dir/DAWGMemoryProbe"
   local raw_file="$tmp_root/$label/memory-raw.tsv"
   local tsv_file="$tmp_root/$label/memory.tsv"
-  local languages=("en_GB_csw" "en_US_nwl" "fr_ODS" "pl_OSPS")
+  local languages=("en_GB_CSW" "en_US_NWL" "en_WOW" "fr_ODS" "pl_OSPS")
 
   echo "Building retained-memory probe for $label..." >&2
   compile_release "$module_cache_dir" "$executable" \

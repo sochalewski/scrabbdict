@@ -11,7 +11,7 @@ import Foundation
 struct SettingsFeature {
     @ObservableState
     struct State: Hashable, Sendable {
-        var selectedLanguage: Language = .englishUS
+        var selectedLanguage: Language = .englishNWL
     }
 
     enum Action: Hashable, Sendable, ViewAction {

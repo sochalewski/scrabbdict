@@ -162,7 +162,7 @@
         }
       }
     },
-    "language.english_gb.description" : {
+    "language.english_csw.description" : {
       "comment" : "Do not translate Scrabble™.",
       "extractionState" : "manual",
       "localizations" : {
@@ -186,7 +186,7 @@
         }
       }
     },
-    "language.english_gb.name" : {
+    "language.english_csw.name" : {
       "comment" : "Do not translate CSW.",
       "extractionState" : "manual",
       "localizations" : {
@@ -210,7 +210,7 @@
         }
       }
     },
-    "language.english_us.description" : {
+    "language.english_nwl.description" : {
       "comment" : "Do not translate Scrabble™.",
       "extractionState" : "manual",
       "localizations" : {
@@ -234,7 +234,7 @@
         }
       }
     },
-    "language.english_us.name" : {
+    "language.english_nwl.name" : {
       "comment" : "Do not translate NWL.",
       "extractionState" : "manual",
       "localizations" : {
@@ -254,6 +254,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Angielski NWL"
+          }
+        }
+      }
+    },
+    "language.english_wow.description" : {
+      "comment" : "Do not translate Scrabble™, Word Game Players’ Organization, WOW, or WGPO.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English word list used for tournament Scrabble™ by the Word Game Players’ Organization (WGPO)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste de mots anglaise utilisée pour le Scrabble™ de compétition par la Word Game Players’ Organization (WGPO)"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angielska lista słów używana w turniejowym Scrabble™ przez Word Game Players’ Organization (WGPO)"
+          }
+        }
+      }
+    },
+    "language.english_wow.name" : {
+      "comment" : "Do not translate WOW.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English WOW"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anglais WOW"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angielski WOW"
           }
         }
       }

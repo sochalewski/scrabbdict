@@ -30,7 +30,7 @@ extension Language {
 
     private var scalarPoints: [UInt16: Int] {
         switch self {
-        case .englishUS, .englishGB: Constants.englishScalarPoints
+        case .englishNWL, .englishCSW, .englishWOW: Constants.englishScalarPoints
         case .french: Constants.frenchScalarPoints
         case .polish: Constants.polishScalarPoints
         }

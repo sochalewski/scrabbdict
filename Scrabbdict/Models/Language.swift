@@ -8,9 +8,11 @@ import Foundation
 
 enum Language: String, CaseIterable, Hashable, Sendable {
     /// CSW24 (Collins Scrabble Words)
-    case englishGB = "en_GB_csw"
+    case englishCSW = "en_GB_CSW"
     /// NWL2023 (NASPA Word List)
-    case englishUS = "en_US_nwl"
+    case englishNWL = "en_US_NWL"
+    /// WOW24 (WGPO Official Words)
+    case englishWOW = "en_WOW"
     /// ODS 9 (L'Officiel du Scrabble)
     case french = "fr_ODS"
     /// OSPS Update 52 (Oficjalny słownik polskiego scrabblisty)
@@ -25,8 +27,9 @@ enum Language: String, CaseIterable, Hashable, Sendable {
 
     var name: LocalizedStringResource {
         switch self {
-        case .englishGB: .languageEnglishGbName
-        case .englishUS: .languageEnglishUsName
+        case .englishCSW: .languageEnglishCswName
+        case .englishNWL: .languageEnglishNwlName
+        case .englishWOW: .languageEnglishWowName
         case .polish: .languagePolishName
         case .french: .languageFrenchName
         }
@@ -34,8 +37,9 @@ enum Language: String, CaseIterable, Hashable, Sendable {
 
     var description: LocalizedStringResource {
         switch self {
-        case .englishGB: .languageEnglishGbDescription
-        case .englishUS: .languageEnglishUsDescription
+        case .englishCSW: .languageEnglishCswDescription
+        case .englishNWL: .languageEnglishNwlDescription
+        case .englishWOW: .languageEnglishWowDescription
         case .polish: .languagePolishDescription
         case .french: .languageFrenchDescription
         }
@@ -43,8 +47,9 @@ enum Language: String, CaseIterable, Hashable, Sendable {
 
     var wordCount: Int {
         switch self {
-        case .englishGB: 280_887
-        case .englishUS: 196_601
+        case .englishCSW: 280_887
+        case .englishNWL: 196_601
+        case .englishWOW: 195_383
         case .french: 407_128
         case .polish: 2_901_474
         }
@@ -58,8 +63,9 @@ enum Language: String, CaseIterable, Hashable, Sendable {
         switch components.first {
         case "en":
             switch components.dropFirst().first {
-            case "gb": self = .englishGB
-            case "us": self = .englishUS
+            case "gb": self = .englishCSW
+            case "us": self = .englishNWL
+            case "wow": self = .englishWOW
             default: return nil
             }
         case "fr":

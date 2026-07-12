@@ -174,8 +174,9 @@ write_language_model() {
 
   cat > "$output_file" <<'SWIFT'
 enum Language: CaseIterable {
-    case englishGB
-    case englishUS
+    case englishCSW
+    case englishNWL
+    case englishWOW
     case french
     case polish
 }
@@ -213,12 +214,12 @@ guard arguments.count == 3, let iterations = Int(arguments[1]), let samples = In
 let workloads = [
     Workload(
         name: "English ASCII",
-        language: .englishGB,
+        language: .englishCSW,
         words: ["quiz", "jazz", "pizzazz", "quick", "oxygen", "zipcode", "fuzzy", "waxwork", "jukebox", "quizzical"]
     ),
     Workload(
         name: "English short results",
-        language: .englishGB,
+        language: .englishCSW,
         words: ["pizza", "ziz", "zap", "zip", "za", "pia", "pa", "pi", "ai", "pized", "pizes", "quiz"]
     ),
     Workload(

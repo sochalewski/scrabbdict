@@ -32,12 +32,12 @@ extension LanguageStorageClient: DependencyKey {
     )
 
     static let testValue = Self(
-        current: unimplemented("\(Self.self).current", placeholder: .englishUS),
+        current: unimplemented("\(Self.self).current", placeholder: .englishNWL),
         setCurrent: unimplemented("\(Self.self).setCurrent")
     )
 
     static let previewValue = Self(
-        current: { .englishUS },
+        current: { .englishNWL },
         setCurrent: { _ in }
     )
 }
@@ -56,12 +56,12 @@ private extension Language {
         switch locale.language.languageCode?.identifier.lowercased() {
         case "en":
             switch locale.language.region?.identifier.uppercased() {
-            case "US", "CA": return .englishUS
-            default: return .englishGB
+            case "US", "CA": return .englishNWL
+            default: return .englishCSW
             }
         case "fr": return .french
         case "pl": return .polish
-        default: return .englishGB
+        default: return .englishCSW
         }
     }
 }

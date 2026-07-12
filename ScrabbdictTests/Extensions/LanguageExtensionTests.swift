@@ -9,8 +9,9 @@ import XCTest
 
 final class LanguageExtensionTests: XCTestCase {
     func testPointsUseEnglishScoringForEnglishDictionaries() {
-        XCTAssertEqual(Language.englishGB.points(for: "quiz"), 22)
-        XCTAssertEqual(Language.englishUS.points(for: "quiz"), 22)
+        XCTAssertEqual(Language.englishCSW.points(for: "quiz"), 22)
+        XCTAssertEqual(Language.englishNWL.points(for: "quiz"), 22)
+        XCTAssertEqual(Language.englishWOW.points(for: "quiz"), 22)
     }
 
     func testPointsUseLanguageSpecificScoring() {
@@ -19,6 +20,6 @@ final class LanguageExtensionTests: XCTestCase {
     }
 
     func testPointsIgnoreUnsupportedCharacters() {
-        XCTAssertEqual(Language.englishGB.points(for: "a?1"), 1)
+        XCTAssertEqual(Language.englishCSW.points(for: "a?1"), 1)
     }
 }

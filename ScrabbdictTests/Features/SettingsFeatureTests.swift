@@ -11,17 +11,19 @@ import XCTest
 @MainActor
 final class SettingsFeatureTests: XCTestCase {
     func testLanguageRawValueInitializerSupportsCurrentValues() {
-        XCTAssertEqual(Language(rawValue: "en_GB_csw"), .englishGB)
-        XCTAssertEqual(Language(rawValue: "en_US_nwl"), .englishUS)
+        XCTAssertEqual(Language(rawValue: "en_GB_CSW"), .englishCSW)
+        XCTAssertEqual(Language(rawValue: "en_US_NWL"), .englishNWL)
+        XCTAssertEqual(Language(rawValue: "en_WOW"), .englishWOW)
         XCTAssertEqual(Language(rawValue: "fr_ODS"), .french)
         XCTAssertEqual(Language(rawValue: "pl_OSPS"), .polish)
     }
 
     func testLanguageRawValueInitializerSupportsLegacyAndLocaleValues() {
-        XCTAssertEqual(Language(rawValue: "en_GB_sowpods"), .englishGB)
-        XCTAssertEqual(Language(rawValue: "en_US_twl"), .englishUS)
-        XCTAssertEqual(Language(rawValue: "en_GB"), .englishGB)
-        XCTAssertEqual(Language(rawValue: "en-US"), .englishUS)
+        XCTAssertEqual(Language(rawValue: "en_GB_sowpods"), .englishCSW)
+        XCTAssertEqual(Language(rawValue: "en_US_twl"), .englishNWL)
+        XCTAssertEqual(Language(rawValue: "en_wow"), .englishWOW)
+        XCTAssertEqual(Language(rawValue: "en_GB"), .englishCSW)
+        XCTAssertEqual(Language(rawValue: "en-US"), .englishNWL)
         XCTAssertEqual(Language(rawValue: "fr"), .french)
         XCTAssertEqual(Language(rawValue: "pl_PL"), .polish)
         XCTAssertEqual(Language(rawValue: "pl"), .polish)
@@ -35,7 +37,7 @@ final class SettingsFeatureTests: XCTestCase {
     }
 
     func testLanguageSelected() async {
-        let store = TestStore(initialState: SettingsFeature.State(selectedLanguage: .englishUS)) {
+        let store = TestStore(initialState: SettingsFeature.State(selectedLanguage: .englishNWL)) {
             SettingsFeature()
         }
 
@@ -66,7 +68,7 @@ final class SettingsFeatureTests: XCTestCase {
             $0.analyticsClient.logLanguageChanged = { language in
                 XCTAssertEqual(language, .french)
             }
-            $0.languageStorage.current = { .englishUS }
+            $0.languageStorage.current = { .englishNWL }
             $0.languageStorage.setCurrent = { language in
                 XCTAssertEqual(language, .french)
             }

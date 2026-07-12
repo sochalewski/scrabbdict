@@ -19,7 +19,7 @@ The app is written in Swift and SwiftUI. State management uses [The Composable A
 
 © 2013-2026 Piotr Sochalewski
 
-Scrabbdict is an independent, non-commercial hobby project. The developer does not derive profit from the application and has no affiliation, association, authorization, sponsorship, or endorsement from Hasbro, Mattel, NASPA Word List, Collins Coalition, Éditions Larousse, Polska Federacja Scrabble, Wydawnictwo Naukowe PWN or any other owner or publisher of the referenced word lists, trademarks, or related intellectual property.
+Scrabbdict is an independent, non-commercial hobby project. The developer does not derive profit from the application and has no affiliation, association, authorization, sponsorship, or endorsement from Hasbro, Mattel, NASPA Word List, Collins Coalition, Word Game Players’ Organization, Éditions Larousse, Polska Federacja Scrabble, Wydawnictwo Naukowe PWN or any other owner or publisher of the referenced word lists, trademarks, or related intellectual property.
 
 All trademarks, service marks, trade names, word list names, and other protected designations referenced in or in connection with this application are the property of their respective owners. Their use is for identification and compatibility purposes only and does not imply any relationship with, or endorsement by, the respective owners.
 
@@ -189,7 +189,7 @@ Generate only selected languages:
 
 ```sh
 Scripts/dawg pl_OSPS
-Scripts/dawg en_US_nwl fr_ODS
+Scripts/dawg en_US_NWL fr_ODS
 ```
 
 Use custom input or output directories:
@@ -254,8 +254,9 @@ Canonical decomposition is handled at user-input boundaries and covered by valid
 
 The app currently references these language identifiers:
 
-- `en_GB_csw` - English CSW-style (formerly SOWPODS) word list.
-- `en_US_nwl` - English NASPA-style (formerly OTCWL) word list.
+- `en_GB_CSW` - English CSW-style (formerly SOWPODS) word list.
+- `en_US_NWL` - English NASPA-style (formerly OTCWL) word list.
+- `en_WOW` - English WOW-style word list.
 - `fr_ODS` - French ODS-style word list.
 - `pl_OSPS` - Polish OSPS-style word list.
 

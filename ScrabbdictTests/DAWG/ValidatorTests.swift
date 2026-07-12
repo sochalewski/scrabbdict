@@ -67,7 +67,7 @@ final class ValidatorTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        currentLanguage = CurrentLanguageHolder(.englishGB)
+        currentLanguage = CurrentLanguageHolder(.englishCSW)
         sut = withDependencies {
             $0.analyticsClient = AnalyticsClient(
                 logLanguageChanged: { _ in },
@@ -169,7 +169,7 @@ final class ValidatorTests: XCTestCase {
         let analytics = AnalyticsEventRecorder()
         sut = withDependencies {
             $0.analyticsClient = analytics.analyticsClient()
-            $0.languageStorage.current = { .englishGB }
+            $0.languageStorage.current = { .englishCSW }
         } operation: {
             Validator()
         }
@@ -223,7 +223,7 @@ final class ValidatorTests: XCTestCase {
         let analytics = AnalyticsEventRecorder()
         sut = withDependencies {
             $0.analyticsClient = analytics.analyticsClient()
-            $0.languageStorage.current = { .englishGB }
+            $0.languageStorage.current = { .englishCSW }
         } operation: {
             Validator()
         }
@@ -232,8 +232,8 @@ final class ValidatorTests: XCTestCase {
         _ = try await sut.check(word: "pizzapie")
 
         XCTAssertEqual(analytics.recordedEvents, [
-            .wordChecked(.englishGB, exists: true),
-            .wordChecked(.englishGB, exists: false)
+            .wordChecked(.englishCSW, exists: true),
+            .wordChecked(.englishCSW, exists: false)
         ])
     }
 
@@ -241,7 +241,7 @@ final class ValidatorTests: XCTestCase {
         let analytics = AnalyticsEventRecorder()
         sut = withDependencies {
             $0.analyticsClient = analytics.analyticsClient()
-            $0.languageStorage.current = { .englishGB }
+            $0.languageStorage.current = { .englishCSW }
         } operation: {
             Validator()
         }
@@ -250,8 +250,8 @@ final class ValidatorTests: XCTestCase {
         _ = try await sut.regex(phrase: "piz??")
 
         XCTAssertEqual(analytics.recordedEvents, [
-            .tilesSearch(.englishGB),
-            .regexSearch(.englishGB)
+            .tilesSearch(.englishCSW),
+            .regexSearch(.englishCSW)
         ])
     }
 }

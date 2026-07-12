@@ -9,31 +9,38 @@ import XCTest
 
 final class DAWGPerformanceTests: XCTestCase {
     private let wordCountsByLanguage: [Language: Int] = [
-        .englishUS: 196_601,
-        .englishGB: 280_887,
+        .englishNWL: 196_601,
+        .englishCSW: 280_887,
+        .englishWOW: 195_383,
         .french: 407_128,
         .polish: 2_901_474
     ]
     private let queriesByLanguage: [Language: String] = [
-        .englishUS: "pizzapie",
-        .englishGB: "pizzapie",
+        .englishNWL: "pizzapie",
+        .englishCSW: "pizzapie",
+        .englishWOW: "pizzapie",
         .french: "mangeurs",
         .polish: "kotkami"
     ]
     private let patternsByLanguage: [Language: String] = [
-        .englishUS: "piz??",
-        .englishGB: "piz??",
+        .englishNWL: "piz??",
+        .englishCSW: "piz??",
+        .englishWOW: "piz??",
         .french: "mang???",
         .polish: "kot???"
     ]
     private let lookupCountPerMeasurement = 1_000
 
-    func testLoadEnglishGB() throws {
-        try measureLoad(language: .englishGB)
+    func testLoadEnglishCSW() throws {
+        try measureLoad(language: .englishCSW)
     }
 
-    func testLoadEnglishUS() throws {
-        try measureLoad(language: .englishUS)
+    func testLoadEnglishNWL() throws {
+        try measureLoad(language: .englishNWL)
+    }
+
+    func testLoadEnglishWOW() throws {
+        try measureLoad(language: .englishWOW)
     }
 
     func testLoadFrench() throws {
@@ -44,12 +51,16 @@ final class DAWGPerformanceTests: XCTestCase {
         try measureLoad(language: .polish)
     }
 
-    func testContainsEnglishGB() throws {
-        try measureContains(language: .englishGB)
+    func testContainsEnglishCSW() throws {
+        try measureContains(language: .englishCSW)
     }
 
-    func testContainsEnglishUS() throws {
-        try measureContains(language: .englishUS)
+    func testContainsEnglishNWL() throws {
+        try measureContains(language: .englishNWL)
+    }
+
+    func testContainsEnglishWOW() throws {
+        try measureContains(language: .englishWOW)
     }
 
     func testContainsFrench() throws {
@@ -60,12 +71,16 @@ final class DAWGPerformanceTests: XCTestCase {
         try measureContains(language: .polish)
     }
 
-    func testWordsFromEnglishGB() throws {
-        try measureWordsFrom(language: .englishGB)
+    func testWordsFromEnglishCSW() throws {
+        try measureWordsFrom(language: .englishCSW)
     }
 
-    func testWordsFromEnglishUS() throws {
-        try measureWordsFrom(language: .englishUS)
+    func testWordsFromEnglishNWL() throws {
+        try measureWordsFrom(language: .englishNWL)
+    }
+
+    func testWordsFromEnglishWOW() throws {
+        try measureWordsFrom(language: .englishWOW)
     }
 
     func testWordsFromFrench() throws {
@@ -76,12 +91,16 @@ final class DAWGPerformanceTests: XCTestCase {
         try measureWordsFrom(language: .polish)
     }
 
-    func testPatternEnglishGB() throws {
-        try measurePattern(language: .englishGB)
+    func testPatternEnglishCSW() throws {
+        try measurePattern(language: .englishCSW)
     }
 
-    func testPatternEnglishUS() throws {
-        try measurePattern(language: .englishUS)
+    func testPatternEnglishNWL() throws {
+        try measurePattern(language: .englishNWL)
+    }
+
+    func testPatternEnglishWOW() throws {
+        try measurePattern(language: .englishWOW)
     }
 
     func testPatternFrench() throws {

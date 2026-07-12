@@ -94,13 +94,13 @@ final class DAWGCommandTests: XCTestCase {
     func testLanguagesDiscoversTextAndZipWordListsWithoutDuplicates() throws {
         try withTemporaryDirectory { inputDirectory in
             try Data().write(to: inputDirectory.appendingPathComponent("pl_OSPS.txt"))
-            try Data().write(to: inputDirectory.appendingPathComponent("en_US_nwl.zip"))
-            try Data().write(to: inputDirectory.appendingPathComponent("en_US_nwl.txt"))
+            try Data().write(to: inputDirectory.appendingPathComponent("en_US_NWL.zip"))
+            try Data().write(to: inputDirectory.appendingPathComponent("en_US_NWL.txt"))
             try Data().write(to: inputDirectory.appendingPathComponent("README.md"))
 
             let languages = try DAWGCommand().languages(in: inputDirectory, requestedLanguages: [])
 
-            XCTAssertEqual(languages, ["en_US_nwl", "pl_OSPS"])
+            XCTAssertEqual(languages, ["en_US_NWL", "pl_OSPS"])
         }
     }
 

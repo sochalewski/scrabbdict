@@ -82,7 +82,7 @@ struct DAWGCommand {
         Examples:
           DAWGBuilder
           DAWGBuilder pl_OSPS
-          DAWGBuilder --output-dir /tmp/dawg en_US_nwl fr_ODS
+          DAWGBuilder --output-dir /tmp/dawg en_US_NWL fr_ODS
         """
     }
 

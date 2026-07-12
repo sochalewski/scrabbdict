@@ -11,12 +11,16 @@ import XCTest
 
 @MainActor
 final class SettingsSnapshotTests: XCTestCase {
-    func testEnglishGBSelected() {
-        assertSettingsScreenSnapshots(selectedLanguage: .englishGB)
+    func testEnglishCSWSelected() {
+        assertSettingsScreenSnapshots(selectedLanguage: .englishCSW)
     }
 
-    func testEnglishUSSelected() {
-        assertSettingsScreenSnapshots(selectedLanguage: .englishUS)
+    func testEnglishNWLSelected() {
+        assertSettingsScreenSnapshots(selectedLanguage: .englishNWL)
+    }
+
+    func testEnglishWOWSelected() {
+        assertSettingsScreenSnapshots(selectedLanguage: .englishWOW)
     }
 
     func testFrenchSelected() {

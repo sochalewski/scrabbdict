@@ -40,15 +40,15 @@ final class LanguageStorageClientTests: XCTestCase {
 
     func testFallsBackToPreferredLanguageForLocaleWhenNoLanguageIsStored() {
         let cases: [(localeIdentifier: String, language: Language)] = [
-            ("en_US", .englishUS),
-            ("en_CA", .englishUS),
-            ("en", .englishGB),
-            ("en_GB", .englishGB),
-            ("en_AU", .englishGB),
+            ("en_US", .englishNWL),
+            ("en_CA", .englishNWL),
+            ("en", .englishCSW),
+            ("en_GB", .englishCSW),
+            ("en_AU", .englishCSW),
             ("fr_FR", .french),
             ("fr_CA", .french),
             ("pl_PL", .polish),
-            ("de_DE", .englishGB)
+            ("de_DE", .englishCSW)
         ]
 
         for testCase in cases {

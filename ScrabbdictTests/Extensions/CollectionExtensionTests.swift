@@ -9,7 +9,7 @@ import XCTest
 
 final class CollectionExtensionTests: XCTestCase {
     func testMapToWordsSortsByPointsDescendingThenStringAscending() {
-        let words = ["aa", "ba", "quiz", "ab"].mapToWords(language: .englishGB)
+        let words = ["aa", "ba", "quiz", "ab"].mapToWords(language: .englishCSW)
 
         XCTAssertEqual(words, [
             Word(string: "quiz", points: 22),
