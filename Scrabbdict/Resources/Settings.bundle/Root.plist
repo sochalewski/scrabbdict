@@ -57,7 +57,7 @@ Third-party package licenses are provided by their upstream repositories.</strin
 Resolved Swift packages:
 - swift-composable-architecture 1.26.0 (MIT License)
 - combine-schedulers 1.2.0
-- swift-case-paths 1.9.0
+- swift-case-paths 1.9.1
 - swift-clocks 1.1.0
 - swift-concurrency-extras 1.4.0
 - swift-custom-dump 1.6.1
