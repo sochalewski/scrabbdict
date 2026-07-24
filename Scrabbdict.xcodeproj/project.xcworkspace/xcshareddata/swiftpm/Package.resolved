@@ -169,7 +169,7 @@
       "location" : "https://github.com/pointfreeco/swift-concurrency-extras",
       "state" : {
         "revision" : "a90e2e40a7a840a853dd29e57cbef5dbb72c9d5b",
-        "version" : "1.4.0"
+        "version" : "1.4.1"
       }
     },
     {
