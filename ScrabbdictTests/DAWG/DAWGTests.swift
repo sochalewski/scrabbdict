@@ -11,19 +11,19 @@ final class DAWGTests: XCTestCase {
     // MARK: - Integration smoke tests using bundled dictionaries
 
     func testContainsExistingWord() throws {
-        let dawg = try XCTUnwrap(DAWG(language: .englishCSW))
+        let dawg = try DAWG(language: .englishCSW)
 
         XCTAssertTrue(dawg.contains("pizza"))
     }
 
     func testDoesNotContainMissingWord() throws {
-        let dawg = try XCTUnwrap(DAWG(language: .englishCSW))
+        let dawg = try DAWG(language: .englishCSW)
 
         XCTAssertFalse(dawg.contains("pizzapie"))
     }
 
     func testWordsFromLettersWithRepeatedLetters() throws {
-        let dawg = try XCTUnwrap(DAWG(language: .englishCSW))
+        let dawg = try DAWG(language: .englishCSW)
 
         let words = dawg.words(from: "pizza")
 
@@ -34,7 +34,7 @@ final class DAWGTests: XCTestCase {
     }
 
     func testWordsFromLettersHonorsMinimumLength() throws {
-        let dawg = try XCTUnwrap(DAWG(language: .englishCSW))
+        let dawg = try DAWG(language: .englishCSW)
 
         let words = dawg.words(from: "pizza", minLength: 4)
 
@@ -43,7 +43,7 @@ final class DAWGTests: XCTestCase {
     }
 
     func testWordsMatchingPattern() throws {
-        let dawg = try XCTUnwrap(DAWG(language: .englishCSW))
+        let dawg = try DAWG(language: .englishCSW)
 
         let words = dawg.words(matching: "piz??").sorted()
 
@@ -62,6 +62,14 @@ final class DAWGTests: XCTestCase {
                 try DAWG(data: data, validatesEdges: true),
                 "Bundled DAWG has invalid edges: \(language.rawValue)."
             )
+        }
+    }
+
+    func testThrowsWhenDictionaryResourceIsMissing() {
+        XCTAssertThrowsError(
+            try DAWG(language: .englishCSW, bundle: Bundle(for: Self.self))
+        ) {
+            XCTAssertEqual(String(describing: $0), "resourceUnavailable")
         }
     }
 

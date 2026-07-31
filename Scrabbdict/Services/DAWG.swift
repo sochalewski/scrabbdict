@@ -17,16 +17,12 @@ final class DAWG: Sendable {
     /// Packed edges as described by ``DAWGFormat``.
     private let edges: [UInt32]
 
-    convenience init?(language: Language, bundle: Bundle = .main) {
+    convenience init(language: Language, bundle: Bundle = .main) throws {
         guard let url = bundle.url(forResource: language.rawValue, withExtension: "dawg") else {
-            return nil
+            throw DAWGError.resourceUnavailable
         }
 
-        do {
-            try self.init(url: url)
-        } catch {
-            return nil
-        }
+        try self.init(url: url)
     }
 
     convenience init(url: URL) throws {
@@ -273,7 +269,7 @@ final class DAWG: Sendable {
 }
 
 private extension DAWG {
-    static func validateEdges(_ edges: [UInt32], alphabetCount: Int) throws {
+    static func validateEdges(_ edges: [UInt32], alphabetCount: Int) throws(DAWGError) {
         var previousEdgeKey: UInt16 = 0
         var isWithinNodeBlock = false
 
@@ -296,6 +292,7 @@ private extension DAWG {
 }
 
 private enum DAWGError: Error, Hashable {
+    case resourceUnavailable
     case invalidHeader
     case invalidAlphabet
     case invalidSize

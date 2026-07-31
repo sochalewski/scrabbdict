@@ -31,6 +31,7 @@ enum ValidatorResult: Hashable, Sendable {
 
 actor Validator {
     @Dependency(\.analyticsClient) var analytics
+    @Dependency(\.crashlyticsClient) var crashlytics
     @Dependency(\.languageStorage.current) var currentLanguage
 
     private var dawg: DAWG?
@@ -74,14 +75,23 @@ actor Validator {
         return result
     }
 
+    private func loadDAWG(language: Language) -> DAWG? {
+        do {
+            return try DAWG(language: language)
+        } catch {
+            crashlytics.log("DAWG initialization failed for \(language.rawValue): \(String(describing: error))")
+            return nil
+        }
+    }
+
     private func validatorDependencies() throws(ValidatorError) -> (Language, DAWG) {
         let currentLanguage = currentLanguage()
 
         if language != currentLanguage {
             language = currentLanguage
-            dawg = .init(language: currentLanguage)
+            dawg = loadDAWG(language: currentLanguage)
         } else if dawg == nil {
-            dawg = .init(language: currentLanguage)
+            dawg = loadDAWG(language: currentLanguage)
         }
 
         guard let dawg else { throw .dictionaryUnavailable }

@@ -115,14 +115,14 @@ final class DAWGPerformanceTests: XCTestCase {
         var wordCount = 0
 
         measure(metrics: [XCTClockMetric()], options: repeatedOptions()) {
-            wordCount = DAWG(language: language)!.count
+            wordCount = (try? DAWG(language: language))!.count
         }
 
         XCTAssertEqual(wordCount, wordCountsByLanguage[language])
     }
 
     private func measureContains(language: Language) throws {
-        let dawg = try XCTUnwrap(DAWG(language: language))
+        let dawg = try XCTUnwrap(try? DAWG(language: language))
         let query = queriesByLanguage[language]!
         var resultCount = 0
 
@@ -134,7 +134,7 @@ final class DAWGPerformanceTests: XCTestCase {
     }
 
     private func measureWordsFrom(language: Language) throws {
-        let dawg = try XCTUnwrap(DAWG(language: language))
+        let dawg = try XCTUnwrap(try? DAWG(language: language))
         let query = queriesByLanguage[language]!
         var resultCount = 0
 
@@ -146,7 +146,7 @@ final class DAWGPerformanceTests: XCTestCase {
     }
 
     private func measurePattern(language: Language) throws {
-        let dawg = try XCTUnwrap(DAWG(language: language))
+        let dawg = try XCTUnwrap(try? DAWG(language: language))
         let pattern = patternsByLanguage[language]!
         var resultCount = 0
 
