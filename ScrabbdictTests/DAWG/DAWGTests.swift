@@ -146,6 +146,15 @@ final class DAWGTests: XCTestCase {
         XCTAssertThrowsError(try DAWG(data: data, validatesEdges: true))
     }
 
+    func testRejectsAlphabetExceedingMaximumCountWithoutEdgeValidation() {
+        let maximumAlphabetCount = Int(UInt8.max) + 1
+        let data = makeDAWGData(
+            alphabet: makeAlphabet(count: maximumAlphabetCount + 1)
+        )
+
+        XCTAssertThrowsError(try DAWG(data: data, validatesEdges: false))
+    }
+
     func testRejectsInvalidSize() {
         var data = makeDAWGData()
         data.removeLast()
@@ -192,6 +201,10 @@ final class DAWGTests: XCTestCase {
 
 private func makeTestDAWG(words: [String]) throws -> DAWG {
     try DAWG(data: DAWGBuilder(words: words.sorted()).data(), validatesEdges: true)
+}
+
+private func makeAlphabet(count: Int) -> [UnicodeScalar] {
+    (0..<count).map { UnicodeScalar(UInt32($0) + 0x100)! }
 }
 
 private func makeDAWGData(

@@ -45,6 +45,7 @@ final class DAWG: Sendable {
             let alphabetCount = Int(buffer.readLittleEndianUInt32(at: 16))
 
             guard magic == DAWGFormat.magic, version == DAWGFormat.version else { throw DAWGError.invalidHeader }
+            guard alphabetCount <= Int(UInt8.max) + 1 else { throw DAWGError.invalidAlphabet }
 
             let alphabetOffset = DAWGFormat.headerSize
             let edgesOffset = alphabetOffset + alphabetCount * MemoryLayout<UInt16>.size
@@ -296,6 +297,7 @@ private extension DAWG {
 
 private enum DAWGError: Error, Hashable {
     case invalidHeader
+    case invalidAlphabet
     case invalidSize
     case invalidEdges
 }
