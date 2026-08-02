@@ -6,9 +6,9 @@
 
 extension Language {
     private enum Constants {
-        static let englishLetterPoints: [Character: Int] = ["A": 1, "B": 3, "C": 3, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, "J": 8, "K": 5, "L": 1, "M": 3, "N": 1, "O": 1, "P": 3, "Q": 10, "R": 1, "S": 1, "T": 1, "U": 1, "V": 4, "W": 4, "X": 8, "Y": 4, "Z": 10]
-        static let frenchLetterPoints: [Character: Int] = ["A": 1, "B": 3, "C": 3, "D": 2, "E": 1, "F": 4, "G": 2, "H": 4, "I": 1, "J": 8, "K": 10, "L": 1, "M": 2, "N": 1, "O": 1, "P": 3, "Q": 8, "R": 1, "S": 1, "T": 1, "U": 1, "V": 4, "W": 10, "X": 10, "Y": 10, "Z": 10]
-        static let polishLetterPoints: [Character: Int] = ["A": 1, "Ą": 5, "B": 3, "C": 2, "Ć": 6, "D": 2, "E": 1, "Ę": 5, "F": 5, "G": 3, "H": 3, "I": 1, "J": 3, "K": 2, "L": 2, "Ł": 3, "M": 2, "N": 1, "Ń": 7, "O": 1, "Ó": 5, "P": 2, "R": 1, "S": 1, "Ś": 5, "T": 2, "U": 3, "W": 1, "Y": 2, "Z": 1, "Ź": 9, "Ż": 5]
+        static let englishLetterPoints: [Character: Int] = ["a": 1, "b": 3, "c": 3, "d": 2, "e": 1, "f": 4, "g": 2, "h": 4, "i": 1, "j": 8, "k": 5, "l": 1, "m": 3, "n": 1, "o": 1, "p": 3, "q": 10, "r": 1, "s": 1, "t": 1, "u": 1, "v": 4, "w": 4, "x": 8, "y": 4, "z": 10]
+        static let frenchLetterPoints: [Character: Int] = ["a": 1, "b": 3, "c": 3, "d": 2, "e": 1, "f": 4, "g": 2, "h": 4, "i": 1, "j": 8, "k": 10, "l": 1, "m": 2, "n": 1, "o": 1, "p": 3, "q": 8, "r": 1, "s": 1, "t": 1, "u": 1, "v": 4, "w": 10, "x": 10, "y": 10, "z": 10]
+        static let polishLetterPoints: [Character: Int] = ["a": 1, "ą": 5, "b": 3, "c": 2, "ć": 6, "d": 2, "e": 1, "ę": 5, "f": 5, "g": 3, "h": 3, "i": 1, "j": 3, "k": 2, "l": 2, "ł": 3, "m": 2, "n": 1, "ń": 7, "o": 1, "ó": 5, "p": 2, "r": 1, "s": 1, "ś": 5, "t": 2, "u": 3, "w": 1, "y": 2, "z": 1, "ź": 9, "ż": 5]
 
         static let englishScalarPoints = scalarPoints(from: englishLetterPoints)
         static let frenchScalarPoints = scalarPoints(from: frenchLetterPoints)
@@ -17,7 +17,7 @@ extension Language {
         static func scalarPoints(from letterPoints: [Character: Int]) -> [UInt16: Int] {
             Dictionary(uniqueKeysWithValues: letterPoints.compactMap { character, points in
                 guard
-                    let scalar = character.lowercased().unicodeScalars.first,
+                    let scalar = character.unicodeScalars.first,
                     let scalarKey = UInt16(exactly: scalar.value)
                 else {
                     return nil
@@ -40,7 +40,7 @@ extension Language {
         let scalarPoints = scalarPoints
         var points = 0
 
-        for scalar in word.lowercased().unicodeScalars {
+        for scalar in word.unicodeScalars {
             guard let scalarKey = UInt16(exactly: scalar.value) else { continue }
             points += scalarPoints[scalarKey] ?? 0
         }
