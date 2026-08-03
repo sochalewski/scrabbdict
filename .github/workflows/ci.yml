@@ -203,7 +203,12 @@ jobs:
               .map((file) => file.filename)
               .filter((filename) => {
                 const basename = filename.split('/').at(-1)
-                return !filename.startsWith('ScrabbdictTests/') && /^DAWG.*\.swift$/.test(basename)
+                const isHarnessFile =
+                  filename === 'Scripts/dawg-performance' ||
+                  filename.startsWith('Scripts/DAWGPerformance/')
+                const isDAWGSource =
+                  !filename.startsWith('ScrabbdictTests/') && /^DAWG.*\.swift$/.test(basename)
+                return isHarnessFile || isDAWGSource
               })
 
             const changed = matchingFiles.length > 0
@@ -300,10 +305,21 @@ jobs:
           set -euo pipefail
 
           Scripts/dawg-performance \
+            --profile decision \
             --format markdown \
+            --output-dir "$RUNNER_TEMP/dawg-performance" \
             "${{ steps.refs.outputs.base_ref }}" \
             "${{ steps.refs.outputs.compare_ref }}" \
             | tee dawg-performance.md
+
+      - name: Upload DAWG performance results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dawg-performance-results
+          path: ${{ runner.temp }}/dawg-performance
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Build pull request comment
         run: |
@@ -312,6 +328,8 @@ jobs:
           {
             echo "<!-- dawg-performance -->"
             echo "## DAWG performance"
+            echo
+            echo "This comparison is informational and does not gate the pull request on performance changes."
             echo
             echo "<details open><summary>Results</summary>"
             echo

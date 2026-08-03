@@ -14,29 +14,6 @@
   },
   "testTargets" : [
     {
-      "skippedTests" : [
-        "DAWGPerformanceTests",
-        "DAWGPerformanceTests\/testContainsEnglishCSW()",
-        "DAWGPerformanceTests\/testContainsEnglishNWL()",
-        "DAWGPerformanceTests\/testContainsEnglishWOW()",
-        "DAWGPerformanceTests\/testContainsFrench()",
-        "DAWGPerformanceTests\/testContainsPolish()",
-        "DAWGPerformanceTests\/testLoadEnglishCSW()",
-        "DAWGPerformanceTests\/testLoadEnglishNWL()",
-        "DAWGPerformanceTests\/testLoadEnglishWOW()",
-        "DAWGPerformanceTests\/testLoadFrench()",
-        "DAWGPerformanceTests\/testLoadPolish()",
-        "DAWGPerformanceTests\/testPatternEnglishCSW()",
-        "DAWGPerformanceTests\/testPatternEnglishNWL()",
-        "DAWGPerformanceTests\/testPatternEnglishWOW()",
-        "DAWGPerformanceTests\/testPatternFrench()",
-        "DAWGPerformanceTests\/testPatternPolish()",
-        "DAWGPerformanceTests\/testWordsFromEnglishCSW()",
-        "DAWGPerformanceTests\/testWordsFromEnglishNWL()",
-        "DAWGPerformanceTests\/testWordsFromEnglishWOW()",
-        "DAWGPerformanceTests\/testWordsFromFrench()",
-        "DAWGPerformanceTests\/testWordsFromPolish()"
-      ],
       "target" : {
         "containerPath" : "container:Scrabbdict.xcodeproj",
         "identifier" : "AE78C2771FFD267600874685",
