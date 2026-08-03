@@ -45,7 +45,7 @@ final class DAWGTests: XCTestCase {
     func testWordsMatchingPattern() throws {
         let dawg = try DAWG(language: .englishCSW)
 
-        let words = dawg.words(matching: "piz??").sorted()
+        let words = dawg.words(matching: "piz??")
 
         XCTAssertEqual(words, ["pized", "pizes", "pizza"])
     }
@@ -99,13 +99,13 @@ final class DAWGTests: XCTestCase {
     func testWordsFromLettersHonorsAvailableLetterCountsWithControlledData() throws {
         let dawg = try makeTestDAWG(words: ["ab", "abb", "abc", "ba"])
 
-        XCTAssertEqual(dawg.words(from: "ab").sorted(), ["ab", "ba"])
+        XCTAssertEqual(dawg.words(from: "ab"), ["ab", "ba"])
     }
 
     func testWordsFromLettersHonorsMinimumLengthWithControlledData() throws {
         let dawg = try makeTestDAWG(words: ["an", "ant", "tan"])
 
-        XCTAssertEqual(dawg.words(from: "tan", minLength: 3).sorted(), ["ant", "tan"])
+        XCTAssertEqual(dawg.words(from: "tan", minLength: 3), ["ant", "tan"])
     }
 
     func testWordsFromLettersReturnsEmptyForEmptyOrUnsupportedLetters() throws {
@@ -126,9 +126,9 @@ final class DAWGTests: XCTestCase {
     func testWordsMatchingWildcardAtDifferentPositions() throws {
         let dawg = try makeTestDAWG(words: ["bat", "cat", "rat", "tar", "tea", "ted"])
 
-        XCTAssertEqual(dawg.words(matching: "?at").sorted(), ["bat", "cat", "rat"])
-        XCTAssertEqual(dawg.words(matching: "t?r").sorted(), ["tar"])
-        XCTAssertEqual(dawg.words(matching: "te?").sorted(), ["tea", "ted"])
+        XCTAssertEqual(dawg.words(matching: "?at"), ["bat", "cat", "rat"])
+        XCTAssertEqual(dawg.words(matching: "t?r"), ["tar"])
+        XCTAssertEqual(dawg.words(matching: "te?"), ["tea", "ted"])
     }
 
     func testWordsMatchingReturnsEmptyForUnsupportedPatterns() throws {

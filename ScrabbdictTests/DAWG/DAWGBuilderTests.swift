@@ -22,8 +22,8 @@ final class DAWGBuilderTests: XCTestCase {
 
         XCTAssertFalse(dawg.contains("at"))
         XCTAssertFalse(dawg.contains("bats"))
-        XCTAssertEqual(dawg.words(matching: "?at").sorted(), ["bat", "cat", "rat"])
-        XCTAssertEqual(dawg.words(from: "trab", minLength: 3).sorted(), ["bar", "bat", "rat", "tar"])
+        XCTAssertEqual(dawg.words(matching: "?at"), ["bat", "cat", "rat"])
+        XCTAssertEqual(dawg.words(from: "trab", minLength: 3), ["bar", "bat", "rat", "tar"])
     }
 
     func testGeneratedDataDeduplicatesDuplicateWords() throws {

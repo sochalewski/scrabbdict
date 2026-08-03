@@ -8,8 +8,8 @@ import XCTest
 @testable import Scrabbdict
 
 final class CollectionExtensionTests: XCTestCase {
-    func testMapToWordsSortsByPointsDescendingThenStringAscending() {
-        let words = ["aa", "ba", "quiz", "ab"].mapToWords(language: .englishCSW)
+    func testMapToWordsSortsByPointsDescendingAndPreservesAlphabeticalTies() {
+        let words = ["aa", "ab", "ba", "quiz"].mapToWords(language: .englishCSW)
 
         XCTAssertEqual(words, [
             Word(string: "quiz", points: 22),
@@ -17,5 +17,18 @@ final class CollectionExtensionTests: XCTestCase {
             Word(string: "ba", points: 4),
             Word(string: "aa", points: 2)
         ])
+    }
+
+    func testMapToWordsPreservesAlphabeticalOrderAcrossLargeEqualPointGroups() {
+        let strings =
+            Array(repeating: "ab", count: 128)
+                + Array(repeating: "ba", count: 128)
+                + Array(repeating: "z", count: 128)
+
+        let words = strings.mapToWords(language: .englishCSW)
+
+        XCTAssertEqual(words, Array(repeating: Word(string: "z", points: 10), count: 128)
+            + Array(repeating: Word(string: "ab", points: 4), count: 128)
+            + Array(repeating: Word(string: "ba", points: 4), count: 128))
     }
 }

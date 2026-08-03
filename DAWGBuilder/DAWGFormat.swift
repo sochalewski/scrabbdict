@@ -13,9 +13,16 @@
 /// - bit 23: last flag (this is the last outgoing edge of its source node),
 /// - bits 24-31: alphabet index of the edge label.
 ///
+/// The alphabet table preceding the edge table stores distinct `UInt16`
+/// Unicode scalars in strictly ascending order. This ordering is part of the
+/// format contract, not merely a generator implementation detail.
+///
 /// A node's outgoing edges are stored consecutively and sorted by ascending
 /// alphabet index, so a reader can stop scanning a node as soon as it sees
 /// a key greater than the one it is looking for.
+///
+/// Together, the ordered alphabet and edge blocks make depth-first enumeration
+/// lexicographically ascending for normalized dictionary entries.
 ///
 /// The root node's edges start at index `0`. Because the graph is acyclic,
 /// no edge can target the root, so `0` is unambiguous as the null target.
