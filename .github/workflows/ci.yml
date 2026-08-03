@@ -215,6 +215,7 @@ jobs:
             core.setOutput('changed', String(changed))
             await core.summary
               .addHeading('DAWG performance filter')
+              .addEOL()
               .addRaw(changed
                 ? `Benchmark will run because these DAWG-related files changed:\n\n${matchingFiles.map((file) => `- \`${file}\``).join('\n')}`
                 : 'Benchmark skipped because no DAWG-related files changed.'
@@ -406,6 +407,7 @@ jobs:
             core.setOutput('changed', String(changed))
             await core.summary
               .addHeading('Points performance filter')
+              .addEOL()
               .addRaw(changed
                 ? `Benchmark will run because \`${target}\` changed.`
                 : `Benchmark skipped because \`${target}\` did not change.`
