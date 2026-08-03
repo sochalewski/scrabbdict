@@ -210,7 +210,7 @@ and produces:
 Scrabbdict/Resources/Dictionaries/pl_OSPS.dawg
 ```
 
-To measure DAWG loading, search performance, and retained memory without resolving the full app package graph, run:
+To measure DAWG loading and search performance without resolving the full app package graph, run the standalone Release harness:
 
 ```sh
 Scripts/dawg-performance
@@ -222,11 +222,32 @@ You can also compare two repository commits and their matching dictionary submod
 Scripts/dawg-performance <base-ref> <compare-ref>
 ```
 
-Use `current` as either ref to compare the current checkout, including uncommitted changes:
+Use `current` as either ref to benchmark the working-tree DAWG reader and format sources with the current dictionaries:
 
 ```sh
 Scripts/dawg-performance main current
 ```
+
+Comparison runs compile each ref and the common adapter as isolated whole-module-optimized objects in both normal and crossed module assignments, then statically link each assignment into its runner so both sides share one ASLR slide without sharing codegen. Every workload replicate uses two fresh processes, one per assignment, and measures thread CPU time through short, locally balanced supercycles containing both ABBA and BAAB quartets. The workers split the supercycles and both measure the bridge supercycle, so its two module-specific values can be averaged and each assignment has equal local weight. The primary module assignment and first quartet orientation are balanced across the measurement timeline; in decision and confirm profiles, every workload is also position-balanced independently within each module-by-orientation cell. Each worker repeats its exact preflight immediately before one balanced warm-up supercycle. The warm-up uses the predecessor parity so it ends on the side that starts the worker's first timed supercycle. Workload values sharing a replicate index are averaged for aggregate metrics before the run-level estimate; do not compare absolute timings from separate runs, machines, or toolchains. With no refs, the harness defaults to a quick current/current A/A diagnostic without a verdict; it is explicitly not comparable across invocations.
+
+Choose the measurement budget and artifact destination with command-line options:
+
+```sh
+Scripts/dawg-performance \
+  --profile decision \
+  --output-dir .build/dawg-performance/main-current-run \
+  main current
+```
+
+`--profile quick` uses four replicate groups and 160 fresh module-paired workload processes and is diagnostic only, `decision` uses sixteen groups and 640 processes, and `confirm` uses thirty-two groups and 1,280 processes to independently confirm a borderline result. Decision and confirm use three logical 17 ms supercycles for `load`, seven 8 ms supercycles for `contains`, and five 10 ms supercycles for `words` and `pattern`, plus the duplicated bridge supercycle used to pair module assignments. This provides at least 200 ms of measured CPU per side and workload. Decision and confirm always use `overall` for the run-level verdict against the 1% practical margin, while every operation and workload retains its estimate and confidence interval. A significant overall ABBA-minus-BAAB bias above 0.5% suppresses the verdict as `unstable-order-effect`.
+
+Dictionary selection is an advanced diagnostic. The default `--inputs matching` pairs each source ref with its dictionary commit. `shared-base` and `shared-compare` run both readers against one side's dictionaries to isolate reader changes; incompatible formats fail preflight. This also enables historical comparisons when one dictionary ref does not provide all five files in the fixed 20-workload manifest, provided the selected shared side is complete and compatible.
+
+Local runs do not retain detailed artifacts by default. Pass `--save-artifacts` to keep a timestamped result bundle under `.build/dawg-performance/`, or `--output-dir` to keep it in an exact new/empty directory. A saved schema-version-2 bundle contains `metadata.json`, the frozen `calibration.tsv` profile, raw measurement legs with block, phase, module assignment, worker, supercycle, schedule, and leg-position coordinates in `blocks.tsv`, plus `summary.json` and `report.md`. Reports include median timed CPU per side and paired replicate, within-process MAD, and ABBA-minus-BAAB bias. `harness_hash` fingerprints the harness sources; the bundle metadata separately records the refs and source hashes, dictionaries, machine, OS, toolchain, power source, and observed thermal and Low Power Mode state.
+
+The default console output is a compact XCTest-style comparison with Base, Compare, Delta, Change, and 95% CI columns. Base and Compare are normalized paired CPU estimates on the observed per-operation scale; Change and its confidence interval remain the decision metrics. When artifacts are saved, full sampling and stability diagnostics stay in `report.md` and `summary.json`.
+
+The harness measures Release-optimized, hot-cache DAWG reader CPU performance on macOS. It is not a cold-I/O benchmark or an iOS-device benchmark, and it does not compile `Language+Extension.swift`; use `Scripts/points-performance` for `Language.points(for:)` changes. By default, a separate fresh-process retained-memory probe runs one sample per side and dictionary after timing, so it cannot disturb timed workloads. Set `DAWG_PERF_MEMORY_SAMPLES=0` to disable it or use a larger value, such as `5`, for a repeated median.
 
 ## Measuring Points Performance
 

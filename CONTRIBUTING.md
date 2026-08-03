@@ -74,6 +74,8 @@ When changing DAWG-related code:
 - Add or update correctness tests for format, generation, loading, validation, tile search, or wildcard behavior as appropriate.
 - Run `Scripts/dawg-performance main current` and compare the result before submitting the pull request.
 
+Base performance decisions on the paired `overall` estimate, its 95% confidence interval, and the run-level verdict from that single invocation. Absolute timings from separate runs, machines, or toolchains are diagnostic only.
+
 Do not submit full proprietary dictionaries to the public repository.
 
 ## Scoring Performance Changes

@@ -11,7 +11,7 @@
 
 ## DAWG
 
-- When changing code directly related to the DAWG binary format, DAWG generation, or DAWG runtime implementation, run `Scripts/dawg-performance` and compare the results to make sure the change does not regress performance.
+- When changing code directly related to the DAWG binary format, DAWG generation, or DAWG runtime implementation, run `Scripts/dawg-performance main current`. Base performance decisions on the paired `overall` estimate, its 95% confidence interval, and the run-level verdict from that single comparison; treat absolute timings from separate runs, machines, or toolchains as diagnostic only.
 - Treat DAWG code as performance-critical. Prefer the fastest implementation that preserves correctness and the documented binary format, even when it is less immediately readable than a more general or idiomatic version.
 
 ## Scoring
