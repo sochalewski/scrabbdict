@@ -7,14 +7,12 @@
 import Foundation
 
 extension [String] {
+    /// Maps lexicographically sorted strings to words ordered by descending score, preserving input order for ties.
     func mapToWords(language: Language) -> [Word] {
-        map { Word(string: $0, points: language.points(for: $0)) }
-            .sorted {
-                if $0.points == $1.points {
-                    $0.string < $1.string
-                } else {
-                    $0.points > $1.points
-                }
-            }
+        assert(indices.dropFirst().allSatisfy { self[$0 - 1] <= self[$0] })
+
+        var words = map { Word(string: $0, points: language.points(for: $0)) }
+        words.sort { $0.points > $1.points }
+        return words
     }
 }

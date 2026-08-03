@@ -11,6 +11,7 @@ final class DAWG: Sendable {
 
     let count: Int
 
+    /// Unicode scalars in strictly ascending order for generator-produced DAWGs.
     private let alphabet: [UInt16]
     /// Maps a Unicode scalar to its alphabet key; `.max` marks scalars outside the alphabet.
     private let keyByScalar: [UInt16]
@@ -25,6 +26,7 @@ final class DAWG: Sendable {
         try self.init(url: url)
     }
 
+    /// Loads a trusted generator-produced DAWG without revalidating its ordering invariants.
     convenience init(url: URL) throws {
         let data = try Data(contentsOf: url, options: .mappedIfSafe)
         try self.init(data: data, validatesEdges: false)
@@ -100,6 +102,7 @@ final class DAWG: Sendable {
         return isWord
     }
 
+    /// Returns constructible words in ascending lexicographic order.
     func words(from letters: String, minLength: Int = 2) -> [String] {
         guard !letters.isEmpty, !edges.isEmpty else { return [] }
 
@@ -114,6 +117,7 @@ final class DAWG: Sendable {
         return result
     }
 
+    /// Returns words matching the pattern in ascending lexicographic order.
     func words(matching pattern: String) -> [String] {
         guard !pattern.isEmpty, !edges.isEmpty else { return [] }
 

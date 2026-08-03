@@ -20,6 +20,6 @@ final class LanguageExtensionTests: XCTestCase {
     }
 
     func testPointsIgnoreUnsupportedCharacters() {
-        XCTAssertEqual(Language.englishCSW.points(for: "a?1"), 1)
+        XCTAssertEqual(Language.englishCSW.points(for: "a?1😀"), 1)
     }
 }

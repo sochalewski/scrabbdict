@@ -13,6 +13,8 @@
 
 - When changing code directly related to the DAWG binary format, DAWG generation, or DAWG runtime implementation, run `Scripts/dawg-performance main current`. Base performance decisions on the paired `overall` estimate, its 95% confidence interval, and the run-level verdict from that single comparison; treat absolute timings from separate runs, machines, or toolchains as diagnostic only.
 - Treat DAWG code as performance-critical. Prefer the fastest implementation that preserves correctness and the documented binary format, even when it is less immediately readable than a more general or idiomatic version.
+- Treat lexicographically ascending results from `DAWG.words(from:minLength:)` and `DAWG.words(matching:)` as part of the runtime contract. `DAWGBuilder` must write the alphabet table by strictly ascending scalar value and every node's edge block by strictly ascending alphabet index; callers may rely on Swift's stable sort to preserve alphabetical order between equal-scoring words.
+- Tests covering DAWG enumeration must compare returned arrays directly. Do not call `.sorted()` in those assertions, because doing so hides ordering regressions.
 
 ## Scoring
 
