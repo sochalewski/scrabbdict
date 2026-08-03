@@ -1,6 +1,6 @@
 [tools]
 swiftformat = "0.62.1"
-"npm:git-format-staged" = "4.0.1"
+"npm:git-format-staged" = "4.0.2"
 
 [tasks.format]
 description = "Format Swift sources with SwiftFormat"
