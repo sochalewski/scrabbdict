@@ -11,15 +11,17 @@ Usage: Scripts/points-performance
 Builds and runs a standalone Release-optimized benchmark for
 Language.points(for:) on normalized scoring inputs, without resolving SwiftPM
 dependencies. The benchmark compiles the real
-Scrabbdict/Extensions/Language+Extension.swift file directly, with only a small
-Language enum stub and benchmark harness generated in a temporary directory.
+Scrabbdict/Models/Language.swift and
+Scrabbdict/Extensions/Language+Extension.swift files directly, with only the
+benchmark harness generated in a temporary directory.
 Canonical decomposition is validated at user-input boundaries, not in this
 scoring hot-path benchmark.
 
 With no refs, tests the current checkout.
 With two refs, compares Language+Extension.swift from those two repository
-commits, using the same generated benchmark harness for both sides. Use current
-as either ref to compare the current checkout, including uncommitted changes.
+commits, using the same current Language model and generated benchmark harness
+for both sides. Use current as either ref to compare the current checkout,
+including uncommitted changes.
 
 Environment:
   POINTS_PERF_KEEP_TMP     Set to 1 to keep generated sources, binaries, and logs.
@@ -169,20 +171,6 @@ compile_release() {
   xcrun swiftc -O -whole-module-optimization -module-cache-path "$module_cache_dir" "$@" -o "$executable"
 }
 
-write_language_model() {
-  local output_file="$1"
-
-  cat > "$output_file" <<'SWIFT'
-enum Language: CaseIterable {
-    case englishCSW
-    case englishNWL
-    case englishWOW
-    case french
-    case polish
-}
-SWIFT
-}
-
 write_runner() {
   local output_file="$1"
 
@@ -269,7 +257,7 @@ prepare_generated_sources() {
   local source_dir="$tmp_root/$label/Sources"
   local build_dir="$tmp_root/$label/Build"
   mkdir -p "$source_dir" "$build_dir"
-  write_language_model "$source_dir/Language.swift"
+  cp "$repo_root/Scrabbdict/Models/Language.swift" "$source_dir/Language.swift"
   write_runner "$source_dir/main.swift"
 }
 

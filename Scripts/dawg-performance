@@ -60,6 +60,7 @@ die() {
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "$script_dir/.." && pwd)"
 support_dir="$script_dir/DAWGPerformance"
+language_source="$repo_root/Scrabbdict/Models/Language.swift"
 dictionary_repo="${DAWG_DICTIONARY_REPO:-$repo_root/.dictionaries}"
 keep_tmp="${DAWG_PERF_KEEP_TMP:-0}"
 memory_samples="${DAWG_PERF_MEMORY_SAMPLES:-1}"
@@ -194,7 +195,8 @@ case "${#positionals[@]}" in
     ;;
 esac
 
-for required_source in Language.swift BenchmarkAdapter.swift Workloads.swift PairedRunner.swift Analyzer.swift MemoryProbe.swift; do
+[[ -f "$language_source" ]] || die 66 "Missing app source: $language_source"
+for required_source in BenchmarkAdapter.swift Workloads.swift PairedRunner.swift Analyzer.swift MemoryProbe.swift; do
   [[ -f "$support_dir/$required_source" ]] || die 66 "Missing harness source: $support_dir/$required_source"
 done
 
@@ -404,7 +406,7 @@ prepare_side() {
   local source_dir="$root/Sources"
   local build_dir="$root/Build"
   mkdir -p "$source_dir" "$build_dir"
-  cp "$support_dir/Language.swift" "$source_dir/Language.swift"
+  cp "$language_source" "$source_dir/Language.swift"
   cp "$support_dir/BenchmarkAdapter.swift" "$source_dir/BenchmarkAdapter.swift"
 
   if is_current_ref "$ref"; then
@@ -540,7 +542,7 @@ compile_runner() {
     -module-cache-path "$tmp_root/module-cache/runner-$assignment" \
     "${compiler_defines[@]}" \
     -I "$tmp_root/modules/$assignment" \
-    "$support_dir/Language.swift" \
+    "$language_source" \
     "$support_dir/Workloads.swift" \
     "$support_dir/PairedRunner.swift" \
     "$tmp_root/build/$assignment/DAWGSideA.o" \
@@ -745,7 +747,7 @@ base_format="$(format_version "$base_root/Sources/DAWGFormat.swift")"
 compare_format="$(format_version "$compare_root/Sources/DAWGFormat.swift")"
 base_source_hash="$(content_hash "$base_root/Sources/DAWGFormat.swift" "$base_root/Sources/DAWG.swift")"
 compare_source_hash="$(content_hash "$compare_root/Sources/DAWGFormat.swift" "$compare_root/Sources/DAWG.swift")"
-harness_hash="$(content_hash "$script_dir/dawg-performance" "$support_dir"/*.swift)"
+harness_hash="$(content_hash "$script_dir/dawg-performance" "$language_source" "$support_dir"/*.swift)"
 workload_hash="$(shasum -a 256 "$support_dir/Workloads.swift" | awk '{ print $1 }')"
 
 metadata_value schema_version 2

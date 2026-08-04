@@ -18,40 +18,11 @@ enum Language: String, CaseIterable, Hashable, Sendable {
     /// OSPS Update 52 (Oficjalny słownik polskiego scrabblisty)
     case polish = "pl_OSPS"
 
+    /// The locale used to remove diacritics from user input before DAWG lookup; `nil` preserves them.
     var diacriticInsensitiveLocale: Locale? {
         switch self {
         case .french: .init(identifier: "fr_FR")
         default: nil
-        }
-    }
-
-    var name: LocalizedStringResource {
-        switch self {
-        case .englishCSW: .languageEnglishCswName
-        case .englishNWL: .languageEnglishNwlName
-        case .englishWOW: .languageEnglishWowName
-        case .polish: .languagePolishName
-        case .french: .languageFrenchName
-        }
-    }
-
-    var description: LocalizedStringResource {
-        switch self {
-        case .englishCSW: .languageEnglishCswDescription
-        case .englishNWL: .languageEnglishNwlDescription
-        case .englishWOW: .languageEnglishWowDescription
-        case .polish: .languagePolishDescription
-        case .french: .languageFrenchDescription
-        }
-    }
-
-    var wordCount: Int {
-        switch self {
-        case .englishCSW: 280_887
-        case .englishNWL: 196_601
-        case .englishWOW: 195_383
-        case .french: 407_128
-        case .polish: 2_901_474
         }
     }
 
