@@ -9,9 +9,9 @@ import XCTest
 
 final class DAWGBuilderTests: XCTestCase {
     func testGeneratedDataCanBeReadByDAWG() throws {
-        let words = ["a", "an", "ant", "bar", "bat", "cat", "rat", "tar"]
+        let words = ["tar", "a", "cat", "ant", "bar", "rat", "an", "bat"]
 
-        let data = try DAWGBuilder(words: words).data()
+        let data = try DAWGBuilder(words: words, locale: .init(identifier: "en")).data()
         let dawg = try DAWG(data: data, validatesEdges: true)
 
         XCTAssertEqual(dawg.count, words.count)
@@ -27,15 +27,23 @@ final class DAWGBuilderTests: XCTestCase {
     }
 
     func testGeneratedDataDeduplicatesDuplicateWords() throws {
-        let data = try DAWGBuilder(words: ["ant", "ant", "ant"]).data()
+        let data = try DAWGBuilder(words: ["ant", "ant", "ant"], locale: .init(identifier: "en")).data()
         let dawg = try DAWG(data: data, validatesEdges: true)
 
         XCTAssertEqual(dawg.count, 1)
         XCTAssertTrue(dawg.contains("ant"))
     }
 
+    func testGeneratedDataOrdersUnsortedWordsUsingLocaleAlphabet() throws {
+        let polishAlphabet = "aąbcćdeęfghijklłmnńoóprsśtuwyzźż".map(String.init)
+        let data = try DAWGBuilder(words: Array(polishAlphabet.reversed()), locale: .init(identifier: "pl")).data()
+        let dawg = try DAWG(data: data, validatesEdges: true)
+
+        XCTAssertEqual(dawg.words(matching: "?"), polishAlphabet)
+    }
+
     func testGeneratedDataRejectsUnsupportedScalars() {
-        XCTAssertThrowsError(try DAWGBuilder(words: ["😀"]).data()) { error in
+        XCTAssertThrowsError(try DAWGBuilder(words: ["😀"], locale: .init(identifier: "en")).data()) { error in
             guard case DAWGBuilderError.unsupportedScalar(128_512) = error else {
                 return XCTFail("Expected unsupported scalar error, got \(error).")
             }

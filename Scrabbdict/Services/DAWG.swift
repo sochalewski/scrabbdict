@@ -11,10 +11,12 @@ final class DAWG: Sendable {
 
     let count: Int
 
-    /// Unicode scalars in strictly ascending order for generator-produced DAWGs.
+    /// Unicode scalars in localized traversal order for generator-produced DAWGs.
     private let alphabet: [UInt16]
     /// Maps a Unicode scalar to its alphabet key; `.max` marks scalars outside the alphabet.
     private let keyByScalar: [UInt16]
+    /// Maps an alphabet key to its root-edge offset; `.max` marks keys absent from the root.
+    private let rootEdgeOffsetByKey: [UInt16]
     /// Packed edges as described by ``DAWGFormat``.
     private let edges: [UInt32]
 
@@ -73,22 +75,44 @@ final class DAWG: Sendable {
             keyByScalar[Int(scalar)] = UInt16(index)
         }
 
+        var rootEdgeOffsetByKey = [UInt16](repeating: .max, count: alphabet.count)
+        if !edges.isEmpty {
+            var edgeIndex = 0
+            while true {
+                let edge = edges[edgeIndex]
+                let key = UInt16(edge >> DAWGFormat.edgeKeyShift)
+                rootEdgeOffsetByKey[Int(key)] = UInt16(edgeIndex)
+                if edge & DAWGFormat.edgeLastFlag != 0 {
+                    break
+                }
+                edgeIndex += 1
+            }
+        }
+
         self.count = wordCount
         self.alphabet = alphabet
         self.keyByScalar = keyByScalar
+        self.rootEdgeOffsetByKey = rootEdgeOffsetByKey
         self.edges = edges
     }
 
     func contains(_ word: String) -> Bool {
         guard !edges.isEmpty else { return false }
 
-        var firstEdge: UInt32 = 0
-        var hasOutgoingEdges = true
-        var isWord = false
+        var scalars = word.unicodeScalars.makeIterator()
+        guard
+            let firstScalar = scalars.next(),
+            let scalarKey = UInt16(exactly: firstScalar.value),
+            let firstKey = key(for: scalarKey),
+            let rootEdge = rootEdge(for: firstKey)
+        else { return false }
 
-        for scalar in word.unicodeScalars {
+        var isWord = rootEdge & DAWGFormat.edgeWordFlag != 0
+        var firstEdge = rootEdge & DAWGFormat.edgeTargetMask
+
+        while let scalar = scalars.next() {
             guard
-                hasOutgoingEdges,
+                firstEdge != 0,
                 let scalarKey = UInt16(exactly: scalar.value),
                 let key = key(for: scalarKey),
                 let edge = edge(for: key, startingAt: firstEdge)
@@ -96,13 +120,12 @@ final class DAWG: Sendable {
 
             isWord = edge & DAWGFormat.edgeWordFlag != 0
             firstEdge = edge & DAWGFormat.edgeTargetMask
-            hasOutgoingEdges = firstEdge != 0
         }
 
         return isWord
     }
 
-    /// Returns constructible words in ascending lexicographic order.
+    /// Returns constructible words in the dictionary's encoded alphabet order.
     func words(from letters: String, minLength: Int = 2) -> [String] {
         guard !letters.isEmpty, !edges.isEmpty else { return [] }
 
@@ -117,7 +140,7 @@ final class DAWG: Sendable {
         return result
     }
 
-    /// Returns words matching the pattern in ascending lexicographic order.
+    /// Returns words matching the pattern in the dictionary's encoded alphabet order.
     func words(matching pattern: String) -> [String] {
         guard !pattern.isEmpty, !edges.isEmpty else { return [] }
 
@@ -152,6 +175,11 @@ final class DAWG: Sendable {
 
         let key = keyByScalar[Int(scalar)]
         return key == .max ? nil : key
+    }
+
+    private func rootEdge(for key: UInt16) -> UInt32? {
+        let offset = rootEdgeOffsetByKey[Int(key)]
+        return offset == .max ? nil : edges[Int(offset)]
     }
 
     private func string(from keys: [UInt16]) -> String {
@@ -222,8 +250,13 @@ final class DAWG: Sendable {
                 }
                 edgeIndex += 1
             }
-        } else if let edge = edge(for: patternKey, startingAt: firstEdge) {
-            descend(along: edge, matching: pattern, patternIndex: patternIndex, currentWord: &currentWord, result: &result)
+        } else {
+            let edge = firstEdge == 0
+                ? rootEdge(for: patternKey)
+                : edge(for: patternKey, startingAt: firstEdge)
+            if let edge {
+                descend(along: edge, matching: pattern, patternIndex: patternIndex, currentWord: &currentWord, result: &result)
+            }
         }
     }
 

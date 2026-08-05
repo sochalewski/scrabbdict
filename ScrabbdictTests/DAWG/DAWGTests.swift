@@ -94,6 +94,12 @@ final class DAWGTests: XCTestCase {
         XCTAssertFalse(dawg.contains("😀"))
     }
 
+    func testContainsReturnsFalseWhenAlphabetScalarIsAbsentFromRoot() throws {
+        let dawg = try makeTestDAWG(words: ["a", "ac", "b"])
+
+        XCTAssertFalse(dawg.contains("c"))
+    }
+
     // MARK: Words from letters
 
     func testWordsFromLettersHonorsAvailableLetterCountsWithControlledData() throws {
@@ -208,7 +214,10 @@ final class DAWGTests: XCTestCase {
 }
 
 private func makeTestDAWG(words: [String]) throws -> DAWG {
-    try DAWG(data: DAWGBuilder(words: words.sorted()).data(), validatesEdges: true)
+    try DAWG(
+        data: DAWGBuilder(words: words, locale: .init(identifier: "en")).data(),
+        validatesEdges: true
+    )
 }
 
 private func makeAlphabet(count: Int) -> [UnicodeScalar] {

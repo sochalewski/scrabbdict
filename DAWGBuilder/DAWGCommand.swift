@@ -7,6 +7,11 @@
 import Foundation
 
 struct DAWGCommand {
+    struct DictionarySource {
+        let words: [String]
+        let locale: Locale
+    }
+
     struct Options: Hashable {
         var inputDirectory: URL
         var outputDirectory: URL
@@ -59,6 +64,7 @@ struct DAWGCommand {
 
     static let defaultInputDirectory = repositoryURL.appendingPathComponent("DAWGBuilder/RAW")
     static let defaultOutputDirectory = repositoryURL.appendingPathComponent("Scrabbdict/Resources/Dictionaries")
+    static let defaultLocale = Locale(identifier: "en_US_POSIX")
 
     let unzip: ([String]) throws -> Data
 
@@ -74,6 +80,7 @@ struct DAWGCommand {
 
         Options:
           --input-dir PATH   Directory with *.zip or *.txt word lists.
+                             The optional first line [locale] controls alphabet ordering.
                              Default: \(defaultInputDirectory.path)
           --output-dir PATH  Directory for generated *.dawg files.
                              Default: \(defaultOutputDirectory.path)
@@ -126,6 +133,35 @@ struct DAWGCommand {
         ByteCountFormatter.string(fromByteCount: Int64(count), countStyle: .file)
     }
 
+    static func source(from contents: String) -> DictionarySource {
+        let firstLineEnd = contents.firstIndex(where: \.isNewline) ?? contents.endIndex
+        let firstLine = contents[..<firstLineEnd]
+        let hasHeader = firstLine.first == "[" && firstLine.last == "]"
+
+        let locale: Locale
+        let wordsStart: String.Index
+        if hasHeader {
+            let identifier = firstLine.dropFirst().dropLast()
+            if
+                !identifier.isEmpty,
+                identifier.unicodeScalars.allSatisfy({ !CharacterSet.whitespacesAndNewlines.contains($0) })
+            {
+                locale = Locale(identifier: String(identifier))
+            } else {
+                locale = defaultLocale
+            }
+            wordsStart = firstLineEnd == contents.endIndex ? firstLineEnd : contents.index(after: firstLineEnd)
+        } else {
+            locale = defaultLocale
+            wordsStart = contents.startIndex
+        }
+
+        let words = contents[wordsStart...]
+            .split(whereSeparator: \.isNewline)
+            .map(String.init)
+        return DictionarySource(words: words, locale: locale)
+    }
+
     func generate(arguments: [String]) throws(CommandError) -> [GenerationResult] {
         let options = try Self.parseOptions(arguments: arguments)
 
@@ -154,10 +190,10 @@ struct DAWGCommand {
             let outputURL = options.outputDirectory.appendingPathComponent(language).appendingPathExtension("dawg")
 
             do {
-                let words = try words(for: language, in: options.inputDirectory)
-                let data = try DAWGBuilder(words: words).data()
+                let source = try source(for: language, in: options.inputDirectory)
+                let data = try DAWGBuilder(words: source.words, locale: source.locale).data()
                 try data.write(to: outputURL, options: .atomic)
-                results.append(.init(outputURL: outputURL, wordCount: words.count, byteCount: data.count))
+                results.append(.init(outputURL: outputURL, wordCount: source.words.count, byteCount: data.count))
             } catch {
                 throw .generationFailed(outputURL, error)
             }
@@ -180,28 +216,25 @@ struct DAWGCommand {
             .sorted()
     }
 
-    func words(for language: String, in inputDirectory: URL) throws -> [String] {
+    func source(for language: String, in inputDirectory: URL) throws -> DictionarySource {
         let archiveURL = inputDirectory.appendingPathComponent(language).appendingPathExtension("zip")
         if FileManager.default.fileExists(atPath: archiveURL.path) {
-            return try words(fromZipFile: archiveURL, language: language)
+            return try source(fromZipFile: archiveURL, language: language)
         }
 
         let textURL = inputDirectory.appendingPathComponent(language).appendingPathExtension("txt")
         if FileManager.default.fileExists(atPath: textURL.path) {
-            return try words(fromTextFile: textURL)
+            return try source(fromTextFile: textURL)
         }
 
         throw WordListError.missingWordList(language: language, inputDirectory: inputDirectory)
     }
 
-    func words(fromTextFile url: URL) throws -> [String] {
-        try String(contentsOf: url, encoding: .utf8)
-            .split(whereSeparator: \.isNewline)
-            .map(String.init)
-            .sorted()
+    func source(fromTextFile url: URL) throws -> DictionarySource {
+        try Self.source(from: String(contentsOf: url, encoding: .utf8))
     }
 
-    func words(fromZipFile url: URL, language: String) throws -> [String] {
+    func source(fromZipFile url: URL, language: String) throws -> DictionarySource {
         let entryName = "\(language).txt"
         let data = try unzip(["-p", url.path, entryName])
 
@@ -209,10 +242,7 @@ struct DAWGCommand {
             throw WordListError.invalidUTF8(url)
         }
 
-        return contents
-            .split(whereSeparator: \.isNewline)
-            .map(String.init)
-            .sorted()
+        return Self.source(from: contents)
     }
 }
 

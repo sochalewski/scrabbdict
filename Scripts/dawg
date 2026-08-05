@@ -9,6 +9,7 @@ Compiles and runs the DAWGBuilder command-line tool.
 
 Options are forwarded to DAWGBuilder:
   --input-dir PATH   Directory with *.zip or *.txt word lists.
+                     The optional first line [locale] controls alphabet ordering.
   --output-dir PATH  Directory for generated *.dawg files.
   --help             Show this help.
 
