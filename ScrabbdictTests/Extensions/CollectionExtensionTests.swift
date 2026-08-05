@@ -32,8 +32,8 @@ final class CollectionExtensionTests: XCTestCase {
             + Array(repeating: Word(string: "ba", points: 4), count: 128))
     }
 
-    func testMapToWordsSortsPolishWordsByPointsThenPolishAlphabet() {
-        let strings = ["bódź", "bóść", "bądź", "gróź", "gódź", "kaźń", "płóź", "użąć", "użęć", "łódź", "źgać", "źgań", "żółć"]
+    func testMapToWordsPreservesDAWGOrderForPolishTies() {
+        let strings = ["bądź", "bódź", "bóść", "gódź", "gróź", "kaźń", "łódź", "płóź", "użąć", "użęć", "źgać", "źgań", "żółć"]
 
         let words = strings.mapToWords(language: .polish)
 

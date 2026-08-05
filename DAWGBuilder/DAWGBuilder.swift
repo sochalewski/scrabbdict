@@ -7,20 +7,27 @@
 import Foundation
 
 struct DAWGBuilder {
+    private let alphabet: Alphabet
     private var nodes = [BuildNode()]
     private var uncheckedEdges = [UncheckedEdge]()
     private var registry = [Signature: Int]()
-    private var previousWord = [UInt32]()
+    private var previousWord = [UInt16]()
     private var wordCount = 0
 
-    init(words: [String]) {
-        words.forEach { insert($0) }
+    init(words: [String], locale: Locale) throws {
+        let alphabet = try Alphabet(words: words, locale: locale)
+        self.alphabet = alphabet
+
+        if alphabet.areWordsOrdered(words) {
+            words.forEach { insert($0) }
+        } else {
+            words.sorted { alphabet.precedes($0, $1) }.forEach { insert($0) }
+        }
         minimizeUncheckedEdges(downTo: 0)
     }
 
     func data() throws -> Data {
-        let compactEdges = try compact()
-        let alphabet = try alphabet(for: compactEdges)
+        let compactEdges = compact()
         let alphabetByteCount = alphabet.count * MemoryLayout<UInt16>.size
         var data = Data()
         data.reserveCapacity(DAWGFormat.headerSize + alphabetByteCount + compactEdges.count * DAWGFormat.edgeSize)
@@ -45,7 +52,7 @@ struct DAWGBuilder {
             if edge.isLast {
                 packed |= DAWGFormat.edgeLastFlag
             }
-            packed |= UInt32(alphabet.indexByKey[edge.key]!) << DAWGFormat.edgeKeyShift
+            packed |= UInt32(alphabet.index(for: edge.key)) << DAWGFormat.edgeKeyShift
             data.appendLittleEndianUInt32(packed)
         }
 
@@ -53,7 +60,7 @@ struct DAWGBuilder {
     }
 
     private mutating func insert(_ word: String) {
-        let scalars = word.unicodeScalars.map(\.value)
+        let scalars = word.unicodeScalars.map { UInt16($0.value) }
         guard scalars != previousWord else { return }
 
         let commonPrefixCount = commonPrefixLength(scalars, previousWord)
@@ -92,7 +99,7 @@ struct DAWGBuilder {
         }
     }
 
-    private func commonPrefixLength(_ lhs: [UInt32], _ rhs: [UInt32]) -> Int {
+    private func commonPrefixLength(_ lhs: [UInt16], _ rhs: [UInt16]) -> Int {
         var index = 0
         while index < lhs.count, index < rhs.count, lhs[index] == rhs[index] {
             index += 1
@@ -106,7 +113,7 @@ struct DAWGBuilder {
     /// from the root, so the root's edges begin at index `0`. Each visited node
     /// is assigned the index of its first edge; nodes without outgoing edges
     /// are encoded as the null target `0`.
-    private func compact() throws -> [CompactEdge] {
+    private func compact() -> [CompactEdge] {
         var firstEdgeByNode = [Int: UInt32]()
         var orderedNodes = [Int]()
         var nextFirstEdge: UInt32 = 0
@@ -129,16 +136,11 @@ struct DAWGBuilder {
         compactEdges.reserveCapacity(Int(nextFirstEdge))
 
         for buildIndex in orderedNodes {
-            // Sorted edge keys let the reader stop scanning a node early.
-            let edges = nodes[buildIndex].edges.sorted { $0.key < $1.key }
+            let edges = nodes[buildIndex].edges
 
             for (offset, edge) in edges.enumerated() {
-                guard let key = UInt16(exactly: edge.key) else {
-                    throw DAWGBuilderError.unsupportedScalar(edge.key)
-                }
-
                 compactEdges.append(CompactEdge(
-                    key: key,
+                    key: edge.key,
                     target: firstEdgeByNode[edge.target] ?? 0,
                     isWord: nodes[edge.target].isWord,
                     isLast: offset == edges.count - 1
@@ -147,15 +149,6 @@ struct DAWGBuilder {
         }
 
         return compactEdges
-    }
-
-    private func alphabet(for compactEdges: [CompactEdge]) throws -> Alphabet {
-        let keys = compactEdges.map(\.key).uniqued().sorted()
-        guard keys.count <= Int(UInt8.max) + 1 else {
-            throw DAWGBuilderError.tooManyAlphabetScalarsForUInt8(keys.count)
-        }
-
-        return Alphabet(keys: keys)
     }
 }
 
@@ -182,7 +175,7 @@ private final class BuildNode {
 }
 
 private struct BuildEdge: Hashable {
-    let key: UInt32
+    let key: UInt16
     var target: Int
 }
 
@@ -206,16 +199,75 @@ private struct CompactEdge {
 
 private struct Alphabet {
     let keys: [UInt16]
-    let indexByKey: [UInt16: UInt8]
+
+    private let indexByScalar: [UInt16]
 
     var count: Int {
         keys.count
     }
 
-    init(keys: [UInt16]) {
+    init(words: [String], locale: Locale) throws {
+        var distinctKeys = Set<UInt16>()
+        for word in words {
+            for scalar in word.unicodeScalars {
+                guard let key = UInt16(exactly: scalar.value) else {
+                    throw DAWGBuilderError.unsupportedScalar(scalar.value)
+                }
+                distinctKeys.insert(key)
+            }
+        }
+
+        let keys = distinctKeys.sorted { lhs, rhs in
+            let comparison = String(UnicodeScalar(UInt32(lhs))!).compare(
+                String(UnicodeScalar(UInt32(rhs))!),
+                options: [],
+                range: nil,
+                locale: locale
+            )
+            return comparison == .orderedSame ? lhs < rhs : comparison == .orderedAscending
+        }
+        guard keys.count <= Int(UInt8.max) + 1 else {
+            throw DAWGBuilderError.tooManyAlphabetScalarsForUInt8(keys.count)
+        }
+
         self.keys = keys
-        self.indexByKey = Dictionary(uniqueKeysWithValues: keys.enumerated().map { index, key in
-            (key, UInt8(index))
-        })
+        var indexByScalar = [UInt16](repeating: .max, count: Int(keys.max() ?? 0) + 1)
+        for (index, key) in keys.enumerated() {
+            indexByScalar[Int(key)] = UInt16(index)
+        }
+        self.indexByScalar = indexByScalar
+    }
+
+    func index(for key: UInt16) -> UInt8 {
+        UInt8(indexByScalar[Int(key)])
+    }
+
+    func areWordsOrdered(_ words: [String]) -> Bool {
+        guard var previousWord = words.first else { return true }
+
+        for word in words.dropFirst() {
+            if precedes(word, previousWord) {
+                return false
+            }
+            previousWord = word
+        }
+        return true
+    }
+
+    func precedes(_ lhs: String, _ rhs: String) -> Bool {
+        var lhsScalars = lhs.unicodeScalars.makeIterator()
+        var rhsScalars = rhs.unicodeScalars.makeIterator()
+
+        while let lhsScalar = lhsScalars.next() {
+            guard let rhsScalar = rhsScalars.next() else { return false }
+
+            let lhsIndex = indexByScalar[Int(lhsScalar.value)]
+            let rhsIndex = indexByScalar[Int(rhsScalar.value)]
+            if lhsIndex != rhsIndex {
+                return lhsIndex < rhsIndex
+            }
+        }
+
+        return rhsScalars.next() != nil
     }
 }

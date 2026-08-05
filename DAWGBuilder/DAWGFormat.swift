@@ -4,7 +4,7 @@
 //  Licensed under the Apache License, Version 2.0.
 //
 
-/// DAWG v4 is an edge-only encoding: there is no node table.
+/// DAWG v5 is an edge-only encoding: there is no node table.
 /// A node is identified by the index of its first outgoing edge,
 /// and each edge is a single little-endian `UInt32`:
 ///
@@ -14,21 +14,23 @@
 /// - bits 24-31: alphabet index of the edge label.
 ///
 /// The alphabet table preceding the edge table stores distinct `UInt16`
-/// Unicode scalars in strictly ascending order. This ordering is part of the
-/// format contract, not merely a generator implementation detail.
+/// Unicode scalars in the localized order selected by the generator.
+/// Scalar value breaks localized comparison ties, making the table order
+/// deterministic. This ordering is part of the format contract, not merely a
+/// generator implementation detail.
 ///
 /// A node's outgoing edges are stored consecutively and sorted by ascending
 /// alphabet index, so a reader can stop scanning a node as soon as it sees
 /// a key greater than the one it is looking for.
 ///
 /// Together, the ordered alphabet and edge blocks make depth-first enumeration
-/// lexicographically ascending for normalized dictionary entries.
+/// ascending in the alphabet order encoded by the dictionary.
 ///
 /// The root node's edges start at index `0`. Because the graph is acyclic,
 /// no edge can target the root, so `0` is unambiguous as the null target.
 enum DAWGFormat {
     static let magic: UInt32 = 0x47574453
-    static let version: UInt32 = 4
+    static let version: UInt32 = 5
     static let headerSize = 20
     static let edgeSize = 4
     static let edgeTargetMask: UInt32 = 0x003f_ffff

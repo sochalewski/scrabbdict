@@ -67,6 +67,7 @@ final class DAWGCommandTests: XCTestCase {
             XCTAssertTrue(usage.contains("Usage: DAWGBuilder"))
             XCTAssertTrue(usage.contains("--input-dir PATH"))
             XCTAssertTrue(usage.contains("--output-dir PATH"))
+            XCTAssertTrue(usage.contains("optional first line [locale]"))
         }
     }
 
@@ -112,40 +113,137 @@ final class DAWGCommandTests: XCTestCase {
         XCTAssertEqual(languages, ["fr_ODS"])
     }
 
-    func testWordsReadsAndSortsTextWordList() throws {
+    func testSourceReadsTextWordListHeaderWithoutReordering() throws {
         try withTemporaryDirectory { inputDirectory in
             let textURL = inputDirectory.appendingPathComponent("test.txt")
-            try "zed\nalpha\nbeta\n".write(to: textURL, atomically: true, encoding: .utf8)
+            try "[pl_pl]\nzed\nalpha\nbeta\n".write(to: textURL, atomically: true, encoding: .utf8)
 
-            let words = try DAWGCommand().words(for: "test", in: inputDirectory)
+            let source = try DAWGCommand().source(for: "test", in: inputDirectory)
 
-            XCTAssertEqual(words, ["alpha", "beta", "zed"])
+            XCTAssertEqual(source.words, ["zed", "alpha", "beta"])
+            XCTAssertEqual(source.locale.identifier, "pl_PL")
         }
     }
 
-    func testWordsReadsZipWordListThroughInjectedUnzip() throws {
+    func testSourceReadsZipWordListHeaderThroughInjectedUnzip() throws {
         try withTemporaryDirectory { inputDirectory in
             let archiveURL = inputDirectory.appendingPathComponent("test.zip")
             try Data().write(to: archiveURL)
-            let requestedArguments = LockIsolated<[String]?>(nil)
+            let requestedArguments = LockIsolated<[[String]]>([])
             let command = DAWGCommand(unzip: { arguments in
-                requestedArguments.setValue(arguments)
-                return Data("zed\nalpha\nbeta\n".utf8)
+                requestedArguments.withValue { $0.append(arguments) }
+                return Data("[fr_FR]\nzed\nalpha\nbeta\n".utf8)
             })
 
-            let words = try command.words(for: "test", in: inputDirectory)
+            let source = try command.source(for: "test", in: inputDirectory)
 
-            XCTAssertEqual(words, ["alpha", "beta", "zed"])
-            XCTAssertEqual(requestedArguments.value, ["-p", archiveURL.path, "test.txt"])
+            XCTAssertEqual(source.words, ["zed", "alpha", "beta"])
+            XCTAssertEqual(source.locale.identifier, "fr_FR")
+            XCTAssertEqual(requestedArguments.value, [["-p", archiveURL.path, "test.txt"]])
         }
     }
 
-    func testWordsRejectsInvalidUTF8FromZipWordList() throws {
+    func testSourcePrefersZipWordListAndItsHeaderOverTextFile() throws {
+        try withTemporaryDirectory { inputDirectory in
+            let archiveURL = inputDirectory.appendingPathComponent("test.zip")
+            try Data().write(to: archiveURL)
+            try "[pl_PL]\ntext\n".write(
+                to: inputDirectory.appendingPathComponent("test.txt"),
+                atomically: true,
+                encoding: .utf8
+            )
+            let command = DAWGCommand(unzip: { _ in Data("[fr_FR]\narchive\n".utf8) })
+
+            let source = try command.source(for: "test", in: inputDirectory)
+
+            XCTAssertEqual(source.words, ["archive"])
+            XCTAssertEqual(source.locale.identifier, "fr_FR")
+        }
+    }
+
+    func testSourceUsesDefaultLocaleWithoutHeader() {
+        let source = DAWGCommand.source(from: "alpha\nbeta\n")
+
+        XCTAssertEqual(source.words, ["alpha", "beta"])
+        XCTAssertEqual(source.locale.identifier, DAWGCommand.defaultLocale.identifier)
+    }
+
+    func testSourceDropsInvalidBracketedHeaderAndUsesDefaultLocale() {
+        let invalidHeaders = ["[]", "[pl PL]", "[\t]"]
+
+        for header in invalidHeaders {
+            let source = DAWGCommand.source(from: "\(header)\nalpha\nbeta\n")
+
+            XCTAssertEqual(source.words, ["alpha", "beta"], "Header: \(header)")
+            XCTAssertEqual(source.locale.identifier, DAWGCommand.defaultLocale.identifier, "Header: \(header)")
+        }
+    }
+
+    func testSourceRecognizesHeaderOnlyOnFirstPhysicalLine() {
+        let source = DAWGCommand.source(from: "\n[pl_PL]\nalpha\n")
+
+        XCTAssertEqual(source.words, ["[pl_PL]", "alpha"])
+        XCTAssertEqual(source.locale.identifier, DAWGCommand.defaultLocale.identifier)
+    }
+
+    func testSourceKeepsUnbracketedFirstLineAsAWord() {
+        let source = DAWGCommand.source(from: "pl_PL\nalpha\n")
+
+        XCTAssertEqual(source.words, ["pl_PL", "alpha"])
+        XCTAssertEqual(source.locale.identifier, DAWGCommand.defaultLocale.identifier)
+    }
+
+    func testSourceUsesDefaultLocaleForZipWithoutHeader() throws {
+        try withTemporaryDirectory { inputDirectory in
+            let archiveURL = inputDirectory.appendingPathComponent("test.zip")
+            try Data().write(to: archiveURL)
+            let requestedArguments = LockIsolated<[[String]]>([])
+            let command = DAWGCommand(unzip: { arguments in
+                requestedArguments.withValue { $0.append(arguments) }
+                return Data("alpha\nbeta\n".utf8)
+            })
+
+            let source = try command.source(for: "test", in: inputDirectory)
+
+            XCTAssertEqual(source.words, ["alpha", "beta"])
+            XCTAssertEqual(source.locale.identifier, DAWGCommand.defaultLocale.identifier)
+            XCTAssertEqual(requestedArguments.value, [["-p", archiveURL.path, "test.txt"]])
+        }
+    }
+
+    func testGeneratePropagatesRequiredZipWordExtractionFailure() throws {
+        try withTemporaryDirectory { inputDirectory in
+            try withTemporaryDirectory { outputDirectory in
+                let archiveURL = inputDirectory.appendingPathComponent("test.zip")
+                try Data().write(to: archiveURL)
+                let requestedArguments = LockIsolated<[[String]]>([])
+                let command = DAWGCommand(unzip: { arguments in
+                    requestedArguments.withValue { $0.append(arguments) }
+                    throw WordListError.unzipFailed("word entry missing")
+                })
+
+                XCTAssertThrowsError(try command.generate(arguments: [
+                    "DAWGBuilder",
+                    "--input-dir", inputDirectory.path,
+                    "--output-dir", outputDirectory.path
+                ])) { error in
+                    guard case let .generationFailed(outputURL, underlyingError) = error as? DAWGCommand.CommandError else {
+                        return XCTFail("Expected generation failure, got \(error).")
+                    }
+                    XCTAssertEqual(outputURL, outputDirectory.appendingPathComponent("test.dawg"))
+                    XCTAssertEqual(underlyingError as? WordListError, .unzipFailed("word entry missing"))
+                }
+                XCTAssertEqual(requestedArguments.value, [["-p", archiveURL.path, "test.txt"]])
+            }
+        }
+    }
+
+    func testSourceRejectsInvalidUTF8FromZipWordList() throws {
         try withTemporaryDirectory { inputDirectory in
             try Data().write(to: inputDirectory.appendingPathComponent("test.zip"))
             let command = DAWGCommand(unzip: { _ in Data([0xff]) })
 
-            XCTAssertThrowsError(try command.words(for: "test", in: inputDirectory)) { error in
+            XCTAssertThrowsError(try command.source(for: "test", in: inputDirectory)) { error in
                 guard case WordListError.invalidUTF8 = error else {
                     return XCTFail("Expected invalid UTF-8 error, got \(error).")
                 }
@@ -153,9 +251,17 @@ final class DAWGCommandTests: XCTestCase {
         }
     }
 
-    func testWordsRejectsMissingWordList() throws {
+    func testSourceRejectsInvalidUTF8FromTextWordList() throws {
         try withTemporaryDirectory { inputDirectory in
-            XCTAssertThrowsError(try DAWGCommand().words(for: "missing", in: inputDirectory)) { error in
+            try Data([0xff]).write(to: inputDirectory.appendingPathComponent("test.txt"))
+
+            XCTAssertThrowsError(try DAWGCommand().source(for: "test", in: inputDirectory))
+        }
+    }
+
+    func testSourceRejectsMissingWordList() throws {
+        try withTemporaryDirectory { inputDirectory in
+            XCTAssertThrowsError(try DAWGCommand().source(for: "missing", in: inputDirectory)) { error in
                 guard case let WordListError.missingWordList(language, directory) = error else {
                     return XCTFail("Expected missing word list error, got \(error).")
                 }
@@ -216,6 +322,29 @@ final class DAWGCommandTests: XCTestCase {
                 XCTAssertTrue(dawg.contains("ant"))
                 XCTAssertTrue(dawg.contains("bat"))
                 XCTAssertTrue(dawg.contains("cat"))
+            }
+        }
+    }
+
+    func testGenerateEncodesDictionaryLocaleOrder() throws {
+        try withTemporaryDirectory { inputDirectory in
+            try withTemporaryDirectory { outputDirectory in
+                let polishAlphabet = "aąbcćdeęfghijklłmnńoóprsśtuwyzźż".map(String.init)
+                let contents = "[pl_PL]\n" + polishAlphabet.reversed().joined(separator: "\n")
+                try contents.write(
+                    to: inputDirectory.appendingPathComponent("dictionary.txt"),
+                    atomically: true,
+                    encoding: .utf8
+                )
+
+                _ = try DAWGCommand().generate(arguments: [
+                    "DAWGBuilder",
+                    "--input-dir", inputDirectory.path,
+                    "--output-dir", outputDirectory.path
+                ])
+
+                let dawg = try DAWG(url: outputDirectory.appendingPathComponent("dictionary.dawg"))
+                XCTAssertEqual(dawg.words(matching: "?"), polishAlphabet)
             }
         }
     }

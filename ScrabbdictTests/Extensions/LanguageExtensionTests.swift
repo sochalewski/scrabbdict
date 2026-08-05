@@ -8,14 +8,6 @@ import XCTest
 @testable import Scrabbdict
 
 final class LanguageExtensionTests: XCTestCase {
-    func testOnlyPolishRequiresAlphabeticalSorting() {
-        XCTAssertNotNil(Language.polish.rankByScalar)
-
-        for language in Language.allCases where language != .polish {
-            XCTAssertNil(language.rankByScalar)
-        }
-    }
-
     func testPointsUseEnglishScoringForEnglishDictionaries() {
         XCTAssertEqual(Language.englishCSW.points(for: "quiz"), 22)
         XCTAssertEqual(Language.englishNWL.points(for: "quiz"), 22)
