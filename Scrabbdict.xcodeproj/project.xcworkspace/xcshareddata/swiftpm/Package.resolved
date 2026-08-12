@@ -52,7 +52,7 @@
       "location" : "https://github.com/google/GoogleAppMeasurement.git",
       "state" : {
         "revision" : "fceaffa07d22dcd5624d3639fd970351a4a5ad8c",
-        "version" : "12.17.0"
+        "version" : "12.18.0"
       }
     },
     {
