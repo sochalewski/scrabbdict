@@ -50,7 +50,8 @@ def resolve_tag_revision(location, version)
       [ref, sha] if sha && ref
     end.to_h
 
-    return refs["refs/tags/#{tag}^{}"] || refs["refs/tags/#{tag}"]
+    revision = refs["refs/tags/#{tag}^{}"] || refs["refs/tags/#{tag}"]
+    return revision if revision
   end
 
   nil
