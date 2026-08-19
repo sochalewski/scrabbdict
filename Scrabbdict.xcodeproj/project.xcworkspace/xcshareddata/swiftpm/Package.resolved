@@ -187,7 +187,7 @@
       "location" : "https://github.com/pointfreeco/swift-dependencies",
       "state" : {
         "revision" : "9381ab822de01c4e9f3a7eb8eabb6ae808febed3",
-        "version" : "1.15.0"
+        "version" : "1.16.0"
       }
     },
     {
