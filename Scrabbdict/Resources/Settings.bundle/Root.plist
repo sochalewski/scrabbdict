@@ -29,8 +29,8 @@ All trademarks, service marks, trade names, word list names, and other protected
 			<string>Firebase products used directly: FirebaseAnalyticsCore, FirebaseCrashlytics.
 
 Resolved Swift packages:
-- firebase-ios-sdk 12.17.0 (Apache License 2.0)
-- googleappmeasurement 12.17.0
+- firebase-ios-sdk 12.18.0 (Apache License 2.0)
+- googleappmeasurement 12.18.0
 - app-check 11.3.1
 - google-ads-on-device-conversion-ios-sdk 3.6.1
 - googledatatransport 10.1.1
