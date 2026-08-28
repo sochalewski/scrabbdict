@@ -67,7 +67,7 @@ Resolved Swift packages:
 - swift-perception 2.0.11
 - swift-sharing 2.9.1
 - swift-snapshot-testing 1.19.4
-- xctest-dynamic-overlay 1.13.0
+- xctest-dynamic-overlay 1.13.1
 
 Copyright (c) Point-Free, Inc.
 Primary source: https://github.com/pointfreeco/swift-composable-architecture
