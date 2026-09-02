@@ -1,51 +1,28 @@
 # Project Instructions
 
-## Communication and Language
+## Workflow
 
-- Keep responses free of boilerplate: include only the decision, changes, results, and any relevant risks.
-- Always generate code and code documentation, project Markdown file changes, commit title suggestions, merge request title suggestions, merge request descriptions, and App Store change descriptions in English.
-
-## Architecture
-
-- Follow the existing SwiftUI and Composable Architecture patterns in this project before introducing new structure or abstractions.
-
-## DAWG
-
-- When changing code directly related to the DAWG binary format, DAWG generation, or DAWG runtime implementation, run `Scripts/dawg-performance main current`. Base performance decisions on the paired `overall` estimate, its 95% confidence interval, and the run-level verdict from that single comparison; treat absolute timings from separate runs, machines, or toolchains as diagnostic only.
-- Always create or rewrite dictionary ZIP archives with `7zz a -tzip -mx=9`; do not use another ZIP compressor for these artifacts.
-- Treat DAWG code as performance-critical. Prefer the fastest implementation that preserves correctness and the documented binary format, even when it is less immediately readable than a more general or idiomatic version.
-- Treat results from `DAWG.words(from:minLength:)` and `DAWG.words(matching:)` in the dictionary's encoded alphabet order as part of the runtime contract. `DAWGCommand` must read the locale identifier from an optional bracketed first line such as `[pl_PL]` in the raw `.txt` source, whether read directly or from its `.zip` archive, remove that header from the word list, and fall back to `en_US_POSIX` when the header is missing or invalid. `DAWGBuilder` must order distinct scalars by localized comparison with scalar value as a deterministic tie-breaker, order input words lexicographically by those scalar ranks before incremental minimization, and write every node's edge block by strictly ascending alphabet index. Callers may rely on Swift's stable sort to preserve this encoded order between equal-scoring words.
-- Tests covering DAWG enumeration must compare returned arrays directly. Do not call `.sorted()` in those assertions, because doing so hides ordering regressions.
-
-## Scoring
-
-- When changing `Language.points(for:)`, letter point tables, or word scoring normalization, run `Scripts/points-performance main current` and compare the normalized scoring input benchmark results to make sure the change does not regress performance.
-- Keep word scoring code efficient. User-input normalization must preserve composed and decomposed Unicode equivalence before DAWG lookup and scoring, while `Language.points(for:)` should remain optimized for normalized scoring inputs and DAWG-produced words.
-
-## Composable Architecture
-
-- Prefer macro-based APIs over protocol conformances, for example `@Reducer` instead of `Reducer`.
-- Prefer `scope(_:action:)` and `Scope(_:action:)` over the labeled `scope(state:action:)` and `Scope(state:action:)` forms.
+- Before repository changes, read and follow the relevant sections of [CONTRIBUTING.md](CONTRIBUTING.md) for setup, SwiftUI/TCA code style, verification, and review requirements.
+- Write code, code documentation, project Markdown, commit/MR titles and descriptions, and App Store release notes in English.
+- Keep responses concise: decisions, changes, results, and relevant risks.
 
 ## SwiftUI
 
-- Keep the main view declaration focused on stored properties and `body`.
-- Move helper computed properties and helper methods that would otherwise be `private` into a `private extension` placed directly below the view declaration and above any previews. Because the extension itself is private, do not repeat `private` on those members unless a narrower access boundary is specifically needed.
-- Prefer inferred static member syntax when the surrounding API already provides a clear type context, for example `.resultCaption` instead of `Color.resultCaption` or `.headline` instead of `Font.headline`. Keep explicit type names only when the shorthand does not compile, when the context is too generic, or when using shorthand would require adding an artificial type annotation.
+- Inside a `private extension`, omit member-level `private` unless a narrower access boundary is needed.
+- Prefer inferred static members when context is clear; keep explicit types if inference fails or would require an artificial type annotation.
+- Use `LocalizedStringResource`, `Text`, or existing helpers for localized copy; never introduce empty or placeholder-only `.xcstrings` keys.
+- Use dynamic text styles; fixed font sizes require a justified non-text rendering need.
 
-## Localization
+## Dictionaries and Scoring
 
-- Keep user-facing text localizable. Prefer the existing `LocalizedStringResource` and `Text` localization patterns over hardcoded display strings.
-- Do not introduce SwiftUI localization patterns that extract placeholder-only or otherwise empty keys into `.xcstrings` files. Compose localized copy through explicit `LocalizedStringResource` entries or existing localization helpers so generated catalogs contain meaningful keys and translations, not accidental format strings.
+- Before DAWG changes, read and preserve the [format, locale, and result-ordering contracts](README.md#how-the-dawg-dictionaries-work), including locale-header handling for both raw `.txt` and `.zip` sources.
+- Prefer the fastest correct DAWG implementation that preserves the documented binary format, even over a more readable abstraction.
+- Compare DAWG enumeration arrays directly; never use `.sorted()` in those assertions.
+- Create or rewrite dictionary ZIP archives only with `7zz a -tzip -mx=9`.
+- Preserve composed/decomposed Unicode equivalence at user-input boundaries before lookup and scoring; keep `Language.points(for:)` optimized for normalized inputs and DAWG-produced words.
 
-## Typography
+## Required Verification
 
-- Use system-aware typography. Prefer dynamic SwiftUI text styles and existing font patterns over hardcoded point sizes; do not force fixed font sizes unless there is a narrowly justified non-text rendering need.
-
-## Testing
-
-- Treat snapshot changes as intentional UI changes. Do not update or accept snapshots just to make tests pass without confirming the visual change is expected.
-
-## Contributor Guidance
-
-- When making repository changes, follow the contributor-facing process and verification guidance in [CONTRIBUTING.md](CONTRIBUTING.md).
+- DAWG format, generation, or runtime code changes: run `Scripts/dawg-performance main current`. Judge the paired `overall` estimate, 95% confidence interval, and run-level verdict from that invocation; absolute timings across runs, machines, or toolchains are diagnostic only.
+- Changes to `Language.points(for:)`, letter point tables, or scoring normalization: run `Scripts/points-performance main current` and compare normalized-input results for regressions.
+- Accept snapshot updates only after confirming the visual change is intentional.
