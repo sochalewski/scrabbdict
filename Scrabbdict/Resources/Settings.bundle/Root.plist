@@ -63,11 +63,11 @@ Resolved Swift packages:
 - swift-custom-dump 1.7.3
 - swift-dependencies 1.17.1
 - swift-identified-collections 1.1.1
+- swift-issue-reporting 2.1.0
 - swift-navigation 2.11.2
 - swift-perception 2.0.12
 - swift-sharing 2.10.1
 - swift-snapshot-testing 1.19.4
-- xctest-dynamic-overlay 1.13.1
 
 Copyright (c) Point-Free, Inc.
 Primary source: https://github.com/pointfreeco/swift-composable-architecture
