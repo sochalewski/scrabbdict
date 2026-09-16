@@ -18,7 +18,7 @@ jobs:
   lint:
     name: Lint
     if: github.event_name != 'push'
-    runs-on: macos-26
+    runs-on: xcode-27
 
     steps:
       - name: Check out repository
@@ -35,7 +35,7 @@ jobs:
 
   tests:
     name: Build and test
-    runs-on: macos-26
+    runs-on: xcode-27
 
     steps:
       - name: Check out repository
@@ -180,7 +180,7 @@ jobs:
       github.event_name == 'pull_request' &&
       github.event.pull_request.base.ref == 'main' &&
       github.event.pull_request.user.login != 'renovate[bot]'
-    runs-on: macos-26
+    runs-on: xcode-27
     permissions:
       pull-requests: read
     outputs:
@@ -226,7 +226,7 @@ jobs:
     name: DAWG performance
     needs: dawg_performance_changes
     if: needs.dawg_performance_changes.outputs.changed == 'true'
-    runs-on: macos-26
+    runs-on: xcode-27
     permissions:
       contents: read
       issues: write
@@ -383,7 +383,7 @@ jobs:
       github.event_name == 'pull_request' &&
       github.event.pull_request.base.ref == 'main' &&
       github.event.pull_request.user.login != 'renovate[bot]'
-    runs-on: macos-26
+    runs-on: xcode-27
     permissions:
       pull-requests: read
     outputs:
@@ -418,7 +418,7 @@ jobs:
     name: Points performance
     needs: points_performance_changes
     if: needs.points_performance_changes.outputs.changed == 'true'
-    runs-on: macos-26
+    runs-on: xcode-27
     permissions:
       contents: read
       issues: write
