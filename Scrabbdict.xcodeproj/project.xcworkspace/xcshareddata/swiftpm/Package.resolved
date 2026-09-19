@@ -79,7 +79,7 @@
       "location" : "https://github.com/google/grpc-binary.git",
       "state" : {
         "revision" : "75b31c842f664a0f46a2e590a570e370249fd8f6",
-        "version" : "1.69.1"
+        "version" : "1.83.1"
       }
     },
     {
