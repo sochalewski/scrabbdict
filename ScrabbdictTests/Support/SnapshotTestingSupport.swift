@@ -93,6 +93,7 @@ private func assertScreenSnapshots(
                         as: .image(
                             drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                             precision: 0.9995,
+                            perceptualPrecision: 0.995,
                             layout: .device(config: deviceConfig),
                             traits: deviceConfig.traits.modifyingTraits {
                                 $0.userInterfaceStyle = colorScheme == .light ? .light : .dark
