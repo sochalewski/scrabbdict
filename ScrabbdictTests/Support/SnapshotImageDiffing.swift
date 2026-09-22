@@ -8,9 +8,8 @@ import SnapshotTesting
 import UIKit
 
 extension Diffing where Value == UIImage {
-    static func image(
+    static func sRGBImage(
         precision: Float,
-        channelTolerance: UInt8,
         scale: CGFloat? = nil
     ) -> Self {
         let exactImageDiffing = Self.image(
@@ -27,8 +26,7 @@ extension Diffing where Value == UIImage {
                 let message = comparisonFailure(
                     reference: reference,
                     actual: actual,
-                    precision: precision,
-                    channelTolerance: channelTolerance
+                    precision: precision
                 )
             else {
                 return nil
@@ -91,8 +89,7 @@ private struct RGBA8Image {
 private func comparisonFailure(
     reference: UIImage,
     actual: UIImage,
-    precision: Float,
-    channelTolerance: UInt8
+    precision: Float
 ) -> String? {
     guard let referenceImage = RGBA8Image(reference) else {
         return "Reference image could not be normalized to 8-bit sRGB."
@@ -123,7 +120,7 @@ private func comparisonFailure(
             channelOffset += 1
         }
 
-        if pixelDifference > channelTolerance {
+        if pixelDifference > 1 {
             failingPixelCount += 1
         }
         maximumChannelDifference = max(maximumChannelDifference, pixelDifference)
@@ -138,7 +135,7 @@ private func comparisonFailure(
 
     return """
     Actual image precision \(actualPrecision) is less than required \(precision).
-    \(failingPixelCount) of \(pixelCount) pixels exceed per-channel tolerance \(channelTolerance)/255.
+    \(failingPixelCount) of \(pixelCount) pixels exceed per-channel tolerance 1/255.
     Maximum channel difference: \(maximumChannelDifference)/255.
     """
 }

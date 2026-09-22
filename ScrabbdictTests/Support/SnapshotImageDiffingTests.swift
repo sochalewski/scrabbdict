@@ -9,9 +9,8 @@ import UIKit
 import XCTest
 
 final class SnapshotImageDiffingTests: XCTestCase {
-    private let diffing = Diffing<UIImage>.image(
+    private let diffing = Diffing<UIImage>.sRGBImage(
         precision: 0.9995,
-        channelTolerance: 1,
         scale: 1
     )
 

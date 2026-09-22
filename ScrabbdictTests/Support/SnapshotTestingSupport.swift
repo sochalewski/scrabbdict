@@ -9,10 +9,9 @@ import SwiftUI
 import UIKit
 
 private extension Snapshotting where Value: View, Format == UIImage {
-    static func image(
+    static func sRGBImage(
         drawHierarchyInKeyWindow: Bool,
         precision: Float,
-        channelTolerance: UInt8,
         layout: SwiftUISnapshotLayout,
         traits: UITraitCollection
     ) -> Self {
@@ -23,9 +22,8 @@ private extension Snapshotting where Value: View, Format == UIImage {
             layout: layout,
             traits: traits
         )
-        strategy.diffing = .image(
+        strategy.diffing = .sRGBImage(
             precision: precision,
-            channelTolerance: channelTolerance,
             scale: traits.displayScale
         )
         return strategy
@@ -115,10 +113,9 @@ private func assertScreenSnapshots(
 
                     assertSnapshot(
                         of: makeView(deviceConfig, colorScheme, locale, dynamicTypeSize),
-                        as: .image(
+                        as: .sRGBImage(
                             drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                             precision: 0.9995,
-                            channelTolerance: 1,
                             layout: .device(config: deviceConfig),
                             traits: deviceConfig.traits.modifyingTraits {
                                 $0.userInterfaceStyle = colorScheme == .light ? .light : .dark
