@@ -6,6 +6,29 @@
 
 import SnapshotTesting
 import SwiftUI
+import UIKit
+
+private extension Snapshotting where Value: View, Format == UIImage {
+    static func sRGBImage(
+        drawHierarchyInKeyWindow: Bool,
+        precision: Float,
+        layout: SwiftUISnapshotLayout,
+        traits: UITraitCollection
+    ) -> Self {
+        var strategy = Self.image(
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+            precision: 1,
+            perceptualPrecision: 1,
+            layout: layout,
+            traits: traits
+        )
+        strategy.diffing = .sRGBImage(
+            precision: precision,
+            scale: traits.displayScale
+        )
+        return strategy
+    }
+}
 
 private extension ViewImageConfig {
     static let iPhone17Pro = ViewImageConfig(
@@ -90,7 +113,7 @@ private func assertScreenSnapshots(
 
                     assertSnapshot(
                         of: makeView(deviceConfig, colorScheme, locale, dynamicTypeSize),
-                        as: .image(
+                        as: .sRGBImage(
                             drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                             precision: 0.9995,
                             layout: .device(config: deviceConfig),
