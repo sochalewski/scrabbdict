@@ -73,6 +73,35 @@ final class DAWGTests: XCTestCase {
         }
     }
 
+    func testThrowsWhenDictionaryFileIsMissing() {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).dawg")
+
+        XCTAssertThrowsError(try DAWG(url: url))
+    }
+
+    func testThrowsWhenDictionaryFileIsTruncated() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).dawg")
+        try makeDAWGData().prefix(DAWGFormat.headerSize - 1).write(to: url)
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        XCTAssertThrowsError(try DAWG(url: url))
+    }
+
+    func testMappedFileMatchesCopiedData() throws {
+        let data = try DAWGBuilder(words: ["an", "ant", "bat", "tan"], locale: .init(identifier: "en")).data()
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).dawg")
+        try data.write(to: url)
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let mapped = try DAWG(url: url)
+        let copied = try DAWG(data: data, validatesEdges: true)
+
+        XCTAssertEqual(mapped.count, copied.count)
+        XCTAssertTrue(mapped.contains("ant"))
+        XCTAssertEqual(mapped.words(from: "tan"), copied.words(from: "tan"))
+        XCTAssertEqual(mapped.words(matching: "?a?"), copied.words(matching: "?a?"))
+    }
+
     // MARK: - Unit tests using controlled DAWG data
 
     // MARK: Contains

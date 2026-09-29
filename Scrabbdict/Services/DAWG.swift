@@ -4,6 +4,7 @@
 //  Licensed under the Apache License, Version 2.0.
 //
 
+import Darwin
 import Foundation
 
 final class DAWG: Sendable {
@@ -18,7 +19,8 @@ final class DAWG: Sendable {
     /// Maps an alphabet key to its root-edge offset; `.max` marks keys absent from the root.
     private let rootEdgeOffsetByKey: [UInt16]
     /// Packed edges as described by ``DAWGFormat``.
-    private let edges: [UInt32]
+    private let edges: EdgeTable
+    private let storage: DAWGStorage
 
     convenience init(language: Language, bundle: Bundle = .main) throws {
         guard let url = bundle.url(forResource: language.rawValue, withExtension: "dawg") else {
@@ -30,44 +32,39 @@ final class DAWG: Sendable {
 
     /// Loads a trusted generator-produced DAWG without revalidating its ordering invariants.
     convenience init(url: URL) throws {
-        let data = try Data(contentsOf: url, options: .mappedIfSafe)
-        try self.init(data: data, validatesEdges: false)
+        try self.init(storage: DAWGStorage(mapping: url), validatesEdges: false)
     }
 
-    init(data: Data, validatesEdges: Bool) throws {
-        let (wordCount, alphabet, edges) = try data.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) throws -> (Int, [UInt16], [UInt32]) in
-            guard buffer.count >= DAWGFormat.headerSize else { throw DAWGError.invalidHeader }
+    convenience init(data: Data, validatesEdges: Bool) throws {
+        try self.init(storage: DAWGStorage(copying: data), validatesEdges: validatesEdges)
+    }
 
-            let magic = buffer.readLittleEndianUInt32(at: 0)
-            let version = buffer.readLittleEndianUInt32(at: 4)
-            let wordCount = buffer.readLittleEndianUInt32(at: 8)
-            let edgeCount = Int(buffer.readLittleEndianUInt32(at: 12))
-            let alphabetCount = Int(buffer.readLittleEndianUInt32(at: 16))
+    private init(storage: DAWGStorage, validatesEdges: Bool) throws {
+        let buffer = storage.bytes
+        guard buffer.count >= DAWGFormat.headerSize else { throw DAWGError.invalidHeader }
 
-            guard magic == DAWGFormat.magic, version == DAWGFormat.version else { throw DAWGError.invalidHeader }
-            guard alphabetCount <= Int(UInt8.max) + 1 else { throw DAWGError.invalidAlphabet }
+        let magic = buffer.readLittleEndianUInt32(at: 0)
+        let version = buffer.readLittleEndianUInt32(at: 4)
+        let wordCount = buffer.readLittleEndianUInt32(at: 8)
+        let edgeCount = Int(buffer.readLittleEndianUInt32(at: 12))
+        let alphabetCount = Int(buffer.readLittleEndianUInt32(at: 16))
 
-            let alphabetOffset = DAWGFormat.headerSize
-            let edgesOffset = alphabetOffset + alphabetCount * MemoryLayout<UInt16>.size
-            let expectedSize = edgesOffset + edgeCount * DAWGFormat.edgeSize
-            guard buffer.count == expectedSize else { throw DAWGError.invalidSize }
+        guard magic == DAWGFormat.magic, version == DAWGFormat.version else { throw DAWGError.invalidHeader }
+        guard alphabetCount <= Int(UInt8.max) + 1 else { throw DAWGError.invalidAlphabet }
 
-            let alphabet = (0..<alphabetCount).map { index in
-                buffer.readLittleEndianUInt16(at: alphabetOffset + index * MemoryLayout<UInt16>.size)
-            }
+        let alphabetOffset = DAWGFormat.headerSize
+        let edgesOffset = alphabetOffset + alphabetCount * MemoryLayout<UInt16>.size
+        let expectedSize = edgesOffset + edgeCount * DAWGFormat.edgeSize
+        guard buffer.count == expectedSize else { throw DAWGError.invalidSize }
 
-            let edges = [UInt32](unsafeUninitializedCapacity: edgeCount) { destination, initializedCount in
-                for index in 0..<edgeCount {
-                    destination[index] = buffer.readLittleEndianUInt32(at: edgesOffset + index * DAWGFormat.edgeSize)
-                }
-                initializedCount = edgeCount
-            }
+        let alphabet = (0..<alphabetCount).map { index in
+            buffer.readLittleEndianUInt16(at: alphabetOffset + index * MemoryLayout<UInt16>.size)
+        }
 
-            if validatesEdges {
-                try Self.validateEdges(edges, alphabetCount: alphabet.count)
-            }
+        let edges = EdgeTable(base: buffer.baseAddress! + edgesOffset, count: edgeCount)
 
-            return (Int(wordCount), alphabet, edges)
+        if validatesEdges {
+            try Self.validateEdges(edges, alphabetCount: alphabet.count)
         }
 
         var keyByScalar = [UInt16](repeating: .max, count: Int(alphabet.max() ?? 0) + 1)
@@ -89,11 +86,12 @@ final class DAWG: Sendable {
             }
         }
 
-        self.count = wordCount
+        self.count = Int(wordCount)
         self.alphabet = alphabet
         self.keyByScalar = keyByScalar
         self.rootEdgeOffsetByKey = rootEdgeOffsetByKey
         self.edges = edges
+        self.storage = storage
     }
 
     func contains(_ word: String) -> Bool {
@@ -306,11 +304,12 @@ final class DAWG: Sendable {
 }
 
 private extension DAWG {
-    static func validateEdges(_ edges: [UInt32], alphabetCount: Int) throws(DAWGError) {
+    static func validateEdges(_ edges: EdgeTable, alphabetCount: Int) throws(DAWGError) {
         var previousEdgeKey: UInt16 = 0
         var isWithinNodeBlock = false
 
-        for edge in edges {
+        for index in 0..<edges.count {
+            let edge = edges[index]
             let edgeKey = UInt16(edge >> DAWGFormat.edgeKeyShift)
             guard
                 Int(edge & DAWGFormat.edgeTargetMask) < edges.count,
@@ -322,18 +321,75 @@ private extension DAWG {
             previousEdgeKey = edgeKey
             isWithinNodeBlock = edge & DAWGFormat.edgeLastFlag == 0
         }
-        if let lastEdge = edges.last {
-            guard lastEdge & DAWGFormat.edgeLastFlag != 0 else { throw DAWGError.invalidEdges }
+        if !edges.isEmpty {
+            guard edges[edges.count - 1] & DAWGFormat.edgeLastFlag != 0 else { throw DAWGError.invalidEdges }
         }
     }
 }
 
 private enum DAWGError: Error, Hashable {
     case resourceUnavailable
+    case unreadableFile(errno: Int32)
     case invalidHeader
     case invalidAlphabet
     case invalidSize
     case invalidEdges
+}
+
+/// Unchecked reads: trusted files and validated data never address edges outside the table.
+private struct EdgeTable: @unchecked Sendable {
+    let base: UnsafeRawPointer
+    let count: Int
+
+    var isEmpty: Bool {
+        count == 0
+    }
+
+    subscript(index: Int) -> UInt32 {
+        UInt32(littleEndian: base.loadUnaligned(fromByteOffset: index &* DAWGFormat.edgeSize, as: UInt32.self))
+    }
+}
+
+private final class DAWGStorage: @unchecked Sendable {
+    let bytes: UnsafeRawBufferPointer
+
+    private let isMapped: Bool
+
+    init(mapping url: URL) throws(DAWGError) {
+        let descriptor = url.withUnsafeFileSystemRepresentation { path in
+            path.map { open($0, O_RDONLY | O_CLOEXEC) } ?? -1
+        }
+        guard descriptor >= 0 else { throw .unreadableFile(errno: errno) }
+        defer { close(descriptor) }
+
+        var status = stat()
+        guard fstat(descriptor, &status) == 0 else { throw .unreadableFile(errno: errno) }
+        let byteCount = Int(status.st_size)
+        guard byteCount >= DAWGFormat.headerSize else { throw .invalidHeader }
+
+        guard
+            let address = mmap(nil, byteCount, PROT_READ, MAP_PRIVATE, descriptor, 0),
+            address != MAP_FAILED
+        else { throw .unreadableFile(errno: errno) }
+
+        self.bytes = UnsafeRawBufferPointer(start: address, count: byteCount)
+        self.isMapped = true
+    }
+
+    init(copying data: Data) {
+        let bytes = UnsafeMutableRawBufferPointer.allocate(byteCount: data.count, alignment: MemoryLayout<UInt32>.alignment)
+        data.withUnsafeBytes { bytes.copyMemory(from: $0) }
+        self.bytes = UnsafeRawBufferPointer(bytes)
+        self.isMapped = false
+    }
+
+    deinit {
+        if isMapped {
+            munmap(UnsafeMutableRawPointer(mutating: bytes.baseAddress), bytes.count)
+        } else {
+            bytes.deallocate()
+        }
+    }
 }
 
 private struct LetterCounter: Sendable {
