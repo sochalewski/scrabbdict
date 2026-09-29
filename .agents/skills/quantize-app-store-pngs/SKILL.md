@@ -1,6 +1,6 @@
 ---
 name: quantize-app-store-pngs
-description: Quantize currently changed PNG files in Marketing/AppStore/Scrabbdict.butterkit/Assets and regenerate matching Marketing/README screenshots. Use when Codex needs to optimize Scrabbdict App Store PNG assets while preserving unchanged committed assets and staged state.
+description: Quantize currently changed PNG files in Marketing/AppStore/Scrabbdict.butterkit/Assets and regenerate matching Marketing/README screenshots. Use when asked to optimize Scrabbdict App Store PNG assets while preserving unchanged committed assets and staged state.
 ---
 
 # Quantize App Store PNGs

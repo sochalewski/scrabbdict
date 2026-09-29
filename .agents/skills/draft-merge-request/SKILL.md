@@ -1,6 +1,6 @@
 ---
 name: draft-merge-request
-description: Generate an English merge request title and description from the current branch changes since its parent branch. Use when Codex needs to draft MR text, pull request text, merge request summaries, or PR descriptions based on git commits, changed files, and diffs.
+description: Generate an English merge request title and description from the current branch changes since its parent branch. Use when asked to draft MR text, pull request text, merge request summaries, or PR descriptions based on git commits, changed files, and diffs.
 ---
 
 # Draft Merge Request
