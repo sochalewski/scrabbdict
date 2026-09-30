@@ -4,10 +4,9 @@
 //  Licensed under the Apache License, Version 2.0.
 //
 
-import Darwin
 import Foundation
 
-final class DAWG: Sendable {
+final class DAWG: @unchecked Sendable {
     private static let wildcardKey = UInt16.max
 
     let count: Int
@@ -18,9 +17,10 @@ final class DAWG: Sendable {
     private let keyByScalar: [UInt16]
     /// Maps an alphabet key to its root-edge offset; `.max` marks keys absent from the root.
     private let rootEdgeOffsetByKey: [UInt16]
-    /// Packed edges as described by ``DAWGFormat``.
-    private let edges: EdgeTable
-    private let storage: DAWGStorage
+    /// Packed edges as described by ``DAWGFormat``, read in place from `data`.
+    private let edges: UnsafeRawBufferPointer
+    /// Owns the memory-mapped file or copied bytes backing `edges`.
+    private let data: NSData
 
     convenience init(language: Language, bundle: Bundle = .main) throws {
         guard let url = bundle.url(forResource: language.rawValue, withExtension: "dawg") else {
@@ -32,16 +32,16 @@ final class DAWG: Sendable {
 
     /// Loads a trusted generator-produced DAWG without revalidating its ordering invariants.
     convenience init(url: URL) throws {
-        try self.init(storage: DAWGStorage(mapping: url), validatesEdges: false)
+        try self.init(data: NSData(contentsOf: url, options: .alwaysMapped), validatesEdges: false)
     }
 
     convenience init(data: Data, validatesEdges: Bool) throws {
-        try self.init(storage: DAWGStorage(copying: data), validatesEdges: validatesEdges)
+        try self.init(data: NSData(data: data), validatesEdges: validatesEdges)
     }
 
-    private init(storage: DAWGStorage, validatesEdges: Bool) throws {
-        let buffer = storage.bytes
-        guard buffer.count >= DAWGFormat.headerSize else { throw DAWGError.invalidHeader }
+    private init(data: NSData, validatesEdges: Bool) throws {
+        guard data.length >= DAWGFormat.headerSize else { throw DAWGError.invalidHeader }
+        let buffer = UnsafeRawBufferPointer(start: data.bytes, count: data.length)
 
         let magic = buffer.readLittleEndianUInt32(at: 0)
         let version = buffer.readLittleEndianUInt32(at: 4)
@@ -61,7 +61,7 @@ final class DAWG: Sendable {
             buffer.readLittleEndianUInt16(at: alphabetOffset + index * MemoryLayout<UInt16>.size)
         }
 
-        let edges = EdgeTable(base: buffer.baseAddress! + edgesOffset, count: edgeCount)
+        let edges = UnsafeRawBufferPointer(rebasing: buffer[edgesOffset...])
 
         if validatesEdges {
             try Self.validateEdges(edges, alphabetCount: alphabet.count)
@@ -76,7 +76,7 @@ final class DAWG: Sendable {
         if !edges.isEmpty {
             var edgeIndex = 0
             while true {
-                let edge = edges[edgeIndex]
+                let edge = edges.edge(at: edgeIndex)
                 let key = UInt16(edge >> DAWGFormat.edgeKeyShift)
                 rootEdgeOffsetByKey[Int(key)] = UInt16(edgeIndex)
                 if edge & DAWGFormat.edgeLastFlag != 0 {
@@ -91,7 +91,7 @@ final class DAWG: Sendable {
         self.keyByScalar = keyByScalar
         self.rootEdgeOffsetByKey = rootEdgeOffsetByKey
         self.edges = edges
-        self.storage = storage
+        self.data = data
     }
 
     func contains(_ word: String) -> Bool {
@@ -177,7 +177,7 @@ final class DAWG: Sendable {
 
     private func rootEdge(for key: UInt16) -> UInt32? {
         let offset = rootEdgeOffsetByKey[Int(key)]
-        return offset == .max ? nil : edges[Int(offset)]
+        return offset == .max ? nil : edges.edge(at: Int(offset))
     }
 
     private func string(from keys: [UInt16]) -> String {
@@ -201,7 +201,7 @@ final class DAWG: Sendable {
         var edgeIndex = Int(firstEdge)
 
         while true {
-            let edge = edges[edgeIndex]
+            let edge = edges.edge(at: edgeIndex)
             let key = UInt16(edge >> DAWGFormat.edgeKeyShift)
 
             if availableLetters.consume(key) {
@@ -240,7 +240,7 @@ final class DAWG: Sendable {
             var edgeIndex = Int(firstEdge)
 
             while true {
-                let edge = edges[edgeIndex]
+                let edge = edges.edge(at: edgeIndex)
                 descend(along: edge, matching: pattern, patternIndex: patternIndex, currentWord: &currentWord, result: &result)
 
                 if edge & DAWGFormat.edgeLastFlag != 0 {
@@ -285,7 +285,7 @@ final class DAWG: Sendable {
         var edgeIndex = Int(firstEdge)
 
         while true {
-            let edge = edges[edgeIndex]
+            let edge = edges.edge(at: edgeIndex)
             let edgeKey = UInt16(edge >> DAWGFormat.edgeKeyShift)
             if edgeKey == key {
                 return edge
@@ -304,15 +304,16 @@ final class DAWG: Sendable {
 }
 
 private extension DAWG {
-    static func validateEdges(_ edges: EdgeTable, alphabetCount: Int) throws(DAWGError) {
+    static func validateEdges(_ edges: UnsafeRawBufferPointer, alphabetCount: Int) throws(DAWGError) {
+        let edgeCount = edges.count / DAWGFormat.edgeSize
         var previousEdgeKey: UInt16 = 0
         var isWithinNodeBlock = false
 
-        for index in 0..<edges.count {
-            let edge = edges[index]
+        for index in 0..<edgeCount {
+            let edge = edges.edge(at: index)
             let edgeKey = UInt16(edge >> DAWGFormat.edgeKeyShift)
             guard
-                Int(edge & DAWGFormat.edgeTargetMask) < edges.count,
+                Int(edge & DAWGFormat.edgeTargetMask) < edgeCount,
                 Int(edgeKey) < alphabetCount,
                 // Edge lookup relies on keys sorted ascending within a node block.
                 !isWithinNodeBlock || edgeKey > previousEdgeKey
@@ -322,74 +323,17 @@ private extension DAWG {
             isWithinNodeBlock = edge & DAWGFormat.edgeLastFlag == 0
         }
         if !edges.isEmpty {
-            guard edges[edges.count - 1] & DAWGFormat.edgeLastFlag != 0 else { throw DAWGError.invalidEdges }
+            guard edges.edge(at: edgeCount - 1) & DAWGFormat.edgeLastFlag != 0 else { throw DAWGError.invalidEdges }
         }
     }
 }
 
 private enum DAWGError: Error, Hashable {
     case resourceUnavailable
-    case unreadableFile(errno: Int32)
     case invalidHeader
     case invalidAlphabet
     case invalidSize
     case invalidEdges
-}
-
-/// Unchecked reads: trusted files and validated data never address edges outside the table.
-private struct EdgeTable: @unchecked Sendable {
-    let base: UnsafeRawPointer
-    let count: Int
-
-    var isEmpty: Bool {
-        count == 0
-    }
-
-    subscript(index: Int) -> UInt32 {
-        UInt32(littleEndian: base.loadUnaligned(fromByteOffset: index &* DAWGFormat.edgeSize, as: UInt32.self))
-    }
-}
-
-private final class DAWGStorage: @unchecked Sendable {
-    let bytes: UnsafeRawBufferPointer
-
-    private let isMapped: Bool
-
-    init(mapping url: URL) throws(DAWGError) {
-        let descriptor = url.withUnsafeFileSystemRepresentation { path in
-            path.map { open($0, O_RDONLY | O_CLOEXEC) } ?? -1
-        }
-        guard descriptor >= 0 else { throw .unreadableFile(errno: errno) }
-        defer { close(descriptor) }
-
-        var status = stat()
-        guard fstat(descriptor, &status) == 0 else { throw .unreadableFile(errno: errno) }
-        let byteCount = Int(status.st_size)
-        guard byteCount >= DAWGFormat.headerSize else { throw .invalidHeader }
-
-        guard
-            let address = mmap(nil, byteCount, PROT_READ, MAP_PRIVATE, descriptor, 0),
-            address != MAP_FAILED
-        else { throw .unreadableFile(errno: errno) }
-
-        self.bytes = UnsafeRawBufferPointer(start: address, count: byteCount)
-        self.isMapped = true
-    }
-
-    init(copying data: Data) {
-        let bytes = UnsafeMutableRawBufferPointer.allocate(byteCount: data.count, alignment: MemoryLayout<UInt32>.alignment)
-        data.withUnsafeBytes { bytes.copyMemory(from: $0) }
-        self.bytes = UnsafeRawBufferPointer(bytes)
-        self.isMapped = false
-    }
-
-    deinit {
-        if isMapped {
-            munmap(UnsafeMutableRawPointer(mutating: bytes.baseAddress), bytes.count)
-        } else {
-            bytes.deallocate()
-        }
-    }
 }
 
 private struct LetterCounter: Sendable {
@@ -434,5 +378,10 @@ private extension UnsafeRawBufferPointer {
 
     func readLittleEndianUInt32(at offset: Int) -> UInt32 {
         UInt32(littleEndian: loadUnaligned(fromByteOffset: offset, as: UInt32.self))
+    }
+
+    /// Unchecked in optimized builds: trusted files and validated data never address edges outside the table.
+    func edge(at index: Int) -> UInt32 {
+        UInt32(littleEndian: baseAddress.unsafelyUnwrapped.loadUnaligned(fromByteOffset: index &* DAWGFormat.edgeSize, as: UInt32.self))
     }
 }
