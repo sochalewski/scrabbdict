@@ -60,6 +60,7 @@ For user-facing UI changes:
 - Update `Scrabbdict/Resources/Localizable.xcstrings` for localized user-facing copy.
 - When updating dictionary names or descriptions, update all supported locales together: `en`, `fr`, and `pl`.
 - Keep protected dictionary names, abbreviations, trademarks, and source names unchanged unless the underlying dictionary source changes.
+- Keep dictionary word counts as numeric values in `Scrabbdict/Models/Language.swift`; do not duplicate formatted counts in translations.
 
 Snapshot references under `ScrabbdictTests/Snapshots/__Snapshots__/` are tracked with Git LFS. Update snapshots only when the visual change is intentional, and include the snapshot changes in the same pull request as the code that caused them.
 
