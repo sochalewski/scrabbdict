@@ -111,6 +111,13 @@ For public forks, do not commit production Firebase credentials or service confi
 
 Firebase Analytics and Crashlytics are used by the app runtime. Forks should use their own Firebase project and make an explicit decision about whether telemetry should remain enabled in their builds.
 
+Analytics is opt-in:
+
+- `Scrabbdict/Info.plist` sets `FIREBASE_ANALYTICS_COLLECTION_ENABLED` and the `GOOGLE_ANALYTICS_DEFAULT_ALLOW_*` consent defaults to `NO`, so nothing is collected before the user decides.
+- On first launch, the app shows a consent screen where allowing and denying are equally easy: both buttons have the same size and each takes a single tap. The decision is stored under the `analyticsConsent` user default and applied through `AnalyticsClient.applyConsent`.
+- Users can change the decision later in Settings. Denying consent also resets Firebase Analytics data.
+- Crashlytics stays enabled regardless of the analytics decision.
+
 ## Building the App
 
 1. Clone the repository.

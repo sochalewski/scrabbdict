@@ -28,21 +28,11 @@ struct SettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     if #available(iOS 26, *) {
-                        Button(role: .cancel) { send(.cancelButtonTapped) }
+                        Button(role: .close) { send(.closeButtonTapped) }
                             .foregroundStyle(.settingsAccent)
                     } else {
-                        Button(.settingsCancel) { send(.cancelButtonTapped) }
+                        Button(.settingsClose) { send(.closeButtonTapped) }
                             .foregroundStyle(.settingsAccent)
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    if #available(iOS 26, *) {
-                        Button(role: .confirm) { send(.saveButtonTapped) }
-                            .foregroundStyle(.settingsAccent)
-                    } else {
-                        Button(.settingsSave) { send(.saveButtonTapped) }
-                            .foregroundStyle(.settingsAccent)
-                            .fontWeight(.semibold)
                     }
                 }
             }
@@ -60,6 +50,7 @@ private extension SettingsView {
             Text(.settingsDictionary)
                 .font(.headline.weight(.bold))
                 .foregroundStyle(.settingsText)
+                .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: 0) {
                 ForEach(Language.allCases, id: \.self) { language in
@@ -127,6 +118,52 @@ private extension SettingsView {
                 }
             }
             .padding(.top, 16)
+
+            privacySection
+                .padding(.top, 16)
+        }
+    }
+
+    var privacySection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(.settingsPrivacy)
+                .font(.headline.weight(.bold))
+                .foregroundStyle(.settingsText)
+                .accessibilityAddTraits(.isHeader)
+
+            Toggle(
+                isOn: .init(
+                    get: { store.isAnalyticsEnabled },
+                    set: { send(.analyticsToggled($0)) }
+                )
+            ) {
+                Text(.settingsAnalyticsToggle)
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(.settingsText)
+            }
+            .tint(.settingsAccent)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .frame(minHeight: languageRowHeight)
+            .background(.settingsRowBackground)
+            .clipShape(.rect(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(.surfaceStroke, lineWidth: 1)
+            )
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(.settingsAnalyticsFooter)
+                    .font(.callout.weight(.medium))
+                    .foregroundStyle(.settingsText.opacity(0.82))
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Link(destination: .privacyPolicy) {
+                    Text(.privacyPolicyLink)
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(.settingsAccent)
+                }
+            }
         }
     }
 }

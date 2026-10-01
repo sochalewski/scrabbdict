@@ -9,6 +9,7 @@ import FirebaseAnalytics
 import Foundation
 
 struct AnalyticsClient: Sendable {
+    var applyConsent: @Sendable (AnalyticsConsent) -> Void
     var logLanguageChanged: @Sendable (Language) -> Void
     var logModeChanged: @Sendable (SearchMode) -> Void
     var logRegexSearch: @Sendable (Language) -> Void
@@ -18,24 +19,38 @@ struct AnalyticsClient: Sendable {
 
 extension AnalyticsClient: DependencyKey {
     static let liveValue = Self(
+        applyConsent: { consent in
+            let isGranted = consent == .granted
+            Analytics.setConsent([
+                .analyticsStorage: isGranted ? .granted : .denied,
+                .adStorage: .denied,
+                .adUserData: .denied,
+                .adPersonalization: .denied
+            ])
+            Analytics.setAnalyticsCollectionEnabled(isGranted)
+            if !isGranted {
+                Analytics.resetAnalyticsData()
+            }
+        },
         logLanguageChanged: { language in
-            Analytics.logEvent("language_changed", parameters: ["language": language.rawValue])
+            logEvent("language_changed", parameters: ["language": language.rawValue])
         },
         logModeChanged: { searchMode in
-            Analytics.logEvent("mode_changed", parameters: ["mode": searchMode.name])
+            logEvent("mode_changed", parameters: ["mode": searchMode.name])
         },
         logRegexSearch: { language in
-            Analytics.logEvent("regex", parameters: ["language": language.rawValue])
+            logEvent("regex", parameters: ["language": language.rawValue])
         },
         logTilesSearch: { language in
-            Analytics.logEvent("tiles", parameters: ["language": language.rawValue])
+            logEvent("tiles", parameters: ["language": language.rawValue])
         },
         logWordChecked: { language, exists in
-            Analytics.logEvent("word_check", parameters: ["language": language.rawValue, "exists": exists ? "yes" : "no"])
+            logEvent("word_check", parameters: ["language": language.rawValue, "exists": exists ? "yes" : "no"])
         }
     )
 
     static let testValue = Self(
+        applyConsent: unimplemented("\(Self.self).applyConsent"),
         logLanguageChanged: unimplemented("\(Self.self).logLanguageChanged"),
         logModeChanged: unimplemented("\(Self.self).logModeChanged"),
         logRegexSearch: unimplemented("\(Self.self).logRegexSearch"),
@@ -44,6 +59,7 @@ extension AnalyticsClient: DependencyKey {
     )
 
     static let previewValue = Self(
+        applyConsent: { _ in },
         logLanguageChanged: { _ in },
         logModeChanged: { _ in },
         logRegexSearch: { _ in },
@@ -57,4 +73,12 @@ extension DependencyValues {
         get { self[AnalyticsClient.self] }
         set { self[AnalyticsClient.self] = newValue }
     }
+}
+
+// Guards against Firebase's persisted collection state diverging from the stored consent.
+private func logEvent(_ name: String, parameters: [String: Any]) {
+    @Dependency(\.analyticsConsentStorage) var consentStorage
+
+    guard consentStorage.current() == .granted else { return }
+    Analytics.logEvent(name, parameters: parameters)
 }

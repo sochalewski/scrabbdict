@@ -23,6 +23,7 @@ private final class AnalyticsEventRecorder: @unchecked Sendable {
 
     func analyticsClient() -> AnalyticsClient {
         AnalyticsClient(
+            applyConsent: { _ in },
             logLanguageChanged: { _ in },
             logModeChanged: { _ in },
             logRegexSearch: { [self] language in
@@ -70,6 +71,7 @@ final class ValidatorTests: XCTestCase {
         currentLanguage = CurrentLanguageHolder(.englishCSW)
         sut = withDependencies {
             $0.analyticsClient = AnalyticsClient(
+                applyConsent: { _ in },
                 logLanguageChanged: { _ in },
                 logModeChanged: { _ in },
                 logRegexSearch: { _ in },

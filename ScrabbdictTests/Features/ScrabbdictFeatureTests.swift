@@ -14,6 +14,7 @@ final class ScrabbdictFeatureTests: XCTestCase {
         let store = TestStore(initialState: ScrabbdictFeature.State()) {
             ScrabbdictFeature()
         } withDependencies: {
+            $0.analyticsConsentStorage.current = { .denied }
             $0.languageStorage.current = { .polish }
         }
 
@@ -69,11 +70,66 @@ final class ScrabbdictFeatureTests: XCTestCase {
         let store = TestStore(initialState: ScrabbdictFeature.State()) {
             ScrabbdictFeature()
         } withDependencies: {
+            $0.analyticsConsentStorage.current = { .granted }
             $0.searchModeStorage.current = { .check }
         }
 
         await store.send(.view(.loaded)) {
             $0.searchMode = .check
+        }
+    }
+
+    func testLoadedPresentsAnalyticsConsentWhenUndecided() async {
+        let store = TestStore(initialState: ScrabbdictFeature.State()) {
+            ScrabbdictFeature()
+        } withDependencies: {
+            $0.analyticsConsentStorage.current = { nil }
+            $0.searchModeStorage.current = { .auto }
+        }
+
+        await store.send(.view(.loaded)) {
+            $0.destination = .analyticsConsent(AnalyticsConsentFeature.State())
+        }
+    }
+
+    func testLoadedDoesNotPresentAnalyticsConsentWhenDecided() async {
+        let store = TestStore(initialState: ScrabbdictFeature.State()) {
+            ScrabbdictFeature()
+        } withDependencies: {
+            $0.analyticsConsentStorage.current = { .denied }
+            $0.searchModeStorage.current = { .auto }
+        }
+
+        await store.send(.view(.loaded))
+    }
+
+    func testLoadedDoesNotReplaceExistingDestination() async {
+        let store = TestStore(
+            initialState: ScrabbdictFeature.State(destination: .settings(SettingsFeature.State()))
+        ) {
+            ScrabbdictFeature()
+        } withDependencies: {
+            $0.analyticsConsentStorage.current = { nil }
+            $0.searchModeStorage.current = { .auto }
+        }
+
+        await store.send(.view(.loaded))
+    }
+
+    func testAnalyticsConsentDecisionDismissesCover() async {
+        let store = TestStore(
+            initialState: ScrabbdictFeature.State(destination: .analyticsConsent(AnalyticsConsentFeature.State()))
+        ) {
+            ScrabbdictFeature()
+        } withDependencies: {
+            $0.analyticsConsentStorage.setCurrent = { _ in }
+            $0.analyticsClient.applyConsent = { _ in }
+        }
+
+        await store.send(.destination(.presented(.analyticsConsent(.view(.allowButtonTapped)))))
+        await store.receive(.destination(.presented(.analyticsConsent(.delegate(.decided(.granted))))))
+        await store.receive(.destination(.dismiss)) {
+            $0.destination = nil
         }
     }
 

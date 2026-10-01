@@ -43,6 +43,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AE0A11C12FD0000000C0FFEE /* Exceptions for "Scrabbdict" folder in "Scrabbdict" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AEF8AC811EBA02AA005996D5 /* Scrabbdict */;
+		};
 		AE71C3512FCD010B002632DB /* Exceptions for "ScrabbdictTests" folder in "ScrabbdictTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -90,6 +97,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AECC64A12FB9CC920032633A /* Scrabbdict */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AE0A11C12FD0000000C0FFEE /* Exceptions for "Scrabbdict" folder in "Scrabbdict" target */,
+			);
 			path = Scrabbdict;
 			sourceTree = "<group>";
 		};
@@ -618,6 +628,7 @@
 				CURRENT_PROJECT_VERSION = 56;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Scrabbdict/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -648,6 +659,7 @@
 				CURRENT_PROJECT_VERSION = 56;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Scrabbdict/Info.plist;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

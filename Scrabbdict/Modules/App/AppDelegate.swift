@@ -11,6 +11,10 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
 
+        if let consent = AnalyticsConsentStorageClient.liveValue.current() {
+            AnalyticsClient.liveValue.applyConsent(consent)
+        }
+
         return true
     }
 }

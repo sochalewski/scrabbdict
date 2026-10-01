@@ -29,6 +29,11 @@ struct ScrabbdictView: View {
                     SettingsView(store: settingsStore)
                         .presentationDetents(horizontalSizeClass == .regular ? [.large] : [.medium, .large])
                 }
+                .fullScreenCover(
+                    item: $store.scope(\.destination?.analyticsConsent, action: \.destination.analyticsConsent)
+                ) { consentStore in
+                    AnalyticsConsentView(store: consentStore)
+                }
         }
         .tint(.brandAccent)
     }

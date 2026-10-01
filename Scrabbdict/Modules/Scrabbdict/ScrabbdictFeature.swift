@@ -57,6 +57,7 @@ struct ScrabbdictFeature {
 
     @Reducer
     enum Destination {
+        case analyticsConsent(AnalyticsConsentFeature)
         case settings(SettingsFeature)
     }
 
@@ -66,6 +67,7 @@ struct ScrabbdictFeature {
 
     @Dependency(\.crashlyticsClient) var crashlytics
     @Dependency(\.analyticsClient) var analytics
+    @Dependency(\.analyticsConsentStorage) var analyticsConsentStorage
     @Dependency(\.appReviewClient) var appReview
     @Dependency(\.continuousClock) var clock
     @Dependency(\.searchModeStorage) var searchModeStorage
@@ -130,6 +132,9 @@ private extension ScrabbdictFeature {
             return cancelSearch()
         case .loaded:
             state.searchMode = searchModeStorage.current()
+            if state.destination == nil, analyticsConsentStorage.current() == nil {
+                state.destination = .analyticsConsent(.init())
+            }
             return .none
         case .searchModePickerTapped:
             state.isSearchFocused = false

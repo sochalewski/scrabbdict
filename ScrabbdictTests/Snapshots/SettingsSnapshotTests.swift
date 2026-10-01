@@ -30,11 +30,16 @@ final class SettingsSnapshotTests: XCTestCase {
     func testPolishSelected() {
         assertSettingsScreenSnapshots(selectedLanguage: .polish)
     }
+
+    func testAnalyticsEnabled() {
+        assertSettingsScreenSnapshots(selectedLanguage: .englishNWL, isAnalyticsEnabled: true)
+    }
 }
 
 @MainActor
 private func assertSettingsScreenSnapshots(
     selectedLanguage: Language,
+    isAnalyticsEnabled: Bool = false,
     file: StaticString = #file,
     testName: String = #function,
     line: UInt = #line
@@ -42,7 +47,10 @@ private func assertSettingsScreenSnapshots(
     assert(
         SettingsView(
             store: Store(
-                initialState: SettingsFeature.State(selectedLanguage: selectedLanguage),
+                initialState: SettingsFeature.State(
+                    selectedLanguage: selectedLanguage,
+                    isAnalyticsEnabled: isAnalyticsEnabled
+                ),
                 reducer: {}
             )
         ),

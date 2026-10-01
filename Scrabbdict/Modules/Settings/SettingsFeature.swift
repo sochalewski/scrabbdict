@@ -12,6 +12,7 @@ struct SettingsFeature {
     @ObservableState
     struct State: Hashable, Sendable {
         var selectedLanguage: Language = .englishNWL
+        var isAnalyticsEnabled = false
     }
 
     enum Action: Hashable, Sendable, ViewAction {
@@ -20,9 +21,9 @@ struct SettingsFeature {
 
         enum ViewAction: Hashable, Sendable {
             case loaded
-            case cancelButtonTapped
+            case analyticsToggled(Bool)
+            case closeButtonTapped
             case languageSelected(Language)
-            case saveButtonTapped
         }
 
         enum DelegateAction: Hashable, Sendable {
@@ -32,6 +33,7 @@ struct SettingsFeature {
 
     @Dependency(\.languageStorage) var languageStorage
     @Dependency(\.analyticsClient) var analytics
+    @Dependency(\.analyticsConsentStorage) var analyticsConsentStorage
     @Dependency(\.dismiss) var dismiss
 
     var body: some Reducer<State, Action> {
@@ -41,24 +43,24 @@ struct SettingsFeature {
                 switch viewAction {
                 case .loaded:
                     state.selectedLanguage = languageStorage.current()
+                    state.isAnalyticsEnabled = analyticsConsentStorage.current() == .granted
                     return .none
-                case .cancelButtonTapped:
+                case let .analyticsToggled(isEnabled):
+                    state.isAnalyticsEnabled = isEnabled
+                    let consent: AnalyticsConsent = isEnabled ? .granted : .denied
+                    analyticsConsentStorage.setCurrent(consent)
+                    analytics.applyConsent(consent)
+                    return .none
+                case .closeButtonTapped:
                     return .run { _ in
                         await dismiss()
                     }
                 case let .languageSelected(language):
+                    guard language != state.selectedLanguage else { return .none }
                     state.selectedLanguage = language
-                    return .none
-                case .saveButtonTapped:
-                    let currentLanguage = languageStorage.current()
-                    languageStorage.setCurrent(state.selectedLanguage)
-                    return .run { [selectedLanguage = state.selectedLanguage] send in
-                        if selectedLanguage != currentLanguage {
-                            analytics.logLanguageChanged(selectedLanguage)
-                            await send(.delegate(.languageUpdated))
-                        }
-                        await dismiss()
-                    }
+                    languageStorage.setCurrent(language)
+                    analytics.logLanguageChanged(language)
+                    return .send(.delegate(.languageUpdated))
                 }
             case .delegate:
                 return .none
