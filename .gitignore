@@ -77,3 +77,7 @@ Scrabbdict/GoogleService-Info.plist
 ## Dictionaries
 Scrabbdict/Resources/Dictionaries/*.dawg
 DAWGBuilder/RAW/*.zip
+
+## ButterKit
+
+Marketing/AppStore/Scrabbdict.butterkit/QuickLook
