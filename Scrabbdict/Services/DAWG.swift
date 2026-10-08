@@ -11,8 +11,9 @@ final class DAWG: @unchecked Sendable {
 
     let count: Int
 
-    /// Unicode scalars in localized traversal order for generator-produced DAWGs.
-    private let alphabet: [UInt16]
+    /// Maps an alphabet key, in localized traversal order for generator-produced DAWGs, to its UTF-8 bytes
+    /// packed little-endian in the low 24 bits, with the byte count in the high 8 bits.
+    private let scalarUTF8ByKey: [UInt32]
     /// Maps a Unicode scalar to its alphabet key; `.max` marks scalars outside the alphabet.
     private let keyByScalar: [UInt16]
     /// Maps an alphabet key to its root-edge offset; `.max` marks keys absent from the root.
@@ -61,6 +62,19 @@ final class DAWG: @unchecked Sendable {
             buffer.readLittleEndianUInt16(at: alphabetOffset + index * MemoryLayout<UInt16>.size)
         }
 
+        var scalarUTF8ByKey = [UInt32]()
+        scalarUTF8ByKey.reserveCapacity(alphabet.count)
+        for value in alphabet {
+            guard let scalar = Unicode.Scalar(value) else { throw DAWGError.invalidAlphabet }
+            var packed: UInt32 = 0
+            var byteCount: UInt32 = 0
+            for byte in UTF8.encode(scalar).unsafelyUnwrapped {
+                packed |= UInt32(byte) << (byteCount * 8)
+                byteCount += 1
+            }
+            scalarUTF8ByKey.append(packed | byteCount << 24)
+        }
+
         let edges = UnsafeRawBufferPointer(rebasing: buffer[edgesOffset...])
 
         if validatesEdges {
@@ -87,7 +101,7 @@ final class DAWG: @unchecked Sendable {
         }
 
         self.count = Int(wordCount)
-        self.alphabet = alphabet
+        self.scalarUTF8ByKey = scalarUTF8ByKey
         self.keyByScalar = keyByScalar
         self.rootEdgeOffsetByKey = rootEdgeOffsetByKey
         self.edges = edges
@@ -127,7 +141,7 @@ final class DAWG: @unchecked Sendable {
     func words(from letters: String, minLength: Int = 2) -> [String] {
         guard !letters.isEmpty, !edges.isEmpty else { return [] }
 
-        var availableLetters = LetterCounter(letters, alphabetCount: alphabet.count, keyForScalar: key)
+        var availableLetters = LetterCounter(letters, alphabetCount: scalarUTF8ByKey.count, keyForScalar: key)
         guard !availableLetters.isEmpty else { return [] }
 
         var currentWord = [UInt16]()
@@ -164,10 +178,6 @@ final class DAWG: @unchecked Sendable {
         return result
     }
 
-    private func scalar(for key: UInt16) -> UInt16 {
-        alphabet[Int(key)]
-    }
-
     private func key(for scalar: UInt16) -> UInt16? {
         guard Int(scalar) < keyByScalar.count else { return nil }
 
@@ -181,14 +191,23 @@ final class DAWG: @unchecked Sendable {
     }
 
     private func string(from keys: [UInt16]) -> String {
-        var scalars = String.UnicodeScalarView()
-        scalars.reserveCapacity(keys.count)
-
+        var byteCount = 0
         for key in keys {
-            scalars.append(UnicodeScalar(scalar(for: key))!)
+            byteCount &+= Int(scalarUTF8ByKey[Int(key)] >> 24)
         }
 
-        return String(scalars)
+        return String(unsafeUninitializedCapacity: byteCount) { buffer in
+            var offset = 0
+            for key in keys {
+                var encoded = scalarUTF8ByKey[Int(key)]
+                for _ in 0..<Int(encoded >> 24) {
+                    buffer[offset] = UInt8(truncatingIfNeeded: encoded)
+                    encoded >>= 8
+                    offset &+= 1
+                }
+            }
+            return offset
+        }
     }
 
     private func collectWords(

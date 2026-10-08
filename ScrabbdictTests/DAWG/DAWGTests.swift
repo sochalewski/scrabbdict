@@ -33,15 +33,6 @@ final class DAWGTests: XCTestCase {
         XCTAssertTrue(words.contains("zap"))
     }
 
-    func testWordsFromLettersHonorsMinimumLength() throws {
-        let dawg = try DAWG(language: .englishCSW)
-
-        let words = dawg.words(from: "pizza", minLength: 4)
-
-        XCTAssertTrue(words.allSatisfy { $0.count >= 4 })
-        XCTAssertTrue(words.contains("pizza"))
-    }
-
     func testWordsMatchingPattern() throws {
         let dawg = try DAWG(language: .englishCSW)
 
@@ -64,6 +55,10 @@ final class DAWGTests: XCTestCase {
             )
         }
     }
+
+    // MARK: - Unit tests using controlled DAWG data
+
+    // MARK: Loading
 
     func testThrowsWhenDictionaryResourceIsMissing() {
         XCTAssertThrowsError(
@@ -102,11 +97,9 @@ final class DAWGTests: XCTestCase {
         XCTAssertEqual(mapped.words(matching: "?a?"), copied.words(matching: "?a?"))
     }
 
-    // MARK: - Unit tests using controlled DAWG data
-
     // MARK: Contains
 
-    func testContainsControlledWordsAndRejectsMissingWords() throws {
+    func testContainsMatchesOnlyStoredWords() throws {
         let dawg = try makeTestDAWG(words: ["an", "ant", "bat"])
 
         XCTAssertTrue(dawg.contains("an"))
@@ -131,13 +124,13 @@ final class DAWGTests: XCTestCase {
 
     // MARK: Words from letters
 
-    func testWordsFromLettersHonorsAvailableLetterCountsWithControlledData() throws {
+    func testWordsFromLettersHonorsAvailableLetterCounts() throws {
         let dawg = try makeTestDAWG(words: ["ab", "abb", "abc", "ba"])
 
         XCTAssertEqual(dawg.words(from: "ab"), ["ab", "ba"])
     }
 
-    func testWordsFromLettersHonorsMinimumLengthWithControlledData() throws {
+    func testWordsFromLettersHonorsMinimumLength() throws {
         let dawg = try makeTestDAWG(words: ["an", "ant", "tan"])
 
         XCTAssertEqual(dawg.words(from: "tan", minLength: 3), ["ant", "tan"])
@@ -166,7 +159,7 @@ final class DAWGTests: XCTestCase {
         XCTAssertEqual(dawg.words(matching: "te?"), ["tea", "ted"])
     }
 
-    func testWordsMatchingReturnsEmptyForUnsupportedPatterns() throws {
+    func testWordsMatchingReturnsEmptyForEmptyUnsupportedOrUnmatchedPatterns() throws {
         let dawg = try makeTestDAWG(words: ["bat", "cat", "rat"])
 
         XCTAssertEqual(dawg.words(matching: ""), [])
@@ -193,6 +186,17 @@ final class DAWGTests: XCTestCase {
         let maximumAlphabetCount = Int(UInt8.max) + 1
         let data = makeDAWGData(
             alphabet: makeAlphabet(count: maximumAlphabetCount + 1)
+        )
+
+        XCTAssertThrowsError(try DAWG(data: data, validatesEdges: false))
+    }
+
+    func testRejectsSurrogateAlphabetScalarWithoutEdgeValidation() {
+        var data = makeDAWGData()
+        let surrogate = UInt16(0xD800).littleEndian
+        data.replaceSubrange(
+            DAWGFormat.headerSize..<DAWGFormat.headerSize + MemoryLayout<UInt16>.size,
+            with: withUnsafeBytes(of: surrogate) { Data($0) }
         )
 
         XCTAssertThrowsError(try DAWG(data: data, validatesEdges: false))
