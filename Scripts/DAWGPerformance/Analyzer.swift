@@ -1412,8 +1412,18 @@ private func summaryJSON(_ analysis: Analysis) -> [String: Any] {
     ]
 }
 
-private func displayPercent(_ value: Double) -> String {
-    String(format: "%+.3f%%", value)
+private func signedNumber(_ value: Double, decimals: Int) -> String {
+    let scale = pow(10, Double(decimals))
+    let rounded = (value * scale).rounded() / scale
+    return String(format: "%+.\(decimals)f", rounded == 0 ? 0 : rounded)
+}
+
+private func displayPercent(_ value: Double, decimals: Int = 3) -> String {
+    "\(signedNumber(value, decimals: decimals))%"
+}
+
+private func displayInterval(_ estimate: Estimate, decimals: Int = 2) -> String {
+    "\(displayPercent(percent(estimate.lower), decimals: decimals)) … \(displayPercent(percent(estimate.upper), decimals: decimals))"
 }
 
 private func leftAligned(_ value: String, width: Int) -> String {
@@ -1424,13 +1434,91 @@ private func rightAligned(_ value: String, width: Int) -> String {
     String(repeating: " ", count: max(0, width - value.count)) + value
 }
 
-private struct ConsoleTiming {
-    let base: String
-    let compare: String
-    let delta: String
+private enum ColumnAlignment {
+    case left
+    case right
 }
 
-private func consoleTiming(for result: ResultRow) -> ConsoleTiming? {
+private func alignedTable(headers: [String], rows: [[String]], alignments: [ColumnAlignment]) -> [String] {
+    let widths = headers.indices.map { column in
+        ([headers] + rows).map { $0[column].count }.max() ?? 0
+    }
+    func line(_ cells: [String]) -> String {
+        var text = "  " + cells.enumerated().map { column, cell in
+            alignments[column] == .left
+                ? leftAligned(cell, width: widths[column])
+                : rightAligned(cell, width: widths[column])
+        }.joined(separator: "  ")
+        while text.last == " " {
+            text.removeLast()
+        }
+        return text
+    }
+    return [line(headers)] + rows.map(line)
+}
+
+private struct VerdictHeadline {
+    let title: String
+    let explanation: String
+}
+
+private func verdictHeadline(_ analysis: Analysis) -> VerdictHeadline {
+    switch analysis.verdict {
+    case nil, .notEvaluated:
+        VerdictHeadline(
+            title: "not evaluated (\(analysis.profile.rawValue) profile)",
+            explanation: "This profile reports no verdict; use the default decision profile for one."
+        )
+    case .regression:
+        VerdictHeadline(
+            title: "REGRESSION",
+            explanation: "Compare is slower: the estimate is at least +1% and the interval excludes zero."
+        )
+    case .improvement:
+        VerdictHeadline(
+            title: "IMPROVEMENT",
+            explanation: "Compare is faster: the estimate is at most -1% and the interval excludes zero."
+        )
+    case .equivalent:
+        VerdictHeadline(
+            title: "EQUIVALENT",
+            explanation: "No practical difference: the whole interval lies within the ±1% margin."
+        )
+    case .inconclusive:
+        VerdictHeadline(
+            title: "INCONCLUSIVE",
+            explanation: "The interval crosses the ±1% margin without showing a 1% change; re-run with --profile confirm."
+        )
+    case .unstableOrderEffect:
+        VerdictHeadline(
+            title: "UNSTABLE ORDER EFFECT",
+            explanation: "ABBA and BAAB orders differ by more than 0.5%; re-run on an idle machine on AC power."
+        )
+    case .notComparable:
+        VerdictHeadline(
+            title: "NOT COMPARABLE",
+            explanation: "Every workload produced different output, so no timing can be compared."
+        )
+    }
+}
+
+private func dictionaryLabel(_ language: String) -> String {
+    switch language {
+    case "en_GB_CSW": "CSW"
+    case "en_US_NWL": "NWL"
+    case "en_WOW": "WOW"
+    case "fr_ODS": "ODS"
+    case "pl_OSPS": "OSPS"
+    default: language
+    }
+}
+
+private struct PairedTiming {
+    let base: String
+    let compare: String
+}
+
+private func pairedTiming(for result: ResultRow) -> PairedTiming? {
     guard
         let estimate = result.estimate,
         let observedBase = result.baseNormalizedCPU,
@@ -1452,316 +1540,410 @@ private func consoleTiming(for result: ResultRow) -> ConsoleTiming? {
     } else {
         (1, "ns")
     }
+    let scaledMidpoint = midpoint / scale.divisor
+    let decimals = scaledMidpoint >= 100 ? 1 : scaledMidpoint >= 10 ? 2 : 3
 
-    return ConsoleTiming(
-        base: "\(String(format: "%.3f", pairedBase / scale.divisor)) \(scale.unit)",
-        compare: "\(String(format: "%.3f", pairedCompare / scale.divisor)) \(scale.unit)",
-        delta: "\(String(format: "%+.3f", (pairedCompare - pairedBase) / scale.divisor)) \(scale.unit)"
+    return PairedTiming(
+        base: "\(String(format: "%.\(decimals)f", pairedBase / scale.divisor)) \(scale.unit)",
+        compare: "\(String(format: "%.\(decimals)f", pairedCompare / scale.divisor)) \(scale.unit)"
     )
 }
 
-private func consoleComparisonRow(name: String, result: ResultRow) -> String {
-    let timing = consoleTiming(for: result)
-    let change = result.estimate.map { displayPercent(percent($0.center)) } ?? "n/a"
-    let interval = result.estimate.map {
-        "[\(displayPercent(percent($0.lower))), \(displayPercent(percent($0.upper)))]"
-    } ?? "n/a"
+private func comparisonCells(for result: ResultRow) -> [String] {
+    let timing = pairedTiming(for: result)
     return [
-        leftAligned(name, width: 36),
-        rightAligned(timing?.base ?? "n/a", width: 12),
-        rightAligned(timing?.compare ?? "n/a", width: 12),
-        rightAligned(timing?.delta ?? "n/a", width: 12),
-        rightAligned(change, width: 10),
-        rightAligned(interval, width: 24)
-    ].joined(separator: " ")
+        timing?.base ?? "n/a",
+        timing?.compare ?? "n/a",
+        result.estimate.map { displayPercent(percent($0.center), decimals: 2) } ?? "n/a",
+        result.estimate.map { displayInterval($0) } ?? "n/a"
+    ]
 }
 
-private func consoleComparisonTable(
-    title: String,
-    firstColumn: String,
-    results: [ResultRow]
-) -> [String] {
-    var lines = [
-        title,
-        consoleComparisonRowHeader(firstColumn: firstColumn)
-    ]
-    lines.append(
-        [36, 12, 12, 12, 10, 24]
-            .map { String(repeating: "-", count: $0) }
-            .joined(separator: " ")
-    )
-    lines += results.map { result in
-        let name = result.preflight.comparable ? result.name : "\(result.name)*"
-        return consoleComparisonRow(name: name, result: result)
+private func operationRows(_ analysis: Analysis) -> [[String]] {
+    analysis.operationResults.map { result in
+        [result.preflight.comparable ? result.name : "\(result.name)*"] + comparisonCells(for: result)
     }
-    return lines
 }
 
-private func consoleComparisonRowHeader(firstColumn: String) -> String {
-    [
-        leftAligned(firstColumn, width: 36),
-        rightAligned("Base", width: 12),
-        rightAligned("Compare", width: 12),
-        rightAligned("Delta", width: 12),
-        rightAligned("Change", width: 10),
-        rightAligned("95% CI", width: 24)
-    ].joined(separator: " ")
+private func workloadLanguages(_ analysis: Analysis) -> [String] {
+    var languages: [String] = []
+    for language in analysis.workloadResults.compactMap(\.language) where !languages.contains(language) {
+        languages.append(language)
+    }
+    return languages
 }
 
-private func consoleMemoryTable(_ results: [MemoryResult]) -> [String] {
-    let resultsByLanguage = Dictionary(grouping: results, by: \.language)
-    var lines = [
-        "Retained dictionary memory",
-        "Median fresh-process physical-footprint delta; diagnostic only.",
-        [
-            leftAligned("Language", width: 18),
-            rightAligned("Base", width: 12),
-            rightAligned("Compare", width: 12),
-            rightAligned("Delta", width: 12),
-            rightAligned("Samples A/B", width: 11)
-        ].joined(separator: " "),
-        [18, 12, 12, 12, 11]
-            .map { String(repeating: "-", count: $0) }
-            .joined(separator: " ")
-    ]
+private struct WorkloadGrid {
+    let headers: [String]
+    let rows: [[String]]
+    let hasChangedOutput: Bool
+}
 
-    for language in resultsByLanguage.keys.sorted() {
-        let languageResults = resultsByLanguage[language, default: []]
-        let base = languageResults.first { $0.side == "A" }
-        let compare = languageResults.first { $0.side == "B" }
-        let baseText = base.map { String(format: "%.3f MiB", $0.medianDeltaBytes / 1_048_576) } ?? "n/a"
-        let compareText = compare.map { String(format: "%.3f MiB", $0.medianDeltaBytes / 1_048_576) } ?? "n/a"
-        let deltaText = if let base, let compare {
-            String(format: "%+.3f MiB", (compare.medianDeltaBytes - base.medianDeltaBytes) / 1_048_576)
-        } else {
-            "n/a"
+private func workloadGrid(_ analysis: Analysis) -> WorkloadGrid {
+    let languages = workloadLanguages(analysis)
+    let rows = analysis.operationResults.map(\.operation).map { operation in
+        [operation] + languages.map { language in
+            guard
+                let result = analysis.workloadResults.first(where: {
+                    $0.operation == operation && $0.language == language
+                })
+            else {
+                return "—"
+            }
+            guard result.preflight.comparable else { return "changed*" }
+            guard let estimate = result.estimate else { return "n/a" }
+            let halfWidth = (percent(estimate.upper) - percent(estimate.lower)) / 2
+            return "\(signedNumber(percent(estimate.center), decimals: 1)) ±\(String(format: "%.1f", halfWidth))"
         }
-        let samples = "\(base.map { String($0.sampleCount) } ?? "-")/\(compare.map { String($0.sampleCount) } ?? "-")"
-        lines.append([
-            leftAligned(language, width: 18),
-            rightAligned(baseText, width: 12),
-            rightAligned(compareText, width: 12),
-            rightAligned(deltaText, width: 12),
-            rightAligned(samples, width: 11)
-        ].joined(separator: " "))
     }
-    return lines
+    return WorkloadGrid(
+        headers: ["Operation"] + languages.map(dictionaryLabel),
+        rows: rows,
+        hasChangedOutput: analysis.workloadResults.contains { !$0.preflight.comparable }
+    )
+}
+
+private struct MemoryRow {
+    let language: String
+    let base: MemoryResult?
+    let compare: MemoryResult?
+
+    var deltaBytes: Double? {
+        guard let base, let compare else { return nil }
+        return compare.medianDeltaBytes - base.medianDeltaBytes
+    }
+}
+
+private func memoryRows(_ results: [MemoryResult], analysis: Analysis) -> [MemoryRow] {
+    let resultsByLanguage = Dictionary(grouping: results, by: \.language)
+    let knownLanguages = workloadLanguages(analysis).filter { resultsByLanguage[$0] != nil }
+    let otherLanguages = resultsByLanguage.keys.filter { !knownLanguages.contains($0) }.sorted()
+    return (knownLanguages + otherLanguages).map { language in
+        let languageResults = resultsByLanguage[language, default: []]
+        return MemoryRow(
+            language: language,
+            base: languageResults.first { $0.side == "A" },
+            compare: languageResults.first { $0.side == "B" }
+        )
+    }
+}
+
+private func mebibytes(_ bytes: Double?, signed: Bool = false) -> String {
+    bytes.map { signed ? signedNumber($0 / 1_048_576, decimals: 3) : String(format: "%.3f", $0 / 1_048_576) } ?? "n/a"
+}
+
+private struct HealthItem {
+    let label: String
+    let value: String
+    let warning: Bool
+}
+
+private func runHealthItems(_ analysis: Analysis) -> [HealthItem] {
+    let overall = analysis.overallResult
+    return [
+        HealthItem(
+            label: "thermal",
+            value: analysis.thermalStates.joined(separator: "/"),
+            warning: analysis.thermalStates.contains { $0 != "nominal" }
+        ),
+        HealthItem(
+            label: "Low Power Mode",
+            value: analysis.lowPowerObserved ? "on" : "off",
+            warning: analysis.lowPowerObserved
+        ),
+        HealthItem(
+            label: "order bias",
+            value: overall.orientationEstimate.map { displayPercent(percent($0.center), decimals: 2) } ?? "n/a",
+            warning: hasUnstableOrderEffect(overall.orientationEstimate)
+        ),
+        HealthItem(
+            label: "within-process noise",
+            value: overall.withinProcessScaledMAD.map { String(format: "%.2f%%", percent($0)) } ?? "n/a",
+            warning: false
+        )
+    ]
 }
 
 private func markdownEscape(_ value: String) -> String {
     value.replacingOccurrences(of: "|", with: "\\|")
 }
 
+private func markdownTable(headers: [String], rows: [[String]], alignments: [ColumnAlignment]) -> [String] {
+    [
+        "| \(headers.map(markdownEscape).joined(separator: " | ")) |",
+        "| \(alignments.map { $0 == .left ? "---" : "---:" }.joined(separator: " | ")) |"
+    ] + rows.map { "| \($0.map(markdownEscape).joined(separator: " | ")) |" }
+}
+
 private func reportMarkdown(_ analysis: Analysis) -> String {
-    let baseRef = analysis.metadata["base_ref"] ?? "unknown"
-    let baseFormat = analysis.metadata["base_format"] ?? "unknown"
-    let compareRef = analysis.metadata["compare_ref"] ?? "unknown"
-    let compareFormat = analysis.metadata["compare_format"] ?? "unknown"
-    let inputs = analysis.metadata["inputs"] ?? "matching"
-    let harnessHash = String((analysis.metadata["harness_hash"] ?? "unknown").prefix(12))
+    let metadata = analysis.metadata
+    let baseRef = metadata["base_ref"] ?? "unknown"
+    let compareRef = metadata["compare_ref"] ?? "unknown"
+    let headline = verdictHeadline(analysis)
+    let overall = analysis.overallResult
+    let processCount = analysis.blockCount * analysis.preflights.count * 2
+    let comparisonAlignments: [ColumnAlignment] = [.left, .right, .right, .right, .right]
+
     var lines: [String] = [
-        "# DAWG Performance Comparison",
-        "",
-        "Paired, hot-cache thread CPU measurements. Positive change means the compare side is slower.",
-        "",
-        "- Base: `\(baseRef)` (`\(baseFormat)`)",
-        "- Compare: `\(compareRef)` (`\(compareFormat)`)",
-        "- Inputs: `\(inputs)`",
-        "- Harness fingerprint: `\(harnessHash)`",
-        "- Profile: `\(analysis.profile.rawValue)`",
-        "- Fresh module-paired workload processes / replicate groups / logical supercycles: \(analysis.blockCount * analysis.preflights.count * 2) / \(analysis.blockCount) / \(analysis.supercycleCount)",
-        "- Timed quartets: ABBA \(analysis.schedules["ABBA"] ?? 0), BAAB \(analysis.schedules["BAAB"] ?? 0)",
-        "- First-orientation phases: ABBA-first \(analysis.phases["ABBA-first"] ?? 0), BAAB-first \(analysis.phases["BAAB-first"] ?? 0)",
-        "- Module assignments: normal \(analysis.moduleAssignments["normal"] ?? 0), crossed \(analysis.moduleAssignments["crossed"] ?? 0)",
-        "- Measured legs: \(analysis.legCount)",
-        "- Calibration records: \(analysis.calibrationRows.count)"
+        "# DAWG Performance: `\(baseRef)` → `\(compareRef)`",
+        ""
     ]
-    if analysis.metadata["diagnostic_snapshot"] == "1" {
-        lines.insert(
-            contentsOf: [
-                "> **Diagnostic snapshot:** use this invocation only for local inspection. Results from separate invocations are not comparable.",
-                ""
-            ],
-            at: 4
-        )
+    if metadata["diagnostic_snapshot"] == "1" {
+        lines += [
+            "> **Diagnostic snapshot:** use this invocation only for local inspection. Results from separate invocations are not comparable.",
+            ""
+        ]
     }
-    if let verdict = analysis.verdict {
-        lines.append("- Primary: `overall` — **\(verdict.rawValue)**")
-    } else {
-        lines.append("- Run-level verdict: not evaluated by the quick profile")
-    }
+    let overallText = overall.estimate.map {
+        "overall \(displayPercent(percent($0.center), decimals: 2)) (95% CI \(displayInterval($0)))"
+    } ?? "overall n/a"
+    lines += [
+        "**Verdict: \(headline.title)** — \(overallText). \(headline.explanation)",
+        "",
+        "## Run",
+        ""
+    ]
+    lines += markdownTable(
+        headers: ["", "Base", "Compare"],
+        rows: [
+            ["Ref", "`\(baseRef)`", "`\(compareRef)`"],
+            ["DAWG format", "`\(metadata["base_format"] ?? "unknown")`", "`\(metadata["compare_format"] ?? "unknown")`"]
+        ],
+        alignments: [.left, .left, .left]
+    )
     lines += [
         "",
-        "## Paired estimates",
-        "",
-        "Each workload replicate pairs fresh normal and crossed workers. They split the locally balanced ABBA+BAAB supercycles and both measure the bridge supercycle, whose module-specific values are averaged. The workload value is the 20% trimmed mean of logical supercycles. Aggregate metrics then average workload values within the same replicate index, and the run estimate uses a 20% trimmed mean with a one-sample 95% Yuen interval.",
-        "",
-        "| Metric | Kind | Estimate | 95% CI | Replicate MAD | Within-process MAD | ABBA − BAAB | Timed CPU A/B | Preflight | N (replicates/supercycles) |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |"
+        "- Profile: `\(analysis.profile.rawValue)` · \(analysis.blockCount) replicates · \(processCount) fresh worker processes",
+        "- Inputs: `\(metadata["inputs"] ?? "matching")`"
     ]
-    for result in analysis.displayedResults {
-        let estimateText: String
-        let intervalText: String
-        let madText: String
-        let withinProcessMADText = result.withinProcessScaledMAD.map { displayPercent(percent($0)) } ?? "n/a"
-        let orientationText = if let orientation = result.orientationEstimate {
-            "\(displayPercent(percent(orientation.center))) [\(displayPercent(percent(orientation.lower))), \(displayPercent(percent(orientation.upper)))]"
-        } else {
-            "n/a"
-        }
-        let totalCPUText = if
-            let base = result.baseTotalCPUNanoseconds,
-            let compare = result.compareTotalCPUNanoseconds
-        {
-            String(format: "%.1f/%.1f ms", base / 1_000_000, compare / 1_000_000)
-        } else {
-            "n/a"
-        }
-        if let estimate = result.estimate {
-            estimateText = displayPercent(percent(estimate.center))
-            intervalText = "\(displayPercent(percent(estimate.lower))) … \(displayPercent(percent(estimate.upper)))"
-            madText = displayPercent(percent(estimate.scaledMAD))
-        } else {
-            estimateText = "n/a"
-            intervalText = "n/a"
-            madText = "n/a"
-        }
-        lines.append("| \(markdownEscape(result.name)) | \(result.kind) | \(estimateText) | \(intervalText) | \(madText) | \(withinProcessMADText) | \(orientationText) | \(totalCPUText) | \(result.preflight.label) | \(result.processCount)/\(result.supercycleCount) |")
+    let machine = ["hardware_model", "cpu_model"].compactMap { metadata[$0] }
+        + [metadata["macos"].map { "macOS \($0)" }, metadata["xcode"].map { "Xcode \($0)" }].compactMap { $0 }
+    if !machine.isEmpty {
+        lines.append("- Machine: \(machine.joined(separator: " · "))")
     }
 
     lines += [
         "",
-        "### Process distribution diagnostics",
+        "## Results",
         "",
-        "| Metric | Median | Range | Trimmed per tail |",
-        "| --- | ---: | ---: | ---: |"
+        "CPU time per operation. Negative change means compare is faster.",
+        "",
+        "### By operation",
+        ""
     ]
-    for result in analysis.displayedResults {
-        if let estimate = result.estimate {
-            lines.append("| \(markdownEscape(result.name)) | \(displayPercent(percent(estimate.median))) | \(displayPercent(percent(estimate.minimum))) … \(displayPercent(percent(estimate.maximum))) | \(estimate.trimCount) |")
-        } else {
-            lines.append("| \(markdownEscape(result.name)) | n/a | n/a | n/a |")
-        }
+    lines += markdownTable(
+        headers: ["Operation", "Base", "Compare", "Change", "95% CI"],
+        rows: operationRows(analysis),
+        alignments: comparisonAlignments
+    )
+    let grid = workloadGrid(analysis)
+    lines += [
+        "",
+        "### By workload",
+        "",
+        "Change in %, ± 95% CI half-width.",
+        ""
+    ]
+    lines += markdownTable(
+        headers: grid.headers,
+        rows: grid.rows,
+        alignments: [.left] + Array(repeating: .right, count: grid.headers.count - 1)
+    )
+    if grid.hasChangedOutput {
+        lines += ["", "\\* Changed output: timed end to end but excluded from operation and overall estimates."]
+    }
+    lines += ["", "<details>", "<summary>Workload timings</summary>", ""]
+    lines += markdownTable(
+        headers: ["Workload", "Dictionary", "Base", "Compare", "Change", "95% CI", "Output"],
+        rows: analysis.workloadResults.map { result in
+            [result.name, result.language.map(dictionaryLabel) ?? "n/a"]
+                + comparisonCells(for: result)
+                + [result.preflight.comparable ? "equal" : "changed"]
+        },
+        alignments: [.left, .left, .right, .right, .right, .right, .left]
+    )
+    lines += ["", "</details>"]
+
+    lines += ["", "## Run health", ""]
+    for item in runHealthItems(analysis) {
+        let label = item.label.prefix(1).uppercased() + item.label.dropFirst()
+        lines.append("- \(label): \(item.value)\(item.warning ? " — **warning**" : "")")
+    }
+    let changed = analysis.workloadResults.filter { !$0.preflight.comparable }.map(\.name)
+    if !changed.isEmpty {
+        lines.append("- Changed-output workloads: \(changed.map { "`\(markdownEscape($0))`" }.joined(separator: ", "))")
     }
 
     lines += [
         "",
-        "## Absolute CPU diagnostics",
+        "## Retained memory",
         "",
-        "Absolute medians are diagnostic only and must not be compared across separate invocations or machines.",
-        "",
-        "| Metric | Base (ns/op) | Compare (ns/op) | Base wall/CPU | Compare wall/CPU |",
-        "| --- | ---: | ---: | ---: | ---: |"
-    ]
-    for result in analysis.displayedResults {
-        func display(_ value: Double?) -> String {
-            value.map { String(format: "%.3f", $0) } ?? "n/a"
-        }
-        lines.append("| \(markdownEscape(result.name)) | \(display(result.baseNormalizedCPU)) | \(display(result.compareNormalizedCPU)) | \(display(result.baseWallCPURatio)) | \(display(result.compareWallCPURatio)) |")
-    }
-
-    lines += [
-        "",
-        "## Retained-memory diagnostics",
-        "",
-        "This separate fresh-process physical-footprint probe is outside the timing analysis and never affects a verdict.",
+        "Median fresh-process physical-footprint delta after loading each dictionary. Diagnostic only; it never affects the verdict.",
         ""
     ]
     if let memoryResults = analysis.memoryResults {
-        lines += [
-            "| Language | Side | Median delta (MiB) | Samples | Dictionary words |",
-            "| --- | --- | ---: | ---: | ---: |"
-        ]
-        for result in memoryResults {
-            lines.append("| \(markdownEscape(result.language)) | \(result.side) | \(String(format: "%.3f", result.medianDeltaBytes / 1_048_576)) | \(result.sampleCount) | \(result.dictionaryCount) |")
-        }
+        lines += markdownTable(
+            headers: ["Dictionary", "Base (MiB)", "Compare (MiB)", "Delta (MiB)", "Samples A/B", "Words"],
+            rows: memoryRows(memoryResults, analysis: analysis).map { row in
+                let words = [row.base, row.compare].compactMap { $0 }.map(\.dictionaryCount)
+                return [
+                    dictionaryLabel(row.language),
+                    mebibytes(row.base?.medianDeltaBytes),
+                    mebibytes(row.compare?.medianDeltaBytes),
+                    mebibytes(row.deltaBytes, signed: true),
+                    "\(row.base.map { String($0.sampleCount) } ?? "-")/\(row.compare.map { String($0.sampleCount) } ?? "-")",
+                    Set(words).count == 1 ? String(words[0]) : words.map(String.init).joined(separator: "/")
+                ]
+            },
+            alignments: [.left, .right, .right, .right, .right, .right]
+        )
     } else {
         lines.append("_Retained-memory probe was not requested._")
     }
 
-    let changed = analysis.workloadResults.filter { !$0.preflight.comparable }.map(\.name)
-    if !changed.isEmpty {
-        lines += [
-            "",
-            "> Changed-output workloads are timed end to end but excluded from operation aggregates and automatic verdicts: \(changed.map { "`\(markdownEscape($0))`" }.joined(separator: ", "))."
-        ]
-    }
     lines += [
         "",
-        "Thermal states observed: \(analysis.thermalStates.map { "`\($0)`" }.joined(separator: ", ")). Low Power Mode observed: \(analysis.lowPowerObserved ? "yes" : "no").",
+        "## How to read",
+        "",
+        "- **Change** compares paired thread CPU time of compare against base; negative means compare is faster.",
+        "- **95% CI** is the one-sample Yuen interval of the 20% trimmed mean across replicates.",
+        "- **Verdict** uses only the `overall` estimate against a ±1% practical margin; per-operation and per-workload rows are diagnostic.",
+        "- **Base/Compare** times are paired estimates from this run. Never compare absolute timings across runs, machines, or toolchains.",
+        "",
+        "<details>",
+        "<summary>Statistical diagnostics</summary>",
+        "",
+        "Each workload replicate pairs fresh normal and crossed workers. They split the locally balanced ABBA+BAAB supercycles and both measure the bridge supercycle, whose module-specific values are averaged. The workload value is the 20% trimmed mean of logical supercycles. Aggregate metrics then average workload values within the same replicate index, and the run estimate uses a 20% trimmed mean with a one-sample 95% Yuen interval.",
+        "",
+        "- Harness fingerprint: `\(String((metadata["harness_hash"] ?? "unknown").prefix(12)))`",
+        "- Replicate groups / logical supercycles / measured legs: \(analysis.blockCount) / \(analysis.supercycleCount) / \(analysis.legCount)",
+        "- Timed quartets: ABBA \(analysis.schedules["ABBA"] ?? 0), BAAB \(analysis.schedules["BAAB"] ?? 0)",
+        "- First-orientation phases: ABBA-first \(analysis.phases["ABBA-first"] ?? 0), BAAB-first \(analysis.phases["BAAB-first"] ?? 0)",
+        "- Module assignments: normal \(analysis.moduleAssignments["normal"] ?? 0), crossed \(analysis.moduleAssignments["crossed"] ?? 0)",
+        "- Calibration records: \(analysis.calibrationRows.count)",
         ""
     ]
+    lines += markdownTable(
+        headers: [
+            "Metric", "Estimate", "95% CI", "Replicate MAD", "Within-process MAD", "ABBA − BAAB",
+            "Timed CPU A/B", "Preflight", "N (replicates/supercycles)"
+        ],
+        rows: analysis.displayedResults.map { result in
+            let orientationText = result.orientationEstimate.map {
+                "\(displayPercent(percent($0.center))) [\(displayPercent(percent($0.lower))), \(displayPercent(percent($0.upper)))]"
+            } ?? "n/a"
+            let totalCPUText = if
+                let base = result.baseTotalCPUNanoseconds,
+                let compare = result.compareTotalCPUNanoseconds
+            {
+                String(format: "%.1f/%.1f ms", base / 1_000_000, compare / 1_000_000)
+            } else {
+                "n/a"
+            }
+            return [
+                result.name,
+                result.estimate.map { displayPercent(percent($0.center)) } ?? "n/a",
+                result.estimate.map { displayInterval($0, decimals: 3) } ?? "n/a",
+                result.estimate.map { displayPercent(percent($0.scaledMAD)) } ?? "n/a",
+                result.withinProcessScaledMAD.map { displayPercent(percent($0)) } ?? "n/a",
+                orientationText,
+                totalCPUText,
+                result.preflight.label,
+                "\(result.processCount)/\(result.supercycleCount)"
+            ]
+        },
+        alignments: [.left, .right, .right, .right, .right, .right, .right, .left, .right]
+    )
+    lines += [""]
+    lines += markdownTable(
+        headers: ["Metric", "Median", "Range", "Trimmed per tail", "Base (ns/op)", "Compare (ns/op)", "Base wall/CPU", "Compare wall/CPU"],
+        rows: analysis.displayedResults.map { result in
+            func display(_ value: Double?) -> String {
+                value.map { String(format: "%.3f", $0) } ?? "n/a"
+            }
+            return [
+                result.name,
+                result.estimate.map { displayPercent(percent($0.median)) } ?? "n/a",
+                result.estimate.map { "\(displayPercent(percent($0.minimum))) … \(displayPercent(percent($0.maximum)))" } ?? "n/a",
+                result.estimate.map { String($0.trimCount) } ?? "n/a",
+                display(result.baseNormalizedCPU),
+                display(result.compareNormalizedCPU),
+                display(result.baseWallCPURatio),
+                display(result.compareWallCPURatio)
+            ]
+        },
+        alignments: [.left, .right, .right, .right, .right, .right, .right, .right]
+    )
+    lines += ["", "</details>", ""]
     return lines.joined(separator: "\n")
 }
 
 private func conciseText(_ analysis: Analysis, outputDirectory: URL) -> String {
-    let base = analysis.metadata["base_ref"] ?? "unknown"
-    let baseFormat = analysis.metadata["base_format"] ?? "unknown"
-    let compare = analysis.metadata["compare_ref"] ?? "unknown"
-    let compareFormat = analysis.metadata["compare_format"] ?? "unknown"
+    let metadata = analysis.metadata
+    let headline = verdictHeadline(analysis)
+    let processCount = analysis.blockCount * analysis.preflights.count * 2
     var lines: [String] = [
-        "DAWG performance comparison",
-        "Base:    \(base) (\(baseFormat))",
-        "Compare: \(compare) (\(compareFormat))",
-        "Profile: \(analysis.profile.rawValue) (\(analysis.blockCount) paired replicates; \(analysis.metadata["inputs"] ?? "matching") inputs)"
+        "DAWG performance: \(metadata["base_ref"] ?? "unknown") (\(metadata["base_format"] ?? "unknown")) → \(metadata["compare_ref"] ?? "unknown") (\(metadata["compare_format"] ?? "unknown"))",
+        "\(analysis.profile.rawValue) profile · \(analysis.blockCount) replicates (\(processCount) processes) · \(metadata["inputs"] ?? "matching") inputs"
     ]
-    if analysis.metadata["diagnostic_snapshot"] == "1" {
-        lines.insert(
-            "DIAGNOSTIC SNAPSHOT: use only for local inspection; separate invocations are not comparable.",
-            at: 1
+    if metadata["diagnostic_snapshot"] == "1" {
+        lines.append("DIAGNOSTIC SNAPSHOT: use only for local inspection; separate invocations are not comparable.")
+    }
+
+    lines += ["", "Verdict: \(headline.title)"]
+    if let estimate = analysis.overallResult.estimate {
+        lines.append("  overall \(displayPercent(percent(estimate.center), decimals: 2))  95% CI \(displayInterval(estimate))")
+    }
+    lines.append("  \(headline.explanation)")
+
+    lines += ["", "By operation (CPU time per operation; negative change = compare is faster)"]
+    lines += alignedTable(
+        headers: ["Operation", "Base", "Compare", "Change", "95% CI"],
+        rows: operationRows(analysis),
+        alignments: [.left, .right, .right, .right, .right]
+    )
+
+    let grid = workloadGrid(analysis)
+    lines += ["", "Change by workload (%, ± 95% CI half-width)"]
+    lines += alignedTable(
+        headers: grid.headers,
+        rows: grid.rows,
+        alignments: [.left] + Array(repeating: .right, count: grid.headers.count - 1)
+    )
+    if grid.hasChangedOutput {
+        lines.append("  * changed output: excluded from operation and overall estimates")
+    }
+
+    if let memoryResults = analysis.memoryResults {
+        let rows = memoryRows(memoryResults, analysis: analysis)
+        let sampleCounts = Set(memoryResults.map(\.sampleCount))
+        let samplesText = sampleCounts.count == 1
+            ? "median of \(sampleCounts.first!) fresh-process sample\(sampleCounts.first! == 1 ? "" : "s")"
+            : "median of fresh-process samples"
+        lines += ["", "Retained memory (MiB, \(samplesText); diagnostic only)"]
+        lines += alignedTable(
+            headers: ["Dictionary", "Base", "Compare", "Delta"],
+            rows: rows.map { row in
+                [
+                    dictionaryLabel(row.language),
+                    mebibytes(row.base?.medianDeltaBytes),
+                    mebibytes(row.compare?.medianDeltaBytes),
+                    mebibytes(row.deltaBytes, signed: true)
+                ]
+            },
+            alignments: [.left, .right, .right, .right]
         )
     }
 
-    if let estimate = analysis.overallResult.estimate {
-        lines += [
-            "",
-            "Overall: \(displayPercent(percent(estimate.center)))  95% CI [\(displayPercent(percent(estimate.lower))), \(displayPercent(percent(estimate.upper)))]"
-        ]
-    }
-    if let verdict = analysis.verdict {
-        let estimateText = analysis.overallResult.estimate.map { displayPercent(percent($0.center)) } ?? "n/a"
-        let intervalText = analysis.overallResult.estimate.map { "[\(displayPercent(percent($0.lower))), \(displayPercent(percent($0.upper)))]" } ?? "n/a"
-        lines.append("Primary overall: \(estimateText)  95% CI \(intervalText)  \(verdict.rawValue)")
-    } else {
-        lines.append("Verdict: not evaluated (quick profile)")
-    }
-
+    let healthItems = runHealthItems(analysis)
     lines += [
         "",
-        "Paired thread CPU time per operation (lower is better)",
-        "Base/Compare are normalized paired estimates; Change and CI are the decision metrics.",
-        ""
+        "Run health: " + healthItems.map { "\($0.warning ? "! " : "")\($0.label) \($0.value)" }.joined(separator: " · ")
     ]
-    lines += consoleComparisonTable(
-        title: "Operations",
-        firstColumn: "Operation",
-        results: analysis.operationResults
-    )
-    lines.append("")
-    lines += consoleComparisonTable(
-        title: "Workloads",
-        firstColumn: "Test",
-        results: analysis.workloadResults
-    )
-    if let memoryResults = analysis.memoryResults {
-        lines.append("")
-        lines += consoleMemoryTable(memoryResults)
+    if healthItems.contains(where: \.warning) {
+        lines.append("  ! may distort timings; consider re-running")
     }
-
-    let changed = analysis.workloadResults.filter { !$0.preflight.comparable }.count
-    if changed > 0 {
-        lines += [
-            "",
-            "* Changed-output workloads are excluded from aggregate estimates: \(changed)"
-        ]
-    }
-    let overallMAD = analysis.overallResult.withinProcessScaledMAD.map { displayPercent(percent($0)) } ?? "n/a"
-    let orderBias = analysis.overallResult.orientationEstimate.map { displayPercent(percent($0.center)) } ?? "n/a"
-    lines += [
-        "",
-        "Quality: within-process MAD \(overallMAD); ABBA-BAAB \(orderBias); thermal \(analysis.thermalStates.joined(separator: ","))"
-    ]
-    if analysis.metadata["artifacts_persisted"] == "false" {
+    if metadata["artifacts_persisted"] == "false" {
         lines.append("Detailed artifacts: not saved (use --save-artifacts or --output-dir DIR)")
     } else {
         lines += [
@@ -2260,12 +2442,14 @@ private func runSelfTests() throws {
     try expect(absoluteCPU?["baseTimedNanosecondsPerProcess"] is NSNumber, "summary reports total timed CPU per side")
     _ = try JSONSerialization.data(withJSONObject: summary, options: [.prettyPrinted, .sortedKeys])
     let markdown = reportMarkdown(changedAnalysis)
-    try expect(markdown.contains("Retained-memory diagnostics") && markdown.contains("1.000"), "memory diagnostics stay outside timing table")
+    try expect(markdown.contains("## Retained memory") && markdown.contains("| en | 1.000 | 1.500 | +0.500 | 3/3 | 42 |"), "Markdown pivots retained memory by dictionary")
+    try expect(markdown.contains("<summary>Statistical diagnostics</summary>"), "Markdown collapses statistical diagnostics")
+    try expect(markdown.contains("**Verdict: not evaluated (quick profile)**"), "Markdown leads with the verdict")
     try expect(!markdown.contains("| Status |"), "main table omits per-result status")
     let memoryText = conciseText(changedAnalysis, outputDirectory: URL(fileURLWithPath: "/tmp"))
-    try expect(memoryText.contains("Retained dictionary memory"), "text prints retained-memory diagnostics")
-    try expect(memoryText.contains("1.000 MiB") && memoryText.contains("1.500 MiB"), "text prints retained memory for both sides")
-    try expect(memoryText.contains("+0.500 MiB") && memoryText.contains("3/3"), "text prints retained-memory delta and sample counts")
+    try expect(memoryText.contains("Retained memory (MiB, median of 3 fresh-process samples; diagnostic only)"), "text prints retained-memory diagnostics")
+    try expect(memoryText.contains("1.000") && memoryText.contains("1.500"), "text prints retained memory for both sides")
+    try expect(memoryText.contains("+0.500"), "text prints retained-memory delta")
 
     let diagnosticAnalysis = try analyze(
         legs: changedLegs,
@@ -2280,9 +2464,9 @@ private func runSelfTests() throws {
     try expect(reportMarkdown(diagnosticAnalysis).contains("**Diagnostic snapshot:**"), "Markdown labels diagnostic snapshots")
     let diagnosticText = conciseText(diagnosticAnalysis, outputDirectory: URL(fileURLWithPath: "/tmp"))
     try expect(diagnosticText.contains("DIAGNOSTIC SNAPSHOT"), "text labels diagnostic snapshots")
-    try expect(diagnosticText.contains("Operations") && diagnosticText.contains("Workloads"), "text prints comparison tables")
-    try expect(diagnosticText.contains("Base") && diagnosticText.contains("Compare") && diagnosticText.contains("Delta"), "text prints XCTest-style columns")
-    try expect(diagnosticText.contains("contains-fr*"), "text marks changed-output workloads")
+    try expect(diagnosticText.contains("By operation") && diagnosticText.contains("Change by workload"), "text prints comparison tables")
+    try expect(diagnosticText.contains("Base") && diagnosticText.contains("Compare") && diagnosticText.contains("Change"), "text prints comparison columns")
+    try expect(diagnosticText.contains("changed*") && diagnosticText.contains("* changed output"), "text marks changed-output workloads")
     try expect(!diagnosticText.contains("Paired estimates:"), "text omits verbose per-result diagnostics")
     try expect(diagnosticText.contains("Verdict: not evaluated (quick profile)"), "text explains the quick-profile verdict")
     try expect(diagnosticText.contains("Detailed artifacts: not saved"), "text reports ephemeral local artifacts")
@@ -2309,7 +2493,8 @@ private func runSelfTests() throws {
     try expect(selectedAnalysis.operationResults.allSatisfy { $0.classification == .notEvaluated }, "operation rows do not receive verdicts")
     try expect(selectedAnalysis.overallResult.classification == .notEvaluated, "displayed overall row remains diagnostic")
     let selectedText = conciseText(selectedAnalysis, outputDirectory: URL(fileURLWithPath: "/tmp"))
-    try expect(selectedText.contains("Primary overall") && selectedText.contains("regression"), "text highlights the fixed overall verdict")
+    try expect(selectedText.contains("Verdict: REGRESSION") && selectedText.contains("Compare is slower"), "text highlights the fixed overall verdict")
+    try expect(selectedText.components(separatedBy: "  overall ").count == 2 && !selectedText.contains("Primary overall"), "text reports the overall estimate once")
     try expect(!selectedText.contains("not-evaluated"), "text metric rows omit per-result status")
 
     let (orderBiasedLegs, orderBiasedPreflights) = testLegs(
