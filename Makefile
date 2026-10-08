@@ -44,6 +44,7 @@ install-hooks:
 		'' \
 		'mise install --quiet' \
 		'mise exec -- git-format-staged --formatter "mise exec -- swiftformat stdin --stdin-path '"'"'{}'"'"'" "*.swift"' \
+		'mise exec -- git-format-staged --formatter "mise exec -- jq --sort-keys --compact-output --join-output ." "Marketing/AppStore/Scrabbdict.butterkit/Document.json"' \
 		> "$(HOOK)"
 	@chmod +x "$(HOOK)"
 	@echo "Installed $(HOOK)"
