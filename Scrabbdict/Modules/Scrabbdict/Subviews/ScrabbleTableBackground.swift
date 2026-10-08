@@ -7,6 +7,8 @@
 import SwiftUI
 
 struct ScrabbleTableBackground: View {
+    @Environment(\.rasterizesTableBackground) var rasterizesTableBackground
+
     var body: some View {
         GeometryReader { proxy in
             let boardWidth = min(proxy.size.width * 0.60, 340)
@@ -35,8 +37,6 @@ struct ScrabbleTableBackground: View {
             )
 
             ZStack {
-                tableBase
-
                 ScrabbleCornerBoard(
                     tiles: [
                         ScrabbleBackgroundTile(letter: "S", points: 1, column: 1, row: 1),
@@ -75,10 +75,20 @@ struct ScrabbleTableBackground: View {
 
                 centerVeil
             }
+            .drawingGroup(if: rasterizesTableBackground)
+            .background {
+                tableBase
+            }
         }
         .ignoresSafeArea()
         .accessibilityHidden(true)
     }
+}
+
+extension EnvironmentValues {
+    /// Flattens the table background into a single bitmap for smoother scrolling.
+    /// Snapshot tests disable it because it makes the scroll edge effect capture unstable on CI.
+    @Entry var rasterizesTableBackground = true
 }
 
 private extension ScrabbleTableBackground {
@@ -117,6 +127,17 @@ private extension ScrabbleTableBackground {
             startRadius: 40,
             endRadius: 500
         )
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func drawingGroup(if isEnabled: Bool) -> some View {
+        if isEnabled {
+            drawingGroup()
+        } else {
+            self
+        }
     }
 }
 

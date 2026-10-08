@@ -7,6 +7,7 @@
 import SnapshotTesting
 import SwiftUI
 import UIKit
+@testable import Scrabbdict
 
 private extension Snapshotting where Value: View, Format == UIImage {
     static func sRGBImage(
@@ -31,7 +32,7 @@ private extension Snapshotting where Value: View, Format == UIImage {
 }
 
 private extension ViewImageConfig {
-    static let iPhone17Pro = ViewImageConfig(
+    static let iPhonePro = ViewImageConfig(
         safeArea: .init(top: 62, left: 0, bottom: 34, right: 0),
         size: .init(width: 402, height: 874),
         traits: UITraitCollection { traits in
@@ -43,7 +44,7 @@ private extension ViewImageConfig {
     )
 
     static let iPad13 = ViewImageConfig(
-        safeArea: .init(top: 24, left: 0, bottom: 20, right: 0),
+        safeArea: .init(top: 32, left: 0, bottom: 20, right: 0),
         size: .init(width: 1032, height: 1376),
         traits: UITraitCollection { traits in
             traits.userInterfaceIdiom = .pad
@@ -80,7 +81,7 @@ func assert(
 @MainActor
 private func assertScreenSnapshots(
     deviceConfigs: [(ViewImageConfig, String)] = [
-        (.iPhone17Pro, ""),
+        (.iPhonePro, ""),
         (.iPad13, "pad.")
     ],
     locales: [Locale] = [
@@ -141,6 +142,7 @@ private func fixedScreen(
     dynamicTypeSize: DynamicTypeSize
 ) -> some View {
     content
+        .environment(\.rasterizesTableBackground, false)
         .environment(\.colorScheme, colorScheme)
         .environment(\.locale, locale)
         .environment(\.dynamicTypeSize, dynamicTypeSize)
