@@ -237,19 +237,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Which dictionary and search mode you use, the type of search, and whether a checked word is valid."
+            "value" : "Which dictionary and search mode you use, the type of search, whether a checked word is valid, and when you open Settings or its privacy policy link."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le dictionnaire et le mode de recherche utilisés, le type de recherche et la validité d'un mot vérifié."
+            "value" : "Le dictionnaire et le mode de recherche utilisés, le type de recherche, la validité d'un mot vérifié et l'ouverture des Réglages ou de leur lien vers la politique de confidentialité."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Używany słownik i tryb wyszukiwania, rodzaj wyszukiwania oraz to, czy sprawdzane słowo jest poprawne."
+            "value" : "Używany słownik i tryb wyszukiwania, rodzaj wyszukiwania, to, czy sprawdzane słowo jest poprawne, oraz otwarcie Ustawień lub zawartego w nich linku do polityki prywatności."
           }
         }
       }
@@ -1167,19 +1167,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Statistics sent through Google Analytics show which dictionaries and search modes are used. The words you type are never shared. Crash reports are always sent so bugs can be fixed."
+            "value" : "Statistics sent through Google Analytics show which dictionaries, search modes, and app features are used. The words you type are never shared. Crash reports are always sent so bugs can be fixed."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les statistiques envoyées via Google Analytics indiquent quels dictionnaires et modes de recherche sont utilisés. Les mots saisis ne sont jamais partagés. Les rapports de plantage sont toujours envoyés afin de corriger les bugs."
+            "value" : "Les statistiques envoyées via Google Analytics indiquent quels dictionnaires, modes de recherche et fonctionnalités de l'app sont utilisés. Les mots saisis ne sont jamais partagés. Les rapports de plantage sont toujours envoyés afin de corriger les bugs."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Statystyki przesyłane przez Google Analytics pokazują, jakie słowniki i tryby wyszukiwania są używane. Wpisywane słowa nigdy nie są udostępniane. Raporty awarii są wysyłane zawsze, aby można było naprawiać błędy."
+            "value" : "Statystyki przesyłane przez Google Analytics pokazują, jakie słowniki, tryby wyszukiwania i funkcje aplikacji są używane. Wpisywane słowa nigdy nie są udostępniane. Raporty awarii są wysyłane zawsze, aby można było naprawiać błędy."
           }
         }
       }
