@@ -30,6 +30,7 @@ private final class AnalyticsEventRecorder: @unchecked Sendable {
             logRegexSearch: { [self] language in
                 append(.regexSearch(language))
             },
+            logSettingsOpened: {},
             logTilesSearch: { [self] language in
                 append(.tilesSearch(language))
             },
@@ -77,6 +78,7 @@ final class ValidatorTests: XCTestCase {
                 logModeChanged: { _ in },
                 logPrivacyPolicyOpened: {},
                 logRegexSearch: { _ in },
+                logSettingsOpened: {},
                 logTilesSearch: { _ in },
                 logWordChecked: { _, _ in }
             )

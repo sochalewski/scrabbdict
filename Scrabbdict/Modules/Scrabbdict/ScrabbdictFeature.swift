@@ -164,6 +164,7 @@ private extension ScrabbdictFeature {
             state.isSearchFocused = false
             state.isSearchModePickerExpanded = false
             state.destination = .settings(.init())
+            analytics.logSettingsOpened()
             return .none
         }
     }

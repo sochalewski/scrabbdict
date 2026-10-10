@@ -14,6 +14,7 @@ struct AnalyticsClient: Sendable {
     var logModeChanged: @Sendable (SearchMode) -> Void
     var logPrivacyPolicyOpened: @Sendable () -> Void
     var logRegexSearch: @Sendable (Language) -> Void
+    var logSettingsOpened: @Sendable () -> Void
     var logTilesSearch: @Sendable (Language) -> Void
     var logWordChecked: @Sendable (Language, Bool) -> Void
 }
@@ -45,6 +46,9 @@ extension AnalyticsClient: DependencyKey {
         logRegexSearch: { language in
             logEvent("regex", parameters: ["language": language.rawValue])
         },
+        logSettingsOpened: {
+            logEvent("settings_opened")
+        },
         logTilesSearch: { language in
             logEvent("tiles", parameters: ["language": language.rawValue])
         },
@@ -59,6 +63,7 @@ extension AnalyticsClient: DependencyKey {
         logModeChanged: unimplemented("\(Self.self).logModeChanged"),
         logPrivacyPolicyOpened: unimplemented("\(Self.self).logPrivacyPolicyOpened"),
         logRegexSearch: unimplemented("\(Self.self).logRegexSearch"),
+        logSettingsOpened: unimplemented("\(Self.self).logSettingsOpened"),
         logTilesSearch: unimplemented("\(Self.self).logTilesSearch"),
         logWordChecked: unimplemented("\(Self.self).logWordChecked")
     )
@@ -69,6 +74,7 @@ extension AnalyticsClient: DependencyKey {
         logModeChanged: { _ in },
         logPrivacyPolicyOpened: {},
         logRegexSearch: { _ in },
+        logSettingsOpened: {},
         logTilesSearch: { _ in },
         logWordChecked: { _, _ in }
     )

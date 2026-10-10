@@ -14,6 +14,7 @@ final class ScrabbdictFeatureTests: XCTestCase {
         let store = TestStore(initialState: ScrabbdictFeature.State()) {
             ScrabbdictFeature()
         } withDependencies: {
+            $0.analyticsClient.logSettingsOpened = {}
             $0.analyticsConsentStorage.current = { .denied }
             $0.languageStorage.current = { .polish }
         }
@@ -24,6 +25,22 @@ final class ScrabbdictFeatureTests: XCTestCase {
         await store.send(.destination(.presented(.settings(.view(.loaded))))) {
             $0.destination = .settings(SettingsFeature.State(selectedLanguage: .polish))
         }
+    }
+
+    func testSettingsButtonTappedLogsEvent() async {
+        let loggedEventsCount = LockIsolated(0)
+        let store = TestStore(initialState: ScrabbdictFeature.State()) {
+            ScrabbdictFeature()
+        } withDependencies: {
+            $0.analyticsClient.logSettingsOpened = {
+                loggedEventsCount.withValue { $0 += 1 }
+            }
+        }
+
+        await store.send(.view(.settingsButtonTapped)) {
+            $0.destination = .settings(SettingsFeature.State())
+        }
+        XCTAssertEqual(loggedEventsCount.value, 1)
     }
 
     func testClearButtonClearsQueryAndOutput() async {
@@ -49,6 +66,8 @@ final class ScrabbdictFeatureTests: XCTestCase {
     func testFocusBindingAndDefocusActions() async {
         let store = TestStore(initialState: ScrabbdictFeature.State()) {
             ScrabbdictFeature()
+        } withDependencies: {
+            $0.analyticsClient.logSettingsOpened = {}
         }
 
         await store.send(\.binding.isSearchFocused, true) {
@@ -557,6 +576,8 @@ final class ScrabbdictFeatureTests: XCTestCase {
             )
         ) {
             ScrabbdictFeature()
+        } withDependencies: {
+            $0.analyticsClient.logSettingsOpened = {}
         }
 
         await store.send(.view(.settingsButtonTapped)) {
