@@ -163,6 +163,10 @@ private extension SettingsView {
                         .font(.callout.weight(.semibold))
                         .foregroundStyle(.settingsAccent)
                 }
+                .environment(\.openURL, OpenURLAction { _ in
+                    send(.privacyPolicyTapped)
+                    return .systemAction
+                })
             }
         }
     }

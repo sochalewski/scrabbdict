@@ -24,6 +24,7 @@ struct SettingsFeature {
             case analyticsToggled(Bool)
             case closeButtonTapped
             case languageSelected(Language)
+            case privacyPolicyTapped
         }
 
         enum DelegateAction: Hashable, Sendable {
@@ -61,6 +62,9 @@ struct SettingsFeature {
                     languageStorage.setCurrent(language)
                     analytics.logLanguageChanged(language)
                     return .send(.delegate(.languageUpdated))
+                case .privacyPolicyTapped:
+                    analytics.logPrivacyPolicyOpened()
+                    return .none
                 }
             case .delegate:
                 return .none

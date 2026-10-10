@@ -12,6 +12,7 @@ struct AnalyticsClient: Sendable {
     var applyConsent: @Sendable (AnalyticsConsent) -> Void
     var logLanguageChanged: @Sendable (Language) -> Void
     var logModeChanged: @Sendable (SearchMode) -> Void
+    var logPrivacyPolicyOpened: @Sendable () -> Void
     var logRegexSearch: @Sendable (Language) -> Void
     var logTilesSearch: @Sendable (Language) -> Void
     var logWordChecked: @Sendable (Language, Bool) -> Void
@@ -38,6 +39,9 @@ extension AnalyticsClient: DependencyKey {
         logModeChanged: { searchMode in
             logEvent("mode_changed", parameters: ["mode": searchMode.name])
         },
+        logPrivacyPolicyOpened: {
+            logEvent("privacy_policy_opened")
+        },
         logRegexSearch: { language in
             logEvent("regex", parameters: ["language": language.rawValue])
         },
@@ -53,6 +57,7 @@ extension AnalyticsClient: DependencyKey {
         applyConsent: unimplemented("\(Self.self).applyConsent"),
         logLanguageChanged: unimplemented("\(Self.self).logLanguageChanged"),
         logModeChanged: unimplemented("\(Self.self).logModeChanged"),
+        logPrivacyPolicyOpened: unimplemented("\(Self.self).logPrivacyPolicyOpened"),
         logRegexSearch: unimplemented("\(Self.self).logRegexSearch"),
         logTilesSearch: unimplemented("\(Self.self).logTilesSearch"),
         logWordChecked: unimplemented("\(Self.self).logWordChecked")
@@ -62,6 +67,7 @@ extension AnalyticsClient: DependencyKey {
         applyConsent: { _ in },
         logLanguageChanged: { _ in },
         logModeChanged: { _ in },
+        logPrivacyPolicyOpened: {},
         logRegexSearch: { _ in },
         logTilesSearch: { _ in },
         logWordChecked: { _, _ in }
@@ -76,7 +82,7 @@ extension DependencyValues {
 }
 
 // Guards against Firebase's persisted collection state diverging from the stored consent.
-private func logEvent(_ name: String, parameters: [String: Any]) {
+private func logEvent(_ name: String, parameters: [String: Any]? = nil) {
     @Dependency(\.analyticsConsentStorage) var consentStorage
 
     guard consentStorage.current() == .granted else { return }

@@ -128,4 +128,18 @@ final class SettingsFeatureTests: XCTestCase {
         }
         XCTAssertEqual(events.value, ["store.granted", "apply.granted", "store.denied", "apply.denied"])
     }
+
+    func testPrivacyPolicyTappedLogsEvent() async {
+        let loggedEventsCount = LockIsolated(0)
+        let store = TestStore(initialState: SettingsFeature.State()) {
+            SettingsFeature()
+        } withDependencies: {
+            $0.analyticsClient.logPrivacyPolicyOpened = {
+                loggedEventsCount.withValue { $0 += 1 }
+            }
+        }
+
+        await store.send(.view(.privacyPolicyTapped))
+        XCTAssertEqual(loggedEventsCount.value, 1)
+    }
 }

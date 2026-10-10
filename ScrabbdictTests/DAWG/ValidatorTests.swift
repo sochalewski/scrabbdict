@@ -26,6 +26,7 @@ private final class AnalyticsEventRecorder: @unchecked Sendable {
             applyConsent: { _ in },
             logLanguageChanged: { _ in },
             logModeChanged: { _ in },
+            logPrivacyPolicyOpened: {},
             logRegexSearch: { [self] language in
                 append(.regexSearch(language))
             },
@@ -74,6 +75,7 @@ final class ValidatorTests: XCTestCase {
                 applyConsent: { _ in },
                 logLanguageChanged: { _ in },
                 logModeChanged: { _ in },
+                logPrivacyPolicyOpened: {},
                 logRegexSearch: { _ in },
                 logTilesSearch: { _ in },
                 logWordChecked: { _, _ in }
