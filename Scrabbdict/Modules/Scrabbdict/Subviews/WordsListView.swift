@@ -10,36 +10,39 @@ struct WordsListView: View {
     let words: [Word]
 
     @Environment(\.resultContentLayout) var resultContentLayout
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.displayScale) var displayScale
     @ScaledMetric(relativeTo: .footnote) var pointsHorizontalPadding: CGFloat = 9
     @ScaledMetric(relativeTo: .footnote) var pointsVerticalPadding: CGFloat = 3
 
     var body: some View {
-        List(words, id: \.string) { word in
-            listRow(for: word, isFirst: word.string == words.first?.string)
+        ScrollView(.vertical) {
+            LazyVStack(spacing: 0) {
+                ForEach(words, id: \.string) { word in
+                    row(for: word)
+                }
+            }
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .frame(maxWidth: .infinity)
     }
 }
 
 private extension WordsListView {
-    func listRow(for word: Word, isFirst: Bool) -> some View {
+    var rowMargin: CGFloat {
+        horizontalSizeClass == .regular ? 20 : 16
+    }
+
+    func row(for word: Word) -> some View {
         rowContent(for: word)
             .padding(.horizontal, resultContentLayout.horizontalPadding)
             .frame(maxWidth: resultContentLayout.maxWidth)
-            .frame(maxWidth: .infinity)
-            .alignmentGuide(.listRowSeparatorLeading) { dimensions in
-                listRowSeparatorHorizontalInset(for: dimensions.width)
-            }
-            .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
-                dimensions.width - listRowSeparatorHorizontalInset(for: dimensions.width)
-            }
-            .listRowBackground(Color.clear)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(verbatim: word.string))
             .accessibilityValue(Text(.wordAccessibilityPoints(word.points)))
-            .listRowSeparator(isFirst ? .hidden : .automatic, edges: .top)
+            .padding(.vertical, 15)
+            .overlay(alignment: .bottom) {
+                separator
+            }
+            .padding(.horizontal, rowMargin)
     }
 
     func rowContent(for word: Word) -> some View {
@@ -59,13 +62,12 @@ private extension WordsListView {
         }
     }
 
-    func listRowSeparatorHorizontalInset(for rowWidth: CGFloat) -> CGFloat {
-        guard resultContentLayout.maxWidth.isFinite else {
-            return resultContentLayout.horizontalPadding
-        }
-
-        let constrainedWidth = min(rowWidth, resultContentLayout.maxWidth)
-        return ((rowWidth - constrainedWidth) / 2) + resultContentLayout.horizontalPadding
+    var separator: some View {
+        Rectangle()
+            .fill(Color(uiColor: .separator))
+            .frame(height: 1 / displayScale)
+            .padding(.horizontal, resultContentLayout.horizontalPadding)
+            .frame(maxWidth: resultContentLayout.maxWidth)
     }
 }
 
