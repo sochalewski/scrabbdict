@@ -1,5 +1,5 @@
 [tools]
-swiftformat = "0.63.1"
+swiftformat = "0.64.0"
 jq = "1.8.2"
 "npm:git-format-staged" = "4.0.2"
 
