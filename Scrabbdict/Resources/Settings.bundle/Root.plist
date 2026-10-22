@@ -67,7 +67,7 @@ Resolved Swift packages:
 - swift-navigation 2.11.2
 - swift-perception 2.0.12
 - swift-sharing 2.10.1
-- swift-snapshot-testing 1.19.6
+- swift-snapshot-testing 1.19.7
 
 Copyright (c) Point-Free, Inc.
 Primary source: https://github.com/pointfreeco/swift-composable-architecture
