@@ -38,15 +38,15 @@ private enum Profile: String {
     func samplingConfiguration(for operation: String) throws -> SamplingConfiguration {
         switch self {
         case .quick:
-            return SamplingConfiguration(supercycles: 3, targetNanoseconds: 9_000_000)
+            SamplingConfiguration(supercycles: 3, targetNanoseconds: 9_000_000)
         case .decision, .confirm:
             switch operation {
             case "load":
-                return SamplingConfiguration(supercycles: 3, targetNanoseconds: 17_000_000)
+                SamplingConfiguration(supercycles: 3, targetNanoseconds: 17_000_000)
             case "contains":
-                return SamplingConfiguration(supercycles: 7, targetNanoseconds: 8_000_000)
+                SamplingConfiguration(supercycles: 7, targetNanoseconds: 8_000_000)
             case "words", "pattern":
-                return SamplingConfiguration(supercycles: 5, targetNanoseconds: 10_000_000)
+                SamplingConfiguration(supercycles: 5, targetNanoseconds: 10_000_000)
             default:
                 throw AnalyzerError.invalid("Unknown calibrated operation: \(operation)")
             }
