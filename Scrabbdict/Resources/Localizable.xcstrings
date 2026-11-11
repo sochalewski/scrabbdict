@@ -665,7 +665,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nombre de mots :"
+            "value" : "Nombre de mots :"
           }
         },
         "pl" : {
@@ -1012,7 +1012,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adapte le mode de recherche à la saisie : vérifie un mot ou utilise ? comme Joker d'une lettre dans un motif."
+            "value" : "Adapte le mode de recherche à la saisie : vérifie un mot ou utilise ? comme Joker d'une lettre dans un motif."
           }
         },
         "pl" : {
